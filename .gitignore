@@ -12,3 +12,4 @@ models/
 *.gguf
 
 .idea
+/corpus/
