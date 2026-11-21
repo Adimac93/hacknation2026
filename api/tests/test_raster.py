@@ -353,3 +353,21 @@ def test_no_engine_at_all_is_a_service_error(
     with pytest.raises(UploadError) as err:
         raster.ocr_pages(iter([PageImage(white(100, 100))]), make(ocr_model_dir=tmp_path))
     assert err.value.status == 503
+
+
+def test_pages_read_in_parallel_keep_their_order(monkeypatch: pytest.MonkeyPatch) -> None:
+    import time
+
+    def read_page(pixels: Gray, settings: Settings) -> list[_Box]:
+        number = int(pixels[0, 0])
+        time.sleep(0.02 * (6 - number))  # later pages finish first
+        return [box(10, 10, 200, 30, f"Strona {number}")]
+
+    monkeypatch.setattr(raster, "_read_page", read_page)
+    monkeypatch.setattr(raster, "_ocr_workers", lambda: 4)
+    pages = [PageImage(np.full((50, 300), n, dtype=np.uint8)) for n in range(1, 6)]
+
+    doc = raster.ocr_pages(pages, Settings(_env_file=None))
+
+    assert [p.lines[0].text for p in doc.pages] == [f"Strona {n}" for n in range(1, 6)]
+    assert [p.number for p in doc.pages] == [1, 2, 3, 4, 5]

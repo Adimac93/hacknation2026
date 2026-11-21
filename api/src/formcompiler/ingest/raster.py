@@ -21,6 +21,7 @@ import shutil
 import statistics
 import subprocess
 from collections.abc import Iterable, Iterator
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
@@ -45,6 +46,8 @@ type Gray = NDArray[np.uint8]
 DET_MODEL = "PP-OCRv6_det_small.onnx"
 REC_MODEL = "PP-OCRv6_rec_small.onnx"
 PDF_DPI = 200
+OCR_THREADS_PER_PAGE = 2
+MAX_PARALLEL_PAGES = 4
 POINTS_PER_INCH = 72
 
 # Page splitting, research/01 question 4.
@@ -199,8 +202,11 @@ def ocr_pages(pages: Iterable[PageImage], settings: Settings, scale: float = 1.0
     ids = itertools.count(1)
     out: list[Page] = []
     tail: list[str] = []  # lines the previous page kept next to its bottom cut
-    for number, page in enumerate(pages, 1):
-        boxes = _read_page(page.pixels, settings)
+    images = list(pages)
+    # Pages are independent until _own, so they are read in parallel; map keeps their order.
+    with ThreadPoolExecutor(max_workers=_ocr_workers()) as pool:
+        read = list(pool.map(lambda image: _read_page(image.pixels, settings), images))
+    for number, (page, boxes) in enumerate(zip(images, read, strict=True), 1):
         if page.keep is not None:
             boxes, tail = _own(boxes, page.keep, tail)
         height, width = page.pixels.shape
@@ -279,8 +285,21 @@ def _rapidocr(model_dir: Path | None) -> RapidOCR | None:
     )
 
 
+def _cpus() -> int:
+    """CPUs this process may run on (the container's share, not the host's count)."""
+    if hasattr(os, "sched_getaffinity"):
+        return max(1, len(os.sched_getaffinity(0)))
+    return max(1, os.cpu_count() or 1)
+
+
 def _ocr_threads() -> int:
-    return max(1, min(4, len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else 4))
+    # Measured on form 9 (16 pages, M1 Pro): 4 threads x 1 page 20.9 s, 2 threads x 4 pages
+    # 13.9 s, 1 thread x 8 pages 14.7 s; same boxes in every setup.
+    return min(OCR_THREADS_PER_PAGE, _cpus())
+
+
+def _ocr_workers() -> int:
+    return max(1, min(MAX_PARALLEL_PAGES, _cpus() // _ocr_threads()))
 
 
 def ocr_available(settings: Settings) -> bool:
