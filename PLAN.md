@@ -51,7 +51,7 @@ Przy trzech osobach tor D dzielą między siebie A (API, compose) i C (frontend 
 |---|---|
 | Adimac93 | A (kompilator, linter, sekcje predefiniowane) i C (model, EdenAI, ewaluacja) |
 | Stanisław Synowiec | D: frontend `web/` |
-| fidok15 | B: ingest i OCR (do potwierdzenia) |
+| fidok15 | research OCR (`research/01`); tor B od 18:55 prowadzą agenci Adimac93: czytniki PDF i Tika (`ingest/pdf.py`, `office.py`), OCR obrazów (`ingest/raster.py`) |
 
 Pochodzenie pól z ramkami na PDF i tryb wsadowy wypadają (D16).
 
