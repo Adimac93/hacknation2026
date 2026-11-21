@@ -183,7 +183,9 @@ Szablon JSONata, składany wyłącznie przez kod:
 
 Negacja to `$not(...)`, łączenie przez `and` i `or`. Tytuły stron muszą być unikalne, bo warunek odwołuje się do strony przez tytuł.
 
-Walidatory zapisujemy jako listę nazw, np. `["REQUIRED", "PESEL"]`. W referencjach `validation` jest wszędzie puste, więc format wymaga potwierdzenia u mentorów (sekcja 14).
+Walidatory zapisujemy jako listę nazw, np. `["REQUIRED", "PESEL"]`. Potwierdza to `OpisImportowanegoPlikuJSON`: „tablica stringów przyjmująca nazwy predefiniowanych walidacji”. W referencji 1 kilka pól ma `validation: {}`; to błąd tego pliku, a kompilator zawsze zapisuje listę.
+
+Niespójności referencji, które pomija test odwracalności (`api/tests/test_roundtrip.py`): ręcznie dobrane `rows` sekcji i identyfikatory, białe znaki w zapytaniach JSONata, różne `multiLevelTree` i `searchEnabled` przy identycznych polach `SELECT`, brak `techName` jednej opcji, `minItemRows` przy jednej sekcji. Opisy z bogatym HTML-em (style, linki, obrazy) przechodzą przez IR dosłownie w `description_html`.
 
 ### 5.7 Linter i auto-naprawa
 
@@ -330,7 +332,7 @@ Wyniki trafiają na slajd i do README.
 
 ## 14. Otwarte pytania do mentorów COI
 
-1. Format `validation`: lista nazw (`["REQUIRED", "PESEL"]`)? W referencjach jest pusta.
+1. ~~Format `validation`~~: rozstrzygnięte przez `OpisImportowanegoPlikuJSON` (lista nazw walidatorów).
 2. Klucz `repeatingSectionGrid` (referencje) czy `repetingSectionGrid` (schemat)?
 3. Strona `FINISH`: `SECTION` z `TEXT_BLOCK` jak w referencjach, czy `INFO_SECTION` jak w regułach?
 4. Dokładne wartości `dictionaryName` (`Kraje`, `TERYT_4G_DOWODOWY`, `TERYT_DOWODOWY`, numery kierunkowe) i znaczenie `multiLevelTree`.

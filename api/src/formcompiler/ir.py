@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 Key = Annotated[str, Field(pattern=r"^[a-z][a-z0-9_]{0,59}$")]
 LineId = Annotated[str, Field(pattern=r"^L\d+$")]
+RegisterAttribute = Annotated[str, Field(pattern=r"^(PESEL|PESEL_ADDRESS|MLPZ)\.[A-Za-z]+$")]
 
 
 class FieldType(StrEnum):
@@ -53,10 +54,10 @@ class Cond(_Model):
 
 class CondGroup(_Model):
     match: Literal["all", "any"]
-    conds: list[Cond] = Field(min_length=2)
+    conds: list[Cond | CondGroup] = Field(min_length=2)
 
 
-Condition = Cond | CondGroup
+type Condition = Cond | CondGroup
 
 
 def simple_conds(condition: Condition | None) -> list[Cond]:
@@ -66,38 +67,53 @@ def simple_conds(condition: Condition | None) -> list[Cond]:
         case Cond():
             return [condition]
         case CondGroup(conds=conds):
-            return conds
+            return [c for inner in conds for c in simple_conds(inner)]
+
+
+class Consent(_Model):
+    text: str = ""
+    # Verbatim HTML from a template or a reference; the model only ever writes `text`.
+    html: str | None = None
+    required: bool = True
 
 
 class FieldIR(_Model):
     key: Key
     label: str
     description: str = ""
+    description_html: str | None = None
     type: FieldType
     required: bool = False
     validators: list[Validator] = []
     options: list[str] = []
     dictionary: str | None = None
-    initial: str | None = None
+    initial: RegisterAttribute | None = None
+    default: str | None = None
+    read_only: bool = False
+    consents: list[Consent] = []
     show_if: Condition | None = None
     read_only_if: Condition | None = None
     src: list[LineId] = []
     confidence: float = Field(default=1.0, ge=0.0, le=1.0)
 
     @model_validator(mode="after")
-    def _dictionary_rules(self) -> Self:
+    def _type_specific_rules(self) -> Self:
         if self.dictionary is not None:
             if self.type not in CHOICE_TYPES:
                 raise ValueError(f"dictionary is allowed only for {sorted(CHOICE_TYPES)}")
             if self.options:
                 raise ValueError("a field with a dictionary must have empty options")
+        if self.consents and self.type is not FieldType.CONSENT_SECTION:
+            raise ValueError("consents are allowed only in CONSENT_SECTION")
         return self
 
 
 class SectionIR(_Model):
+    key: Key
     ref: str | None = None
     title: str
     description: str = ""
+    description_html: str | None = None
     repeating: bool = False
     show_if: Condition | None = None
     fields: list[FieldIR] = []
@@ -105,6 +121,7 @@ class SectionIR(_Model):
 
 class PageIR(_Model):
     title: str
+    kind: Literal["MAIN", "FINISH"] = "MAIN"
     sections: list[SectionIR]
 
 
@@ -132,11 +149,14 @@ class FormIR(_Model):
 
     @model_validator(mode="after")
     def _references_resolve(self) -> Self:
+        section_keys = [s.key for p in self.pages for s in p.sections]
         by_key: dict[str, FieldIR] = {}
         for f in self.fields():
-            if f.key in by_key:
-                raise ValueError(f"duplicate field key: {f.key}")
+            if f.key in by_key or f.key in section_keys:
+                raise ValueError(f"duplicate key: {f.key}")
             by_key[f.key] = f
+        if duplicates := {k for k in section_keys if section_keys.count(k) > 1}:
+            raise ValueError(f"duplicate section keys: {sorted(duplicates)}")
 
         conditions = [s.show_if for p in self.pages for s in p.sections]
         conditions += [c for f in self.fields() for c in (f.show_if, f.read_only_if)]

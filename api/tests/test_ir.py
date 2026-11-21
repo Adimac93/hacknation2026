@@ -20,7 +20,9 @@ def form(*fields: FieldIR) -> FormIR:
             "pages": [
                 {
                     "title": "Przedmiot wniosku",
-                    "sections": [{"title": "Zaświadczenie", "fields": list(fields)}],
+                    "sections": [
+                        {"key": "zaswiadczenie", "title": "Zaświadczenie", "fields": list(fields)}
+                    ],
                 }
             ],
         }
@@ -81,3 +83,28 @@ def test_valid_condition_passes() -> None:
     dependent = field("imie_pelnomocnika", show_if=Cond(field="czy_pelnomocnik", value="Tak"))
 
     assert form(choice, dependent).pages[0].sections[0].fields[1].show_if is not None
+
+
+def test_section_and_field_keys_share_one_namespace() -> None:
+    with pytest.raises(ValidationError, match="zaswiadczenie"):
+        form(field("zaswiadczenie"))
+
+
+@pytest.mark.parametrize("initial", ["MLPZ.name", "PESEL.pesel", "PESEL_ADDRESS.city"])
+def test_initial_value_comes_from_known_register(initial: str) -> None:
+    assert field(initial=initial).initial == initial
+
+
+@pytest.mark.parametrize("initial", ["CEIDG.nip", "MLPZ", "mlpz.name"])
+def test_initial_value_from_unknown_register_is_rejected(initial: str) -> None:
+    with pytest.raises(ValidationError):
+        field(initial=initial)
+
+
+def test_consents_are_allowed_only_in_consent_section() -> None:
+    consent = {"text": "Wyrażam zgodę", "required": True}
+
+    with pytest.raises(ValidationError, match="consents"):
+        field(consents=[consent])
+
+    assert field(type=FieldType.CONSENT_SECTION, consents=[consent]).consents[0].required
