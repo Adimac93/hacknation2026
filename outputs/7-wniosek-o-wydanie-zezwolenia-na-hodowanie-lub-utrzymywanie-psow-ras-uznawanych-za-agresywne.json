@@ -1,5 +1,5 @@
 {
-  "title": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawan ych za agresywne",
+  "title": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanych za agresywne",
   "tabs": [
     {
       "id": "842469a4-97f9-5241-b252-036214778853",
@@ -394,13 +394,13 @@
         {
           "x": 0,
           "y": 0,
-          "rows": 6,
+          "rows": 2,
           "cols": 3,
           "field": {
-            "id": "38329912-bb59-54c8-adaa-038e981c4491",
+            "id": "08525a6c-7a96-5c4d-993b-0f90cebf2610",
             "type": "SECTION",
-            "techName": "b",
-            "title": "B",
+            "techName": "rodzaj_wniosku",
+            "title": "Rodzaj wniosku",
             "description": "<html><head></head><body></body></html>",
             "options": [],
             "validation": [],
@@ -412,13 +412,79 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "b3e5cf22-ccb0-5104-b027-d8e8a603bf4e",
+                  "id": "aff2685e-3913-5517-ba26-1bcb3f209313",
+                  "type": "RADIO",
+                  "techName": "rodzaj_wniosku_2",
+                  "title": "Rodzaj wniosku",
+                  "description": "",
+                  "options": [
+                    {
+                      "id": "Hodowanie charta/chartów",
+                      "name": "Hodowanie charta/chartów",
+                      "techName": "hodowanie_charta_chartow"
+                    },
+                    {
+                      "id": "Utrzymywanie charta/chartów",
+                      "name": "Utrzymywanie charta/chartów",
+                      "techName": "utrzymywanie_charta_chartow"
+                    },
+                    {
+                      "id": "Hodowanie mieszańca charta/mieszańców chartów",
+                      "name": "Hodowanie mieszańca charta/mieszańców chartów",
+                      "techName": "hodowanie_mieszanca_charta_mieszancow_chartow"
+                    },
+                    {
+                      "id": "Utrzymywanie mieszańca charta/mieszańców chartów",
+                      "name": "Utrzymywanie mieszańca charta/mieszańców chartów",
+                      "techName": "utrzymywanie_mieszanca_charta_mieszancow_chartow"
+                    }
+                  ],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "states": [],
+            "questionOrder": 0,
+            "tooltipMessage": ""
+          }
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "rows": 14,
+          "cols": 3,
+          "field": {
+            "id": "d793c511-7a00-5f12-b601-a3d408f09d05",
+            "type": "SECTION",
+            "techName": "informacje_o_psie",
+            "title": "Informacje o psie",
+            "description": "<html><head></head><body></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "7f636df5-9887-5f56-a5a8-9cbc7dd7c3f0",
                   "type": "TEXT_FIELD",
-                  "techName": "rasa_psa",
-                  "title": "Rasa psa",
+                  "techName": "metryka_rodowod",
+                  "title": "Pochodzenie psa (metryka, numer rodowodu)",
                   "description": "",
                   "options": [],
-                  "validation": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
@@ -432,13 +498,15 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "aa3aec9d-60db-52ce-bdba-d5bf8a57b90b",
-                  "type": "DATEPICKER",
-                  "techName": "data_urodzenia_psa",
-                  "title": "Data urodzenia psa",
+                  "id": "6202dfb1-f3fe-5f3d-ac6a-a3b9225f13d2",
+                  "type": "TEXT_FIELD",
+                  "techName": "imie_psa",
+                  "title": "Imię psa",
                   "description": "",
                   "options": [],
-                  "validation": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
@@ -452,13 +520,15 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "75efe4d8-9a48-5607-b4a0-e4f70371ba31",
-                  "type": "DATEPICKER",
-                  "techName": "data_szczepienia_w_przypadku_jego_braku",
-                  "title": "Data szczepienia (w przypadku jego braku)",
+                  "id": "9255c026-64dd-5553-bcf7-8d170a2c72de",
+                  "type": "TEXT_FIELD",
+                  "techName": "nazwisko_poprzedniego_wlasiciela",
+                  "title": "Nazwisko poprzedniego właściciela",
                   "description": "",
                   "options": [],
-                  "validation": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
@@ -472,29 +542,15 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "1496c9b0-d7bd-55fc-abbe-0b8fed54394d",
-                  "type": "RADIO",
-                  "techName": "plec",
-                  "title": "Płeć",
+                  "id": "af66b00d-406b-59f2-a92e-c1e70e1e585c",
+                  "type": "TEXT_FIELD",
+                  "techName": "adres_poprzedniego_wlasiciela",
+                  "title": "Adres poprzedniego właściciela",
                   "description": "",
-                  "options": [
-                    {
-                      "id": "Pies",
-                      "name": "Pies",
-                      "techName": "pies"
-                    },
-                    {
-                      "id": "Suka",
-                      "name": "Suka",
-                      "techName": "suka"
-                    },
-                    {
-                      "id": "Mikroprocesor",
-                      "name": "Mikroprocesor",
-                      "techName": "mikroprocesor"
-                    }
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
                   ],
-                  "validation": [],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
@@ -508,16 +564,137 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "004e9bba-49d3-59ed-87d5-246592524aff",
+                  "id": "b3e5cf22-ccb0-5104-b027-d8e8a603bf4e",
+                  "type": "TEXT_FIELD",
+                  "techName": "rasa_psa",
+                  "title": "Rasa psa",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 4,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 5,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "aa3aec9d-60db-52ce-bdba-d5bf8a57b90b",
+                  "type": "DATEPICKER",
+                  "techName": "data_urodzenia_psa",
+                  "title": "Data urodzenia psa",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 5,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 6,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "4e946f19-915b-5529-99e7-c386ae727b68",
+                  "type": "DATEPICKER",
+                  "techName": "data_szczepienia",
+                  "title": "Data szczepienia",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 6,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 7,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "3bf9eb46-5100-5c29-8345-e79be48140c0",
                   "type": "RADIO",
-                  "techName": "sposob_oznakowania_psa_nr_ident",
-                  "title": "Sposób oznakowania psa / nr ident.",
+                  "techName": "plec_psa",
+                  "title": "Płeć psa",
                   "description": "",
                   "options": [
                     {
-                      "id": "T atuaż",
-                      "name": "T atuaż",
-                      "techName": "t_atuaz"
+                      "id": "Pies",
+                      "name": "Pies",
+                      "techName": "pies"
+                    },
+                    {
+                      "id": "Suka",
+                      "name": "Suka",
+                      "techName": "suka"
+                    }
+                  ],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 7,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 8,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "6cf65597-fcac-5ea9-9604-699222b8e2d3",
+                  "type": "TEXT_FIELD",
+                  "techName": "numer_mikroprocesora",
+                  "title": "Numer mikroprocesora",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 8,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 9,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "e0631a84-e3a1-5a70-af24-a11c327e821d",
+                  "type": "RADIO",
+                  "techName": "sposob_oznakowania",
+                  "title": "Sposób oznakowania psa",
+                  "description": "",
+                  "options": [
+                    {
+                      "id": "Tatuaż",
+                      "name": "Tatuaż",
+                      "techName": "tatuaz"
                     },
                     {
                       "id": "Brak",
@@ -525,157 +702,85 @@
                       "techName": "brak"
                     }
                   ],
-                  "validation": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
-                  "questionOrder": 4,
+                  "questionOrder": 9,
                   "tooltipMessage": ""
                 }
-              }
-            ],
-            "states": [],
-            "questionOrder": 0,
-            "tooltipMessage": ""
-          }
-        },
-        {
-          "x": 0,
-          "y": 6,
-          "rows": 2,
-          "cols": 3,
-          "field": {
-            "id": "36b4238e-a4c9-5d16-99f4-ac4b1ba0d2f2",
-            "type": "SECTION",
-            "techName": "informacje",
-            "title": "Informacje",
-            "description": "<html><head></head><body></body></html>",
-            "options": [],
-            "validation": [],
-            "readOnly": false,
-            "repeatingSectionGrid": [
+              },
               {
                 "x": 0,
-                "y": 0,
+                "y": 10,
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "a23a6fd2-73ce-5bb2-a964-5b0111b6232b",
-                  "type": "TEXT_BLOCK",
-                  "techName": "informacje_tekst",
-                  "title": "",
-                  "description": "<html><head></head><body><p>Niniejszą informację otrzym uje Pani/Pan w związku z obowiązkami określonymi w art. 13 rozporządzenia</p><p>Fizycznych w związku z przetwarzaniem danych osobowych i w sprawie swobodnego przepływu takich</p><p>Danych oraz uchylenia dyrektywy 95/46/WE (ogólne rozporządzenie o ochronie danych) (Dziennik Urzędowy</p><p>Administrator danych</p><p>Administratorem Pani/Pana danych osobowych jes t Prezydent Wrocławia. Możesz się z nami skontaktować w</p><p>Następujący sposób</p><p>• listownie na adres: Prezydent Wrocławia, Urząd Miejski Wrocławia, pl. Nowy Targ 1 -8, 50- 141 Wrocław,</p><p>• za pośrednictwem poczty elektronicznej na adres : wsr@um.wroc.pl</p><p>• telefonicznie: +48 71 799 67 00.</p><p>Cele przetwarzania danych</p><p>Pani/Pana dane osobowe będą przetwarzane w celu</p><p>• wydania zezwolenia na hodowanie/utrzymywanie * charta/chartów * lub mieszańca charta/mieszańców</p><p>Chartów ,</p><p>• zaksięgowania i rozliczenia zapłaconej opłaty skarbowej.</p><p>Podstawy prawne przetwarzania</p><p>Będziemy przetwarzać Pani/Pana dane osobowe na podstawie art. 6 ust. 1 lit. c) RODO oraz ustawy kodeks</p><p>Postępowania administracyjnego i ustawy Prawo łowieckie.</p><p>Obligatoryjność/fakultatywność podania danych osobowych</p><p>Podanie przez Panią/Pana danych osobowych jest wymogiem wynikającym z ustawy Prawo łowieckie oraz</p><p>Kodeksu postepowania administracyjnego.</p><p>Okres retencji</p><p>Pani/Pana dane osobowe będą przechowywane przez okres 5 lat, następnie Archiwum Państwowe po</p><p>Ekspertyzie dokumentów może podjąć decyzję o ich zniszczeniu lub przekwalifikować na kategorię A i</p><p>Wtedy Pani/Pana dane osobowe będą przetwarzane przez Administratora przez 25 lat od stycznia kolejnego</p><p>Roku po zakończeniu Pani/Pana sprawy a następnie zostaną przekazane do Archiwum Państwowego we</p><p>Wrocławiu, gdzie będą przetwarzane wieczyście.</p><p>Odbiorcy danych</p><p>Odbiorcami Pani/Pana danych osobowych mogą być</p><p>• dostawcy usług IT</p><p>• podmioty upoważnione na podstawie przepisów prawa</p><p>Takie podmioty przetwarzają dane na podstawie umowy z nam i i tylko zgodnie z naszymi poleceniami.</p><p>Przysługujące prawa</p><p>Przysługują Pani/Panu</p><p>• prawo dostępu do swoich danych oraz otrzymania ich kopii,</p><p>• prawo do sprostowania (poprawiania) swoich danych,</p><p>• prawo do ograniczenia przetwarzania danych,</p><p>• prawo wniesienia skargi do organu nadzorczego - tj. Prezesa Urzędu Ochrony Danych Osobowych</p><p>Inspektor Ochrony Danych</p><p>W Urzędzie wyznaczony został Inspektor Ochrony Danych – Sebastian Sobecki. Jest to osoba, z którą</p><p>Można się kontaktować w sprawach dotyczących przetwarzan ia Twoich danych osobowych oraz korzystania</p><p>Z przysługujących Ci praw związanych z przetwarzaniem danych.</p><p>Z Inspektorem można kontaktować się w następujący sposób</p><p>• listownie na adres: al. M. Kromera 44, 51-163 Wrocław</p><p>• przez e-mail: iod@um.wroc.pl</p><p>• telefonicznie: 71 777 77 24.</p><p>Zautomatyzowane podejmowanie decyzji</p><p>Pani/Pana dane nie będą podlegały profilowaniu lub zautomatyzowanemu podejmowaniu decyzji</p></body></html>",
-                  "options": [],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 0,
-                  "tooltipMessage": ""
-                }
-              }
-            ],
-            "states": [],
-            "questionOrder": 6,
-            "tooltipMessage": ""
-          }
-        },
-        {
-          "x": 0,
-          "y": 8,
-          "rows": 2,
-          "cols": 3,
-          "field": {
-            "id": "ecb0d141-f0ab-5cf4-8b2c-812a9b7d5fb0",
-            "type": "SECTION",
-            "techName": "oplata",
-            "title": "Opłata",
-            "description": "<html><head></head><body></body></html>",
-            "options": [],
-            "validation": [],
-            "readOnly": false,
-            "repeatingSectionGrid": [
-              {
-                "x": 0,
-                "y": 0,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "3578546d-e68a-59d0-8674-1d024d73c9c3",
-                  "type": "FILE_UPLOADER",
-                  "techName": "potwierdzenie_zaplaty_oplaty_skarbowej",
-                  "title": "Potwierdzenie zapłaty opłaty skarbowej",
+                  "id": "3b8065b4-dd0e-5d40-8f75-efd197ef6a7b",
+                  "type": "TEXT_FIELD",
+                  "techName": "numer_identifikacyjny",
+                  "title": "Numer identyfikacyjny",
                   "description": "",
                   "options": [],
-                  "validation": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
-                  "questionOrder": 0,
+                  "questionOrder": 10,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 11,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "e048d048-50ff-55d2-a566-c3d377684e62",
+                  "type": "TEXTAREA",
+                  "techName": "adres_utrymywania",
+                  "title": "Adres miejsca utrzymywania psa",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 11,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 12,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "dd56416b-ef4f-51b8-a6b3-c4b41625ce84",
+                  "type": "TEXTAREA",
+                  "techName": "opis_miejsca_i_warunkow",
+                  "title": "Opis miejsca i warunków utrzymywania psa",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 12,
                   "tooltipMessage": ""
                 }
               }
             ],
             "states": [],
-            "questionOrder": 8,
-            "tooltipMessage": ""
-          }
-        },
-        {
-          "x": 0,
-          "y": 10,
-          "rows": 2,
-          "cols": 3,
-          "field": {
-            "id": "43d91e15-5ed4-587a-83f1-0f28a12dab36",
-            "type": "SECTION",
-            "techName": "oswiadczenia",
-            "title": "Oświadczenia",
-            "description": "<html><head></head><body></body></html>",
-            "options": [],
-            "validation": [],
-            "readOnly": false,
-            "repeatingSectionGrid": [
-              {
-                "x": 0,
-                "y": 0,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "d0fc7a9b-8d7f-595e-9b18-7a9f9690287a",
-                  "type": "CONSENT_SECTION",
-                  "techName": "pole",
-                  "title": "",
-                  "description": "",
-                  "options": [],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 0,
-                  "tooltipMessage": "",
-                  "consentSectionConfig": {
-                    "consents": [
-                      {
-                        "description": "<html><head></head><body><p>Oświadczam, że psy nie będą wykorzystywane do polowań.</p></body></html>",
-                        "required": true
-                      },
-                      {
-                        "description": "<html><head></head><body><p>Oświadczam, że zaszczepiono psa /psy przeciwko wściekliźnie – w załączeniu kopia dla każdego psa .</p></body></html>",
-                        "required": true
-                      },
-                      {
-                        "description": "<html><head></head><body><p>Oświadczam, że zapewniam warunki utrzymywania psa, zgodnie z rozporządzeniem Ministra</p></body></html>",
-                        "required": true
-                      }
-                    ],
-                    "files": []
-                  }
-                }
-              }
-            ],
-            "states": [],
-            "questionOrder": 10,
+            "questionOrder": 2,
             "tooltipMessage": ""
           }
         }

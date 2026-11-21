@@ -394,13 +394,13 @@
         {
           "x": 0,
           "y": 0,
-          "rows": 5,
+          "rows": 9,
           "cols": 3,
           "field": {
-            "id": "1f69e025-3e6c-5c8f-ac6d-f58c5ed41e48",
+            "id": "cf5875d7-4a8b-5966-a7e3-40b0b30651ef",
             "type": "SECTION",
-            "techName": "zakres_wniosku",
-            "title": "Zakres wniosku",
+            "techName": "dane_dotyczace_swietlicy",
+            "title": "Dane dotyczące świetlicy",
             "description": "<html><head></head><body></body></html>",
             "options": [],
             "validation": [],
@@ -412,13 +412,15 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "48b406df-e39a-548b-839e-d893f630bf94",
+                  "id": "b1bcb7c1-7bb6-5c1c-8e78-418e4dec3d5b",
                   "type": "TEXT_FIELD",
-                  "techName": "prosze_o_wynajem_uzyczenie_swietlicy_wiejskiej_w",
-                  "title": "Proszę o wynajem/użyczenie* świetlicy wiejskiej w",
+                  "techName": "miejscowosc_swietlicy",
+                  "title": "Miejscowość świetlicy",
                   "description": "",
                   "options": [],
-                  "validation": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
@@ -432,13 +434,15 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "b0a42463-e9f2-58be-ba6d-ec5a353e118c",
-                  "type": "TEXT_FIELD",
-                  "techName": "wraz_z_wyposazeniem_w_terminie_od_do",
-                  "title": "Wraz z wyposażeniem w terminie od do",
+                  "id": "865a00ac-25dd-5c47-a330-64971600678e",
+                  "type": "DATEPICKER",
+                  "techName": "data_od",
+                  "title": "Data rozpoczęcia najmu",
                   "description": "",
                   "options": [],
-                  "validation": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
@@ -452,13 +456,15 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "da1c1a1e-b66e-5bcd-b9ed-e83da1f88f19",
-                  "type": "TEXTAREA",
-                  "techName": "cel_wynajecia_swietlicy",
-                  "title": "Cel wynajęcia świetlicy",
+                  "id": "d6a2c2a2-2a6e-5d97-bc87-737dc2fa8586",
+                  "type": "DATEPICKER",
+                  "techName": "data_do",
+                  "title": "Data zakończenia najmu",
                   "description": "",
                   "options": [],
-                  "validation": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
@@ -472,17 +478,121 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "23f48c70-cce8-5ccb-a280-78a3a9e7eb02",
+                  "id": "89411cf7-31f1-5027-8163-229c3f4cb208",
                   "type": "TEXT_FIELD",
-                  "techName": "przewidywana_ilosc_uczestnikow",
+                  "techName": "cel_najmu",
+                  "title": "Cel wynajęcia świetlicy",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 3,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 4,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "1e0227ca-1c14-514e-893c-c411a6b3727e",
+                  "type": "NUMBER",
+                  "techName": "liczba_uczestnikow",
                   "title": "Przewidywana ilość uczestników",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 4,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 5,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "91f6b2d0-5083-5eda-a950-cb8405222cc3",
+                  "type": "TEXT_FIELD",
+                  "techName": "osoba_odpowiedzialna",
+                  "title": "Osoba odpowiedzialna za porządek i bezpieczeństwo",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 5,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 6,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "618702c1-9ae3-5f56-8241-fb83afc5deb7",
+                  "type": "RADIO",
+                  "techName": "wybierz_typ_najmu",
+                  "title": "Rodzaj korzystania ze świetlicy",
+                  "description": "",
+                  "options": [
+                    {
+                      "id": "Wynajęcie",
+                      "name": "Wynajęcie",
+                      "techName": "wynajecie"
+                    },
+                    {
+                      "id": "Użyczenie",
+                      "name": "Użyczenie",
+                      "techName": "uzyczenie"
+                    }
+                  ],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 6,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 7,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "bd3e5804-853f-57f5-9ba3-4c55f563587d",
+                  "type": "FILE_UPLOADER",
+                  "techName": "plik_zgody_osoby_odpowiedzialnej",
+                  "title": "Zgoda osoby odpowiedzialnej (jeśli inna niż wnioskodawca)",
                   "description": "",
                   "options": [],
                   "validation": [],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 3,
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Użyczenie\" in tabs['Szczegóły wniosku' in title].questions['dane_dotyczace_swietlicy' in field.techName].field.repeatingSectionGrid['wybierz_typ_najmu' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 7,
                   "tooltipMessage": ""
                 }
               }
