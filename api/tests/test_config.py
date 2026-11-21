@@ -62,3 +62,64 @@ def test_api_key_is_not_shown_in_repr() -> None:
 
     assert "sekret-123" not in repr(settings)
     assert settings.llm_api_key.get_secret_value() == "sekret-123"
+
+
+def test_auth_is_off_by_default_and_needs_no_key() -> None:
+    settings = make()
+
+    assert settings.auth_enabled is False
+    assert settings.jwt_algorithms == ["RS256"]
+
+
+def test_jwt_algorithms_are_read_as_comma_separated_list(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("AUTH_ENABLED", "true")
+    monkeypatch.setenv("JWT_ALGORITHMS", "RS256, ES256")
+    monkeypatch.setenv("JWT_PUBLIC_KEY", "-----BEGIN PUBLIC KEY-----")
+
+    assert make().jwt_algorithms == ["RS256", "ES256"]
+
+
+@pytest.mark.parametrize(
+    ("env", "message"),
+    [
+        ({"jwt_algorithms": ["HS256"]}, "exactly one"),
+        ({"jwt_algorithms": ["HS256"], "jwt_secret": "a", "jwt_secret_file": "/s"}, "exactly one"),
+        ({"jwt_algorithms": ["RS256"]}, "JWT_PUBLIC_KEY"),
+        ({"jwt_algorithms": ["HS256", "RS256"], "jwt_secret": "a"}, "must not mix"),
+        ({"jwt_algorithms": ["none"]}, "unsupported"),
+        ({"jwt_algorithms": []}, "unsupported"),
+    ],
+)
+def test_enabled_auth_rejects_unsafe_key_setup(env: dict[str, Any], message: str) -> None:
+    with pytest.raises(ValidationError, match=message):
+        make(auth_enabled=True, **env)
+
+
+@pytest.mark.parametrize(
+    "env",
+    [
+        {"jwt_algorithms": ["HS256"], "jwt_secret": "sekret"},
+        {"jwt_algorithms": ["HS256"], "jwt_secret_file": "/run/secrets/jwt"},
+        {"jwt_algorithms": ["RS256"], "jwt_public_key": "-----BEGIN PUBLIC KEY-----"},
+    ],
+)
+def test_enabled_auth_accepts_complete_key_setup(env: dict[str, Any]) -> None:
+    assert make(auth_enabled=True, **env).auth_enabled is True
+
+
+def test_jwt_secret_is_not_shown_in_repr() -> None:
+    settings = make(auth_enabled=True, jwt_algorithms=["HS256"], jwt_secret="tajne-456")
+
+    assert "tajne-456" not in repr(settings)
+
+
+def test_blank_optional_jwt_values_from_env_file_are_unset(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("JWT_SECRET_FILE", "")
+    monkeypatch.setenv("JWT_ISSUER", "")
+    monkeypatch.setenv("JWT_AUDIENCE", "")
+
+    settings = make()
+
+    assert (settings.jwt_secret_file, settings.jwt_issuer, settings.jwt_audience) == (None,) * 3
