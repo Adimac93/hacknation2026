@@ -31,7 +31,7 @@ Model nigdy nie pisze końcowego JSON-a. Dzięki temu plik zawsze przechodzi reg
 |---|---|
 | Python 3.14+ lub Java 21+ | API w Pythonie 3.14; sidecar Apache Tika na Javie 25 tylko do plików biurowych |
 | Tylko open source bez copyleft | lista dozwolonych zależności w `CLAUDE.md`, bramka licencyjna w CI |
-| Brak zewnętrznych API, SaaS, MCP; brak modeli dostępnych tylko przez API | model open-weight uruchamiany lokalnie; sieć `backend` w compose ma `internal: true` |
+| Brak zewnętrznych API, SaaS, MCP; brak modeli dostępnych tylko przez API | model open-weight (Apache-2.0) za `LLM_BASE_URL`; na hackathonie przez EdenAI (świadomy wyjątek, D11), docelowo lokalny `llama-server`; tryb reguł działa bez sieci |
 | REST API przyjmujące jeden plik | `POST /api/v1/forms` |
 | Formaty PDF, DOC, DOCX, ODS, XLSX, JPG, JPEG, PNG | patrz sekcja 5.1 |
 | Weryfikacja MIME, nazwy i rozmiaru pliku | patrz sekcja 9 |
@@ -47,15 +47,13 @@ flowchart LR
   U[Urzędnik] -->|przeglądarka| WEB[web: nginx + SPA React]
   WEB -->|/api| API[api: FastAPI, Python 3.14]
   API -->|DOC DOCX ODS XLSX| TIKA[tika: Apache Tika Server]
-  API -->|OpenAI-compatible, LLM_BASE_URL| LLM[llm: llama-server + GGUF]
+  API -.->|OpenAI-compatible, LLM_BASE_URL| LLM[model: EdenAI UE na hackathonie / lokalny llama-server docelowo]
   subgraph backend [sieć backend, internal: true]
-    API
     TIKA
-    LLM
   end
 ```
 
-Publikowany jest tylko port `web` (8080). Kontenery `api`, `tika` i `llm` nie mają wyjścia do internetu.
+Publikowany jest tylko port `web` (8080). `tika` nie ma wyjścia do internetu. `api` jest w sieci `backend` i w sieci z wyjściem na zewnątrz, z którego korzysta wyłącznie do `LLM_BASE_URL`; przy `LLM_ENABLED=false` może działać z `--network none`.
 
 ## 5. Potok przetwarzania
 
@@ -210,19 +208,19 @@ Druga grupa to ostrzeżenia jakościowe ze standardów COI (nie blokują): etyki
 
 | Element | Wybór | Zapas |
 |---|---|---|
-| Model | `Bielik-11B-v3.1-Instruct`, GGUF Q4_K_M, 6,72 GB, Apache-2.0, kontekst 32K | `Bielik-Minitron-7B-v3.0-Instruct` (szybszy), `gemma-4-12b-it` (multimodalny, Apache-2.0) |
-| Serwer | `llama-server` (llama.cpp, MIT), endpoint zgodny z OpenAI | Ollama |
+| Model | `Ministral-3-8B-Instruct-2512`, Apache-2.0, open-weight; na hackathonie `mistral/ministral-8b-2512@eu` przez EdenAI | `Qwen3.5-9B` (Apache-2.0); Bielik i PLLuM jako modele do podmiany, nietestowane |
+| Serwer | hackathon: EdenAI (endpoint UE); docelowo `llama-server` (llama.cpp, MIT) z GGUF Q4_K_M, ok. 5,5 GB | Ollama |
 | Klient | `httpx` + modele Pydantic | — |
 
-Model jest wymienny przez `LLM_BASE_URL` i `LLM_MODEL`. PLLuM-12B-instruct-2512 (Apache-2.0) da się podpiąć jako profil.
+Model jest wymienny przez `LLM_BASE_URL` i `LLM_MODEL`. Kod nie zawiera nic specyficznego dla EdenAI.
 
 Profile uruchomienia:
 
-- **domyślny**: wszystko w kontenerach, CPU, bez sieci zewnętrznej. Działa wszędzie, jest wolny (szacunkowo 3–5 tok/s na M4).
-- **demo na Macu** (`compose.metal.yaml`): `llm` działa natywnie na hoście z Metal, `LLM_BASE_URL=http://host.docker.internal:8080/v1`. Docker na macOS nie udostępnia kontenerom GPU.
-- **produkcja**: ten sam kontener w wariancie CUDA albo vLLM na serwerze z kartą 16 GB.
+- **domyślny** (`docker compose up` bez `.env`): `web`, `api`, `tika`, tryb reguł, bez sieci zewnętrznej (D14),
+- **hackathon i obrona**: to samo plus `.env` z `LLM_BASE_URL` EdenAI, `LLM_ALLOW_REMOTE=true` i kluczem w runtime,
+- **produkcja (opis w README, nietestowana na hackathonie)**: lokalny `llama-server` z tym samym modelem w GGUF, na CPU albo na karcie 16 GB; zmiana wyłącznie w `LLM_BASE_URL`.
 
-Wszystkie liczby tok/s w raportach to szacunki. Pierwszy krok implementacji to pomiar `llama-bench` na docelowym laptopie i wybór modelu na podstawie wyniku.
+Wszystkie liczby tok/s w raportach to szacunki. W trakcie developmentu nie uruchamiamy modeli self-hostowanych (decyzja D11): jakość mierzymy na tych samych wagach open-weight wołanych przez EdenAI, a czas odpowiedzi szacujemy z rozmiaru modelu. W czasie hackathonu modelu nie hostujemy lokalnie ani razu (D21); hostowanie lokalne opisuje README.
 
 ## 7. Słowniki, dane inicjalne, nowe słowniki
 
@@ -255,6 +253,7 @@ Format `application/problem+json`. Kody: 400 zła nazwa pliku, 401 brak lub zły
 | `MAX_PAGES` | limit stron dokumentu |
 | `AUTH_ENABLED`, `JWT_ALGORITHMS`, `JWT_SECRET` lub `JWT_SECRET_FILE`, `JWT_PUBLIC_KEY`, `JWT_JWKS_URL`, `JWT_ISSUER`, `JWT_AUDIENCE` | uwierzytelnianie JWT |
 | `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY`, `LLM_TIMEOUT_S` | serwer modelu |
+| `LLM_ALLOW_REMOTE` | domyślnie `false`; `true` tylko w lokalnym `.env` dewelopera, pozwala wskazać EdenAI zamiast lokalnego `llama-server` |
 | `LLM_ENABLED` | `false` wymusza tryb reguł |
 | `TIKA_URL` | adres sidecara Tika |
 | `REQUEST_TIMEOUT_S` | budżet czasu na żądanie |
@@ -265,7 +264,7 @@ Kolejność: rozmiar (nagłówek, potem licznik bajtów) → nazwa (NFC, do 250 
 
 Zgodność treści: sygnatury PDF, PNG, JPEG; kontenery ZIP rozróżniamy po zawartości (`mimetype` dla ODS, `[Content_Types].xml` dla DOCX i XLSX); OLE2 po strumieniu `WordDocument` (DOC). Odrzucamy pliki z makrami. Limity chronią przed bombami dekompresyjnymi (liczba wpisów ZIP, rozmiar po rozpakowaniu, liczba pikseli obrazu, liczba stron).
 
-Nazwa pliku nigdy nie staje się ścieżką. W logach jest tylko skrót SHA-256 i rozmiar, bez treści dokumentu. Aplikacja odrzuca `LLM_BASE_URL` spoza pętli zwrotnej i sieci prywatnych, chyba że ustawiono jawną flagę.
+Nazwa pliku nigdy nie staje się ścieżką. W logach jest tylko skrót SHA-256 i rozmiar, bez treści dokumentu. Aplikacja odrzuca `LLM_BASE_URL` spoza pętli zwrotnej i sieci prywatnych, chyba że ustawiono `LLM_ALLOW_REMOTE=true` (tylko development).
 
 ## 10. Docker
 
@@ -273,20 +272,29 @@ Nazwa pliku nigdy nie staje się ścieżką. W logach jest tylko skrót SHA-256 
 |---|---|---|
 | `web` | `nginxinc/nginx-unprivileged`, wariant alpine-slim | jedyny publikowany port (8080); SPA i proxy `/api` |
 | `api` | `python:3.14-slim-trixie` | `onnxruntime` nie ma kół dla musl, więc tu nie Alpine; uzasadnienie w README |
-| `llm` | `ghcr.io/ggml-org/llama.cpp`, wariant `server`, przypięty digest | `user:` ustawiony w compose, model w wolumenie tylko do odczytu |
 | `tika` | `eclipse-temurin` 25 JRE na Alpine + przypięty `tika-server` z sumą SHA-256 | własny krótki Dockerfile, non-root, limit pamięci JVM |
 
-Wspólne: budowanie wieloetapowe, przypięte wersje (bez `latest`), dedykowany użytkownik, `read_only: true`, `tmpfs` na `/tmp`, `cap_drop: [ALL]`, `no-new-privileges`, limity pamięci, healthcheck. Wagi OCR są wypiekane w obrazie `api`. Wagi LLM pobiera raz `make models` do nazwanego wolumenu.
+Wspólne: budowanie wieloetapowe, przypięte wersje (bez `latest`), dedykowany użytkownik, `read_only: true`, `tmpfs` na `/tmp`, `cap_drop: [ALL]`, `no-new-privileges`, limity pamięci, healthcheck. Dane Tesseracta (`pol`) pochodzą z pakietu systemowego w obrazie `api`. Compose nie zawiera usługi modelu (D14).
 
 ## 11. Frontend
 
-React 19 + Vite + TypeScript. Jeden ekran z trzema panelami:
+React 19 + Vite + TypeScript. Dwie warstwy na wspólnych tokenach stylu (D22, D23):
 
-1. **Dokument źródłowy** (`pdfjs-dist` albo obraz) z ramką podświetlającą źródło wybranego pola.
-2. **Podgląd e-formularza**: renderer konfiguracji z siatką CSS `grid-area: {y+1} / {x+1} / span {rows} / span {cols}`, warunki `SHOW` i `READ_ONLY` liczone na żywo biblioteką `jsonata`, walidatory (PESEL, NIP, REGON, kod pocztowy, e-mail) jako czyste funkcje.
-3. **JSON i raport**: drzewo JSON, wynik lintera, lista pól „do sprawdzenia” (niska pewność), propozycje słowników, przycisk pobrania.
+1. **Renderer e-formularza** (`FormRenderer({ config })`), niezależny od API. Wygląd e-usługi z wizualizacji COI. Siatka CSS `grid-area: {y+1} / {x+1} / span {rows} / span {cols}`, warunki `SHOW` i `READ_ONLY` liczone na żywo biblioteką `jsonata`, walidatory (PESEL, NIP, REGON, kod pocztowy, e-mail) jako czyste funkcje. Pola z rejestru pokazują przykładowe dane, słowniki mają małe przykładowe zestawy. Dostępny jako panel stanowiska i jako osobna trasa `/podglad`, która wczytuje dowolny plik JSON (rozszerzenie V; w demo także referencyjne JSON-y organizatora).
+2. **Stanowisko urzędnika**: kolejka plików i trzy panele: tekst dokumentu z podświetleniem linii źródłowych wybranego pola, podgląd e-formularza, JSON (`vanilla-jsoneditor`) z raportem lintera i przyciskiem pobrania.
 
-Do tego kolejka wielu plików (tryb wsadowy) i widok postępu etapów. Wygląd wzorowany na wizualizacjach z materiałów zadania, własny arkusz CSS, bez godła i logotypów. Minimum WCAG 2.1 AA: etykiety powiązane z polami, `fieldset` i `legend`, widoczny fokus, obsługa z klawiatury, kontrast 4,5:1.
+Stylowanie: zmienne CSS w `styles/tokens.css` plus CSS Modules dla komponentów, bez biblioteki komponentów i bez Tailwinda. Tokeny odczytane z wizualizacji: tło `#f0f5fa`, karta sekcji `#ffffff`, pole tylko do odczytu `#f6f8f9`, tekst i ramka pola `#101317`, tekst pomocniczy `#808893`, kolor główny `#0452a8`. Font systemowy (`system-ui`), bo fonty OFL nie są na liście dozwolonych licencji. Kontrolki natywne; `react-aria-components` (Apache-2.0) tylko gdyby własny combobox dla długich słowników zawiódł. Bez godła i logotypów.
+
+```text
+web/src/
+  api/          klient + typy generowane z OpenAPI (openapi-typescript)
+  form/         types.ts, conditions.ts (JSONata), validators.ts, state.ts
+  renderer/     FormRenderer, Page, Section, Stepper, Summary, fields/ (jeden plik na typ pola)
+  workspace/    Upload, Queue, SourcePanel, JsonPanel, LintReport
+  styles/       tokens.css, base.css
+```
+
+Wektory testowe walidatorów leżą w jednym pliku JSON, z którego korzystają `pytest` i `vitest`. Minimum WCAG 2.1 AA: `lang="pl"`, etykiety powiązane z polami, `fieldset` i `legend`, błędy przez `aria-describedby`, widoczny fokus, obsługa z klawiatury, kontrast 4,5:1, pola ukryte przez `SHOW` usuwane z DOM.
 
 ## 12. Ewaluacja
 
@@ -304,14 +312,21 @@ Wyniki trafiają na slajd i do README.
 |---|---|---|
 | D1 | Python 3.14, FastAPI, Pydantic 2, `uv` | preferencja organizatora, ekosystem parserów i OCR, jeden model danych dla IR, walidacji i OpenAPI |
 | D2 | Model nie pisze końcowego JSON-a | czas generacji i spójność odwołań |
-| D3 | Bielik 11B v3.1 jako model domyślny | Apache-2.0, polski model, najlepsze dostępne wyniki dla polszczyzny w tej klasie rozmiaru, mieści się w 16 GB |
-| D4 | `llama-server` za `LLM_BASE_URL` | obraz 291 MB wobec 2,87 GB dla Ollamy, wymuszanie schematu, wymienny model |
-| D5 | OCR rastrów | do uzupełnienia po raporcie `research/01` |
+| D3 | `Ministral-3-8B-Instruct-2512` jako model (zastępuje Bielika, D20) | Apache-2.0, open-weight, te same wagi dostępne w EdenAI (UE) i do hostowania lokalnie; Bielika nie ma w EdenAI |
+| D4 | Endpoint zgodny z OpenAI za `LLM_BASE_URL`; docelowo `llama-server` | ten sam klient dla EdenAI i serwera lokalnego, wymienny model |
+| D5 | OCR rastrów: Tesseract 5 z `pol` przez `pytesseract` (D15) | Apache-2.0, sprawdzona polszczyzna, pakiet systemowy; jakość mierzona względem tekstu z PDF |
 | D6 | Tika dla DOC, DOCX, ODS, XLSX | Apache-2.0, jedyna sensowna droga dla binarnego DOC bez copyleft, jeden adapter na cztery formaty |
 | D7 | `pdfplumber` + `pypdfium2` dla PDF | MIT i Apache/BSD; PyMuPDF jest na AGPL |
 | D8 | API synchroniczne i bezstanowe | wymóg przetwarzania tylko w pamięci, mniej kodu |
 | D9 | Propozycje słowników i pochodzenie pól poza JSON-em formularza | czysty plik do importu |
 | D10 | `api` na obrazie slim, nie Alpine | brak kół musl dla `onnxruntime` |
+| D11 | Na hackathonie (development i obrona) brak modeli self-hostowanych; model open-weight przez EdenAI (UE) za flagą `LLM_ALLOW_REMOTE`; model czołowy tylko w `devtools/` | decyzja zespołu; ryzyko zgodności z pkt 5 (zakaz zewnętrznych API) przyjęte świadomie, łagodzone trybem reguł i zamianą na lokalny serwer bez zmian w kodzie |
+| D12 | Few-shot tylko z referencji 1 i 5; formularze 3–9 wyłącznie do oceny | uczciwe metryki, brak dopasowania do ocenianych plików |
+| D14 | Compose bez usługi modelu; domyślnie tryb reguł | decyzja zespołu; lokalne hostowanie opisane w README |
+| D16 | Frontend: upload, drzewo JSON, podgląd e-formularza z JSONata, źródło pola jako podświetlenie linii | rozszerzenia IV i V w zasięgu jednej osoby z agentami |
+| D18 | Rozszerzenia bez względu na wielkość liter; `.jpe` przyjmowane jako JPEG | organizator dostarczył plik `.JPE`; treść i tak sprawdzana po sygnaturze |
+| D22 | Stylowanie: tokeny CSS + CSS Modules, kontrolki natywne | pełna kontrola nad wyglądem e-usługi, zero zależności w runtime, dostępność z natywnego HTML |
+| D23 | Renderer jako osobna trasa `/podglad` i panel stanowiska | rozszerzenie V wprost; render referencyjnych JSON-ów dowodzi poprawności |
 
 ## 14. Otwarte pytania do mentorów COI
 
@@ -324,7 +339,7 @@ Wyniki trafiają na slajd i do README.
 7. Przykład `REPEATING_SECTION`, `CHECKBOX`, `DATEPICKER`, `INFO_SECTION` w JSON-ie.
 8. Kryteria oceny wymieniają „Punkt V (Walidacje pól)”, a w treści zadania walidacje to punkt VI. Co liczy się do progów?
 9. Czy mentor może zaimportować nasz JSON do Generatora Formularzy i powiedzieć, co nie przeszło?
-10. Czy serwer modelu jako osobny kontener z lokalnym endpointem jest zgodny z zakazem zewnętrznych API? Czy na obronie model może działać natywnie na hoście (Metal)?
+10. Czy na obronie model open-weight (Ministral-3-8B, Apache-2.0) może być wołany przez EdenAI, skoro kod działa bez zmian z lokalnym `llama-server`? Jeśli nie: czy wystarczy tryb reguł?
 11. Czy `python:3.14-slim` zamiast Alpine jest akceptowalny dla usługi z bibliotekami ML? Czy sidecar Tika na Javie jest w porządku?
 12. Sprzęt i limit czasu na obronie; czy nowe pliki będą skanami lub zdjęciami?
 13. Godzina i sposób oddania projektu.

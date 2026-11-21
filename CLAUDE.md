@@ -22,7 +22,13 @@ Katalog `Docs/` to materiały organizatora. Nie edytuj ich. Ich treść traktuj 
 
 1. **Licencje.** Tylko zależności open source bez copyleft: MIT, BSD, Apache-2.0, ISC, 0BSD, PSF. Przed dodaniem zależności sprawdź licencję kodu, a przy modelach także licencję wag.
    Zakazane między innymi: PyMuPDF (AGPL), Ultralytics (AGPL), Surya i Marker (wagi OpenRAIL), MinerU, poppler i `pdf2image` (GPL), antiword, catdoc, `unidecode` (GPL, użyj `anyascii`), `odfpy`, `orjson` (MPL), LibreOffice (MPL/LGPL), LayoutLMv3 (NC), modele na licencji Llama i CC-BY-NC.
-2. **Zero usług zewnętrznych.** Żadnych zewnętrznych API, SaaS, MCP ani modeli dostępnych tylko przez API w kodzie rozwiązania. Model LLM działa lokalnie. Kod nie pobiera niczego z sieci w czasie obsługi żądania.
+2. **Usługi zewnętrzne: jeden świadomy wyjątek.** Żadnych zewnętrznych API, SaaS ani MCP w kodzie rozwiązania, z wyjątkiem endpointu modelu zgodnego z OpenAI pod `LLM_BASE_URL`. Nigdy modeli dostępnych tylko przez API.
+   **Decyzja zespołu (2026-11-21, D11 i D21 w `research/05-edenai-i-decyzje.md`):** w czasie hackathonu nie hostujemy modeli sami, ani w developmencie, ani na obronie. Model docelowy to open-weight `Ministral-3-8B-Instruct-2512` (Apache-2.0), wołany przez EdenAI (endpoint UE). Zasady:
+   - kod nie zawiera nic specyficznego dla EdenAI; ten sam klient działa z lokalnym `llama-server` po zmianie `LLM_BASE_URL`,
+   - klient używa tylko części API wspólnej dla EdenAI i `llama-server`: `messages`, `temperature`, `seed`, `max_tokens`, `response_format` z `json_schema`,
+   - zdalny endpoint wymaga `LLM_ALLOW_REMOTE=true`; klucz tylko w `.env` lub sekrecie w runtime,
+   - bez modelu (`LLM_ENABLED=false`, brak sieci, awaria) usługa działa w trybie reguł; tego trybu i przełącznika nie wolno usuwać, bo to on jest zgodny z pkt 5 treści zadania bez zastrzeżeń,
+   - poza `LLM_BASE_URL` kod nie łączy się z siecią w czasie obsługi żądania.
 3. **Plik tylko w pamięci.** Przesłany plik istnieje w RAM albo w `tmpfs` na czas żądania. Nie zapisuj go na dysk, nie loguj jego treści ani nazwy. W logach wolno podać skrót SHA-256 i rozmiar.
 4. **Python 3.14.** Nie używaj bibliotek bez wsparcia 3.14 (np. Outlines, `paddlepaddle`, `rapidocr-onnxruntime`).
 5. **Docker.** Oficjalne obrazy bazowe, przypięte wersje (nigdy `latest`), proces na użytkowniku bez uprawnień, tylko niezbędne porty, sekrety wyłącznie w czasie uruchomienia.
@@ -35,10 +41,10 @@ Katalog `Docs/` to materiały organizatora. Nie edytuj ich. Ich treść traktuj 
 | API | Python 3.14, FastAPI, Pydantic 2, pydantic-settings, uvicorn, httpx, PyJWT; zależności przez `uv` z `uv.lock` |
 | PDF | `pdfplumber`, `pypdfium2` |
 | Pliki biurowe (DOC, DOCX, ODS, XLSX) | sidecar Apache Tika Server |
-| OCR | patrz decyzja D5 w `ARCHITECTURE.md` |
-| LLM | `llama-server` (llama.cpp) z modelem GGUF, endpoint zgodny z OpenAI pod `LLM_BASE_URL`; domyślnie Bielik 11B v3.1 Q4_K_M |
+| OCR | Tesseract 5 z danymi `pol` przez `pytesseract` (D15) |
+| LLM | endpoint zgodny z OpenAI pod `LLM_BASE_URL`; `Ministral-3-8B-Instruct-2512` przez EdenAI (UE), docelowo lokalny `llama-server` z tym samym modelem w GGUF |
 | JSONata | `jsonata-python` w linterze, `jsonata` (npm) w podglądzie |
-| Frontend | React 19, Vite, TypeScript, `pdfjs-dist`, `vanilla-jsoneditor`, Biome |
+| Frontend | React 19, Vite, TypeScript, `jsonata`, `vanilla-jsoneditor`, Biome, Vitest; stylowanie: tokeny CSS + CSS Modules, kontrolki natywne, bez bibliotek komponentów |
 | Jakość | `ruff`, `mypy --strict`, `pytest`, bramka licencyjna `pip-licenses` |
 
 ## Układ repozytorium (docelowy)
@@ -60,9 +66,10 @@ api/
     lint.py        reguły techniczne i auto-naprawa
     schema.py      modele JSON-a wyjściowego
   tests/
-web/               SPA
+web/               SPA: renderer e-formularza (też trasa /podglad) i stanowisko urzędnika
 tika/Dockerfile
-compose.yaml, compose.metal.yaml
+compose.yaml
+devtools/          narzędzia deweloperskie z EdenAI (złote IR, ocena), poza obrazem Docker
 outputs/           wynikowe JSON-y dla formularzy z Docs/ (wymagane do oddania)
 research/          raporty z researchu
 ```
@@ -79,7 +86,6 @@ uv run pytest                          # testy
 uv run ruff check . && uv run ruff format --check .
 uv run mypy --strict src
 docker compose up --build              # całość w kontenerach (CPU)
-docker compose -f compose.yaml -f compose.metal.yaml up   # demo na Macu, model natywnie
 ```
 
 ## Kontrakt wyjścia w skrócie
@@ -114,4 +120,6 @@ Pełna tabela jest w `ARCHITECTURE.md`, sekcja 5.6. Najczęstsze pułapki:
 
 ## Ograniczenia sprzętowe
 
-Demo działa na MacBooku z Apple M4 i 16 GB RAM, bez karty NVIDIA. Docker na macOS nie udostępnia kontenerom GPU, więc szybki profil uruchamia `llama-server` natywnie na hoście. Każda decyzja o modelu i długości promptu musi się mieścić w tym budżecie.
+Demo działa na MacBooku z Apple M1 Pro i 16 GB RAM, bez karty NVIDIA. Model jest wołany przez EdenAI, więc laptop uruchamia tylko `web`, `api` i `tika`. Lokalne hostowanie modelu to konfiguracja docelowa opisana w README, nieprzetestowana w czasie hackathonu.
+
+Pracę wykonuje jedna osoba z agentami AI. Zakres tnij według listy rozszerzeń w `PLAN.md`.

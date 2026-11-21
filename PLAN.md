@@ -14,7 +14,7 @@ Kryteria: kompletność 30%, intuicyjność 20%, jakość kodu 20%, potencjał w
 | Wynik zbudowany z sekcji predefiniowanych COI, z warunkami, słownikami i danymi z rejestrów | kompletność (rozszerzenia I, III) | wygląda jak praca analityka COI |
 | Liczby: pokrycie względem dwóch referencji, spójność 8 formatów, czasy | jakość, wdrożenie | dowód zamiast deklaracji |
 | Ekran „dokument obok formularza” z pochodzeniem pola i podglądem na żywo | intuicyjność, oryginalność | urzędnik jako audytor, zgodnie z podejściem COI do AI |
-| Praca bez sieci na polskim modelu open-weight, raport licencji, koszt na formularz | wdrożenie | zgodność z planami COI (AI Hub, PLLuM, Bielik) |
+| Model open-weight (Apache-2.0) wymienny przez `LLM_BASE_URL`, tryb reguł bez sieci, raport licencji, koszt na formularz | wdrożenie | pasuje do AI Hub COI: model podmienia się konfiguracją |
 | Tryb awaryjny bez modelu | wdrożenie | demo na żywo nie może się wyłożyć |
 
 ## Zakres
@@ -45,16 +45,18 @@ Cztery tory niezależne po ustaleniu dwóch kontraktów: modelu `Document` (wyj�
 
 Przy trzech osobach tor D dzielą między siebie A (API, compose) i C (frontend po północy). Przy dwóch osobach: jedna bierze A + D, druga B + C, a pochodzenie pól i tryb wsadowy wypadają.
 
+**Decyzja D17: jedna osoba + agenci AI.** Tory to zadania dla agentów (np. workery Orca w osobnych worktree), osoba koordynuje i przegląda. Kolejność: A → B → C → D. Pochodzenie pól z ramkami na PDF i tryb wsadowy wypadają (D16).
+
 ## Kamienie milowe
 
 | Godzina | Cel | Dowód |
 |---|---|---|
-| 15:30 | Kontrakty `Document` i IR spisane. Pytania zadane mentorom. `llama-bench` wykonany na laptopie demo, model wybrany. Pobieranie wag w tle. | commit z modelami Pydantic, wyniki pomiaru w README |
+| 15:30 | Kontrakty `Document` i IR spisane. Pytania zadane mentorom. Klucz EdenAI w `.env`, kandydaci na model docelowy porównani przez API (D20). | commit z modelami Pydantic, wynik porównania w `research/` |
 | 17:00 | **Szkielet od końca do końca bez modelu:** PDF → heurystyki → kompilator → poprawny JSON z sekcjami predefiniowanymi. `docker compose up` działa. | `curl` z plikiem 3 zwraca JSON, linter bez błędów |
 | 20:00 | Test odwracalności przechodzi dla obu referencji. Wszystkie osiem formatów przechodzi ingest. Krok A modelu działa na formularzach 3 i 4. Frontend: upload i drzewo JSON. | testy zielone, tabela formatów |
 | 00:00 | Kroki B i C, warunki `SHOW`, słowniki, dane inicjalne, walidatory. Harness ewaluacji daje liczby. Formularze 6 i 7. | pierwsza tabela metryk |
 | 04:00 | Formularze 8 i 9. Podgląd e-formularza z JSONata. Propozycja słownika. JWT, limity, bramka licencyjna. | komplet `outputs/` |
-| 07:00 | **Zamrożenie funkcji.** Tylko poprawki. Próbki zdegradowane, czasy, test na czystej maszynie. | tabela czasów, `docker save` na nośniku |
+| 07:00 | **Zamrożenie funkcji.** Tylko poprawki. Ostateczne wygenerowanie `outputs/` usługą (EdenAI, D21). Próbki zdegradowane, czasy, test na czystej maszynie amd64 (`wobbegong-ci` na PVE). | tabela czasów, `docker save` na nośniku |
 | 08:30 | README, prezentacja (10 slajdów, PDF), film (do 3 min). | pliki w repo |
 | 09:30 | Oddanie. Pół godziny zapasu. | potwierdzenie zgłoszenia |
 
@@ -64,15 +66,17 @@ Zasada: jeśli kamień spóźnia się ponad godzinę, tniemy zakres z dołu list
 
 1. Zadać mentorom pytania z sekcji 14 w `ARCHITECTURE.md`. Najpilniejsze: format `validation`, klucz `repeatingSectionGrid`, zawartość strony `FINISH`, nazwy słowników, zgodność lokalnego serwera modelu z regulaminem, godzina oddania.
 2. Poprosić mentora o próbny import jednego JSON-a do Generatora, gdy tylko powstanie.
-3. Pobrać `llama.cpp` i wagi: Bielik 11B v3.1 Q4_K_M oraz Bielik-Minitron-7B Q4_K_M. Uruchomić `llama-bench -m <gguf> -ngl 99 -p 512 -n 128` i zapisać wyniki.
-4. Sprawdzić zużycie pamięci: model + Docker Desktop + przeglądarka na 16 GB. Jeśli jest ciasno, domyślnym modelem zostaje Minitron-7B.
+3. Bez modeli self-hostowanych w developmencie (D11). Klucz EdenAI do `.env`, `LLM_ALLOW_REMOTE=true`, endpoint `https://api.eu.edenai.run/v3`. Porównać kandydatów na model docelowy przez API na formularzach referencyjnych (D20).
+4. Modelu nie uruchamiamy lokalnie w czasie hackathonu (D21). Lokalne hostowanie opisujemy w README jako konfigurację docelową.
 5. Założyć `api/` przez `uv init`, dodać `ruff`, `mypy`, `pytest`.
 
 ## Ryzyka
 
 | Ryzyko | Zabezpieczenie |
 |---|---|
-| Model za wolny na żywo | krótki IR, cache promptu, profil Minitron-7B, budżet czasu na żądanie, tryb reguł |
+| Model za wolny na żywo | krótki IR, budżet czasu na żądanie, tryb reguł |
+| Jury uzna wołanie EdenAI na obronie za zewnętrzne API | pytanie do mentorów w pierwszej godzinie; tryb reguł (`LLM_ENABLED=false`) gotowy do przełączenia jedną zmienną; model open-weight i kod bez zależności od EdenAI |
+| Brak sieci na sali obrony | tryb reguł; hotspot jako zapas |
 | Nowy plik na obronie to skan albo zdjęcie | OCR przetestowany na próbkach zdegradowanych; prostowanie obrazu; tryb reguł działa także na tekście z OCR |
 | JSON nie importuje się w Generatorze | linter, test odwracalności, wczesny próbny import u mentora |
 | Naruszenie licencji | lista zakazów w `CLAUDE.md`, bramka `pip-licenses` w CI, ręczna kontrola licencji wag |
