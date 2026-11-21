@@ -15,21 +15,28 @@ from pydantic import BaseModel, ConfigDict
 
 from formcompiler.compiler import slugify
 from formcompiler.config import Settings
+from formcompiler.heuristics import Analysis
 from formcompiler.ir import (
     CHOICE_TYPES,
     Addressee,
     Applicant,
+    Cond,
     FieldIR,
     FieldType,
     PageIR,
     SectionIR,
     Validator,
 )
-from formcompiler.sections import LIBRARY, RESERVED_KEYS
+from formcompiler.sections import LIBRARY, RESERVED_KEYS, assemble
 
 SEED = 7
 INVENTORY_MAX_TOKENS = 4096
 MAX_KEY_LENGTH = 60
+MAX_TITLE_LENGTH = 255
+TITLE_WORDS = ("Wniosek", "Zgłoszenie", "Deklaracja", "Oświadczenie")
+# An addressee named after an official is an ORGAN, one named after an office is an URZAD.
+ORGAN_NAME = re.compile(r"^(Wójt|Burmistrz|Prezydent|Starosta|Marszałek|Zarząd)\b", re.IGNORECASE)
+OFFICE_NAME = re.compile(r"^(Urząd|Starostwo)\b", re.IGNORECASE)
 LINE_ID = re.compile(r"^L\d+$")
 FENCE = re.compile(r"^```(?:json)?\s*|\s*```$")
 RETRYABLE_STATUS = frozenset({429, 500, 502, 503, 504})
@@ -185,6 +192,13 @@ class _Model(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
+class ShowIfOption(_Model):
+    """The field is shown only when choice field `field_key` has the answer `value`."""
+
+    field_key: str
+    value: str
+
+
 class InventoryField(_Model):
     page: str
     section: str
@@ -195,6 +209,7 @@ class InventoryField(_Model):
     validators: list[Validator] = []
     options: list[str] = []
     dictionary: Dictionary | None = None
+    show_if_option: ShowIfOption | None = None
     src: list[str] = []
 
 
@@ -339,6 +354,10 @@ L27 *Numer PESEL wpisują podatnicy będący osobami fizycznymi objętymi rejest
                 key="nazwa_podatku",
                 label="Nazwa podatku",
                 type=FieldType.TEXT_FIELD,
+                show_if_option=ShowIfOption(
+                    field_key="wybierz_co_mamy_zrobic_z_nadplata",
+                    value="Zaliczyć na poczet przyszłego zobowiązania podatkowego",
+                ),
                 src=["L20"],
             ),
             InventoryField(
@@ -347,6 +366,10 @@ L27 *Numer PESEL wpisują podatnicy będący osobami fizycznymi objętymi rejest
                 key="numer_rachunku",
                 label="Numer rachunku",
                 type=FieldType.TEXT_FIELD,
+                show_if_option=ShowIfOption(
+                    field_key="wybierz_co_mamy_zrobic_z_nadplata",
+                    value="Zwrócić przelewem na rachunek bankowy",
+                ),
                 src=["L21", "L22"],
             ),
             InventoryField(
@@ -377,9 +400,12 @@ za pełnomocnictwo) i stronę „{LIBRARY.contact.title}” (telefon, e-mail, zg
 informacyjna). Tych pól NIE wypisuj: imię, nazwisko, nazwa firmy lub wnioskodawcy, PESEL, NIP, \
 REGON wnioskodawcy, adres zamieszkania lub siedziby, telefon, e-mail, zgody, oświadczenia, \
 klauzula RODO, pełnomocnictwo, opłata skarbowa. Zamiast tego ustaw:
-- addressee: urząd lub organ, do którego składa się wniosek, bez adresu; kind=ORGAN, gdy to \
-osoba pełniąca funkcję (Wójt, Burmistrz, Prezydent Miasta, Starosta), kind=URZAD, gdy to urząd \
-(Urząd Gminy, Urząd Miasta); null, gdy blankiet go nie podaje,
+- addressee: adresat z bloku adresata blankietu, bez adresu i kodu pocztowego; gdy adresatem \
+jest funkcja (Wójt, Burmistrz, Prezydent Miasta, Starosta, Marszałek), kind=ORGAN, a name to \
+funkcja z nazwą jednostki, np. „Wójt Gminy Elbląg”; gdy adresatem jest urząd, kind=URZAD, a name \
+to pełna nazwa ze wszystkich linii bloku, np. „Urząd Gminy Ulan-Majorat”, nigdy samo „Urząd \
+Gminy”; tylko z bloku adresata, nigdy z klauzuli informacyjnej ani z danych administratora; \
+null, gdy blankiet go nie podaje,
 - applicant.persons: wniosek może złożyć osoba fizyczna,
 - applicant.entities: wniosek może złożyć firma, osoba prawna lub jednostka (np. „nazwa \
 firmy”, „siedziba”, „nazwa wnioskodawcy”, NIP),
@@ -393,8 +419,9 @@ przypisy, pouczenia, podstawy prawne, klauzule.
 - label: krótko i prostym językiem, bez dwukropka, wielka litera tylko na początku,
 - key: snake_case z liter ASCII bez polskich znaków, cyfr i „_”, do {MAX_KEY_LENGTH} znaków, \
 unikalny; nie używaj kluczy zajętych przez sekcje predefiniowane: {RESERVED_LIST},
-- type: TEXT_FIELD krótki tekst; TEXTAREA dłuższy opis lub uzasadnienie; NUMBER kwota lub \
-liczba; DATEPICKER data; RADIO jeden wybór z kilku wariantów; CHECKBOX wiele wyborów; SELECT \
+- type: TEXT_FIELD krótki tekst; TEXTAREA dłuższy opis lub uzasadnienie; NUMBER kwota, \
+liczba osób, powierzchnia lub inna liczba; DATEPICKER data; RADIO jeden wybór z kilku \
+wariantów; CHECKBOX wiele wyborów; SELECT \
 jeden wybór z długiej listy albo ze słownika; FILE_UPLOADER załącznik („w załączeniu”, \
 „załączam”); TEXT_BLOCK informacja dla wnioskodawcy bez danych do wpisania; nie używaj \
 CONSENT_SECTION ani INFO_SECTION,
@@ -404,11 +431,17 @@ ją jako nieobowiązkową albo potrzebną tylko w jednym wariancie,
 nie wpisuj, od tego jest required,
 - options: warianty wyboru pełnymi zdaniami, tylko dla RADIO, CHECKBOX i SELECT; puste dla \
 innych typów i dla pól ze słownikiem,
+- show_if_option: gdy pole jest potrzebne tylko przy jednym wariancie wyboru (np. numer \
+rachunku tylko przy zwrocie przelewem), wypisz je zaraz po polu RADIO i ustaw field_key na \
+klucz tego pola RADIO, a value na dokładny tekst opcji; dla pozostałych pól null,
 - dictionary: słownik dla pola wyboru (Kraje dla kraju, Województwo, Powiat, Gmina, \
 Miejscowość dla jednostek adresowych, Numery kierunkowe dla prefiksu telefonu), inaczej null,
 - page i section: tytuły strony i sekcji tematycznej, krótko; zwykle jedna strona, a na niej \
 kilka sekcji po kilka pól,
 - src: identyfikatory linii, z których pochodzi pole.
+
+Załączniki: jedno pole FILE_UPLOADER na każdy załącznik nazwany na blankiecie. Nie twórz pól \
+dla pustych, wykropkowanych pozycji listy załączników ani dla liczby załączników.
 
 4. title zaczyna się od „Wniosek”, „Zgłoszenie”, „Deklaracja” albo „Oświadczenie”, pisany \
 zwykłą wielkością liter, bez skrótów.
@@ -445,6 +478,7 @@ def inventory(
 def to_subject_pages(inv: InventoryIR) -> list[PageIR]:
     """Group the flat inventory into pages and sections with unique, non-reserved keys."""
     taken = set(RESERVED_KEYS)
+    built: list[tuple[InventoryField, FieldIR]] = []
     reserved_titles = {LIBRARY.data_page_title, LIBRARY.contact.title, LIBRARY.finish.title}
     grouped: dict[str, dict[str, list[InventoryField]]] = {}
     for f in inv.fields:
@@ -464,10 +498,98 @@ def to_subject_pages(inv: InventoryIR) -> list[PageIR]:
             if kept:
                 key = _claim(section_title, "sekcja", taken)
                 items = [_field(f, taken) for f in kept]
+                built += zip(kept, items, strict=True)
                 page_sections.append(SectionIR(key=key, title=section_title, fields=items))
         if page_sections:
             pages.append(PageIR(title=title, sections=page_sections))
-    return pages
+    return _with_conditions(pages, built)
+
+
+def _with_conditions(
+    pages: list[PageIR], built: list[tuple[InventoryField, FieldIR]]
+) -> list[PageIR]:
+    """Turn `show_if_option` into IR conditions; references to unknown fields or values drop."""
+    by_key: dict[str, FieldIR] = {}
+    for raw, field in built:
+        by_key.setdefault(field.key, field)
+        by_key.setdefault(raw.key, field)
+    conditions: dict[str, Cond] = {}
+    for raw, field in built:
+        ref = raw.show_if_option
+        if ref is None:
+            continue
+        target = by_key.get(ref.field_key) or by_key.get(slugify(ref.field_key))
+        if target is None or target.key == field.key or target.type not in CHOICE_TYPES:
+            continue
+        value = next(
+            (o for o in target.options if o.casefold() == ref.value.strip().casefold()), None
+        )
+        reverse = conditions.get(target.key)
+        if value is None or (reverse is not None and reverse.field == field.key):
+            continue
+        conditions[field.key] = Cond(field=target.key, value=value)
+    if not conditions:
+        return pages
+    return [
+        page.model_copy(
+            update={
+                "sections": [
+                    section.model_copy(
+                        update={
+                            "fields": [
+                                f.model_copy(update={"show_if": conditions.get(f.key)})
+                                for f in section.fields
+                            ]
+                        }
+                    )
+                    for section in page.sections
+                ]
+            }
+        )
+        for page in pages
+    ]
+
+
+def _consistent(addressee: Addressee | None) -> Addressee | None:
+    """Fix the addressee kind when the name says otherwise; the model often mixes them up."""
+    if addressee is None or not addressee.name.strip():
+        return None
+    name = addressee.name.strip()
+    kind = addressee.kind
+    if ORGAN_NAME.match(name):
+        kind = "ORGAN"
+    elif OFFICE_NAME.match(name):
+        kind = "URZAD"
+    return Addressee(name=name, kind=kind)
+
+
+def refine(
+    settings: Settings,
+    document_text: str,
+    analysis: Analysis,
+    *,
+    transport: httpx.BaseTransport | None = None,
+) -> Analysis:
+    """Step A on top of the rules-mode analysis, which fills whatever the model leaves out.
+
+    Raises LLMError when the model fails or its answer does not assemble into a valid form,
+    so the caller keeps `analysis`.
+    """
+    inv = inventory(settings, document_text, transport=transport)
+    title = inv.title.strip()
+    if not title.startswith(TITLE_WORDS) or len(title) > MAX_TITLE_LENGTH:
+        title = analysis.title
+    refined = Analysis(
+        title=title,
+        addressee=_consistent(inv.addressee) or analysis.addressee,
+        applicant=inv.applicant,
+        pages=to_subject_pages(inv) or analysis.pages,
+    )
+    try:
+        assemble(refined.title, refined.addressee, refined.applicant, refined.pages)
+    except ValueError as exc:
+        raise LLMError(f"answer does not assemble: {type(exc).__name__}") from None
+    return refined
 
 
 def _claim(text: str, fallback: str, taken: set[str]) -> str:
