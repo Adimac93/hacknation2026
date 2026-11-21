@@ -73,17 +73,16 @@ Do zrobienia, w kolejności:
 
 ## Kamienie milowe
 
-| Godzina | Cel | Dowód |
-|---|---|---|
-| 15:30 | Kontrakty `Document` i IR spisane. Pytania zadane mentorom. Klucz EdenAI w `.env`, kandydaci na model docelowy porównani przez API (D20). | commit z modelami Pydantic, wynik porównania w `research/` |
-| 17:00 | **Szkielet od końca do końca bez modelu:** PDF → heurystyki → kompilator → poprawny JSON z sekcjami predefiniowanymi. `docker compose up` działa. | `curl` z plikiem 3 zwraca JSON, linter bez błędów |
-| 20:00 | Test odwracalności przechodzi dla obu referencji. Wszystkie osiem formatów przechodzi ingest. Krok A modelu działa na formularzach 3 i 4. Frontend: upload i drzewo JSON. | testy zielone, tabela formatów |
-| 20:00+ | Pierwszy deploy demo na `formularze.heckyeah.pl` (D24), gdy `compose.yaml` działa; potem po każdym większym commicie. | link działa z telefonu |
-| 00:00 | Kroki B i C, warunki `SHOW`, słowniki, dane inicjalne, walidatory. Harness ewaluacji daje liczby. Formularze 6 i 7. | pierwsza tabela metryk |
-| 04:00 | Formularze 8 i 9. Podgląd e-formularza z JSONata. Propozycja słownika. JWT, limity, bramka licencyjna. | komplet `outputs/` |
-| 07:00 | **Zamrożenie funkcji.** Tylko poprawki. Ostateczne wygenerowanie `outputs/` usługą (EdenAI, D21). Próbki zdegradowane, czasy, test na czystej maszynie amd64 (`wobbegong-ci` na PVE). | tabela czasów, `docker save` na nośniku |
-| 08:30 | README, prezentacja (10 slajdów, PDF), film (do 3 min). | pliki w repo |
-| 09:30 | Oddanie. Pół godziny zapasu. | potwierdzenie zgłoszenia |
+Plan zmieniony o 17:45: kamień z 17:00 się spóźnił, więc szkielet od pliku do JSON-a przesuwa się na 21:00. Kolejność: najpierw tryb reguł, potem model.
+
+| Godzina | Cel | Kto | Dowód |
+|---|---|---|---|
+| 21:00 | **Od pliku do JSON-a bez modelu.** Upload z walidacją, `POST /api/v1/forms` (problem+json, `/health`, JWT opcjonalny), ingest PDF, heurystyki, biblioteka sekcji predefiniowanych, linter z auto-naprawą, `compose.yaml` z `api` i `tika`. | worker 1: upload + API; worker 2: linter + Docker; fidok15: `ingest/pdf.py`; Adimac93: `sections.py`, `heuristics.py`, `pipeline.py`; Stanisław: stanowisko na danych przykładowych z kontraktu 8.1 | `curl` z PDF formularza 3 zwraca JSON z sekcjami predefiniowanymi, linter bez błędów |
+| 01:00 | **Model.** Porównanie D20, `llm.py` z trzema krokami i przejściem na reguły, złote IR formularzy 3–9 (D11), harness z metrykami. Ingest DOC, DOCX, ODS, XLSX (Tika) i rastrów (RapidOCR). Stanowisko podpięte do API. | Adimac93: model i harness; fidok15: Tika i OCR; Stanisław: frontend | tabela metryk, osiem formatów przechodzi ingest |
+| 05:00 | Formularze 6–9, komplet `outputs/`, deploy demo (D24), limity, bramka licencyjna, propozycja słownika. | wszyscy | komplet `outputs/`, link demo działa |
+| 07:00 | **Zamrożenie funkcji.** Tylko poprawki. Ostateczne `outputs/` z usługi (EdenAI, D21). Próbki zdegradowane, czasy, test na czystej maszynie amd64 (`wobbegong-ci`). | wszyscy | tabela czasów, `docker save` na nośniku |
+| 08:30 | README, prezentacja (10 slajdów, PDF), film (do 3 min). | wszyscy | pliki w repo |
+| 09:30 | Oddanie (godzinę potwierdzić u organizatora). | | potwierdzenie zgłoszenia |
 
 Zasada: jeśli kamień spóźnia się ponad godzinę, tniemy zakres z dołu listy rozszerzeń, nie przesuwamy zamrożenia.
 

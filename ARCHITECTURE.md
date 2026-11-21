@@ -249,6 +249,29 @@ Wszystkie liczby tok/s w raportach to szacunki. W trakcie developmentu nie uruch
 | `GET /health` | stan usługi i dostępność modelu, bez tokenu |
 | `GET /docs` | OpenAPI |
 
+Kontrakt `?details=true` (ustalony 17:45 dla frontendu; pola mogą dochodzić, istniejące się nie zmieniają):
+
+```json
+{
+  "form": { "title": "…", "tabs": [], "flow": { "links": [] } },
+  "report": {
+    "mode": "llm",
+    "model": "mistral/ministral-8b-2512@eu",
+    "timings_ms": { "ingest": 120, "heuristics": 4, "llm": 9100, "compile": 3, "lint": 2 },
+    "lint": [
+      { "code": "L005", "severity": "error", "message": "Pole leży poza sekcją", "path": "tabs[1].questions[0]", "fixed": true }
+    ],
+    "fields": [ { "techName": "imie", "src": ["L12"], "confidence": 0.9 } ],
+    "document": {
+      "pages": [ { "number": 1, "lines": [ { "id": "L1", "text": "WNIOSEK", "kind": "HEADING" } ] } ]
+    },
+    "dictionary_proposals": []
+  }
+}
+```
+
+`mode` to `llm` albo `rules`; `severity` to `error` albo `warning`; `kind` linii to `TEXT`, `HEADING`, `CHECKBOX` albo `TABLE_ROW` (model `Document`).
+
 Przetwarzanie jest synchroniczne i bezstanowe. Tryb wsadowy realizuje frontend, wysyłając pliki po kolei.
 
 ### 8.2 Błędy
