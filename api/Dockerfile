@@ -23,27 +23,36 @@ COPY src ./src
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen --no-dev --no-editable
 
-# RapidOCR weights (PP-OCRv6 small, D5) go here; the ingest track adds them. Download them at
-# build time from a pinned URL, verified against a hard-coded SHA-256, e.g.:
-#   ADD --checksum=sha256:<sum> <det-model-url> /models/rapidocr/det.onnx
-# then copy /models into the runtime stage (COPY --from=build) and point RapidOCR at it.
-# Nothing is downloaded at runtime.
+# The rapidocr wheel bundles the same weights; drop them so OCR_MODEL_DIR is the only source.
+RUN rm -f /app/.venv/lib/python3.14/site-packages/rapidocr/models/*.onnx
+
+# --- OCR weights ---------------------------------------------------------------------------------
+# PP-OCRv6 small (D5, Apache-2.0) from the RapidOCR 3.10.0 model repository, verified against the
+# SHA-256 that rapidocr 3.10.0 lists in its default_models.yaml. Nothing is downloaded at runtime.
+FROM scratch AS ocr-models
+ARG OCR_MODELS_URL=https://www.modelscope.cn/models/RapidAI/RapidOCR/resolve/v3.10.0/onnx/PP-OCRv6
+ADD --chmod=644 --checksum=sha256:090f04abcd9d9a7498bc4ebf677e4cb9bdce1fe4197ddb7e529f1ef44e1ff94f \
+    ${OCR_MODELS_URL}/det/PP-OCRv6_det_small.onnx /rapidocr/PP-OCRv6_det_small.onnx
+ADD --chmod=644 --checksum=sha256:6f327246b50388f3c176ae304bd95767ea6dc0c9ae92153ef8cbe210b3c14884 \
+    ${OCR_MODELS_URL}/rec/PP-OCRv6_rec_small.onnx /rapidocr/PP-OCRv6_rec_small.onnx
 
 # --- runtime -------------------------------------------------------------------------------------
 FROM ${PYTHON_IMAGE} AS runtime
 
-# Fallback OCR, Tesseract 5 with `pol` data (D5): the ingest track adds the system packages:
-#   RUN apt-get update \
-#    && apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-pol \
-#    && rm -rf /var/lib/apt/lists/*
+# Fallback OCR, Tesseract 5 with `pol` data (D5, Apache-2.0); versions follow the pinned base image.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-pol \
+ && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd --system --gid 10001 app \
  && useradd --system --uid 10001 --gid app --no-create-home --home-dir /nonexistent \
       --shell /usr/sbin/nologin app
 
 COPY --from=build /app/.venv /app/.venv
+COPY --from=ocr-models /rapidocr /opt/models/rapidocr
 
 ENV PATH=/app/.venv/bin:$PATH \
+    OCR_MODEL_DIR=/opt/models/rapidocr \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 WORKDIR /app
