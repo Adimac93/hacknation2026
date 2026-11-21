@@ -8,12 +8,15 @@ from collections.abc import Callable, Mapping
 
 from formcompiler.config import Settings
 from formcompiler.document import Document
+from formcompiler.ingest import raster
 from formcompiler.upload import FileKind, UploadError
 
 type Reader = Callable[[bytes, FileKind, Settings], Document]
 
 # Format modules add themselves here, e.g. `READERS[FileKind.PDF] = pdf.read`.
 READERS: dict[FileKind, Reader] = {}
+READERS[FileKind.PNG] = raster.read
+READERS[FileKind.JPEG] = raster.read
 
 
 def read(
