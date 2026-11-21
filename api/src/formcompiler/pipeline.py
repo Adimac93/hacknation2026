@@ -6,7 +6,7 @@ from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from typing import Literal
 
-from formcompiler import compiler, heuristics, ingest, lint, schema, sections
+from formcompiler import compiler, heuristics, ingest, lint, llm, schema, sections
 from formcompiler.config import Settings
 from formcompiler.ingest import Reader
 from formcompiler.ir import FormIR
@@ -31,7 +31,7 @@ def process(
     kind: FileKind,
     settings: Settings,
     read: Reader = ingest.read,
-    refine: Refine | None = None,
+    refine: Refine | None = llm.refine,
 ) -> tuple[schema.Form, Report]:
     timings: dict[str, int] = {}
     with _timed(timings, "ingest"):
