@@ -5,6 +5,7 @@ messages, temperature, seed, max_tokens and response_format with a JSON schema.
 """
 
 import difflib
+import json
 import logging
 import re
 import time
@@ -12,7 +13,7 @@ from enum import StrEnum
 from typing import Any, NamedTuple
 
 import httpx
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, ValidationError
 
 from formcompiler.compiler import slugify
 from formcompiler.config import Settings
@@ -31,7 +32,17 @@ from formcompiler.ir import (
 from formcompiler.sections import LIBRARY, RESERVED_KEYS, assemble
 
 SEED = 7
-# Form 8 (waste declaration, ~55 fields) needs ~5k tokens; 4096 cut its answer off.
+# Step A completion budget, measured 2026-11-21 on Qwen3.5-9B via EdenAI. One field object
+# costs 83-96 completion tokens. Complete answers used at most 0.36 tokens per character of
+# the linearised blank (form 8: 6359 tokens for 17 747 characters, form 6: 1742 / 5039,
+# form 7: 1080 / 6542, form 4: 960 / 1594). Rules mode undercounts fields (form 8: 8 rules
+# fields against 66 model fields; its raster: 3), while OCR keeps 75-100% of the text, so the
+# budget follows whichever signal is larger. A looping answer runs to the budget at ~140
+# tokens/s; the cap of 8192 (form 8 needs ~6.4k) costs ~60 s, the floor ~15 s.
+INVENTORY_BASE_TOKENS = 1024
+INVENTORY_TOKENS_PER_FIELD = 150
+INVENTORY_TOKENS_PER_CHAR = 0.45
+INVENTORY_MIN_TOKENS = 2048
 INVENTORY_MAX_TOKENS = 8192
 MAX_KEY_LENGTH = 60
 MAX_TITLE_LENGTH = 255
@@ -48,6 +59,14 @@ logger = logging.getLogger(__name__)
 
 class LLMError(Exception):
     """The model did not give a usable answer; the caller falls back to heuristics."""
+
+
+class TruncatedAnswer(LLMError):
+    """The answer hit max_tokens; `content` keeps the partial text for salvage, never logs."""
+
+    def __init__(self, max_tokens: int, content: str) -> None:
+        super().__init__(f"answer cut off at max_tokens={max_tokens}")
+        self.content = content
 
 
 class Usage(NamedTuple):
@@ -133,9 +152,9 @@ def request_json[T: BaseModel](
                 continue
             if response.is_error:
                 raise LLMError(f"HTTP {response.status_code}")
-            if _truncated(response):
+            if (partial := _truncated(response)) is not None:
                 # Deterministic request (temperature 0, fixed seed): a retry ends the same way.
-                raise LLMError(f"answer cut off at max_tokens={max_tokens}")
+                raise TruncatedAnswer(max_tokens, partial)
             try:
                 parsed, usage = _parse(response, schema)
             except (ValueError, KeyError, IndexError, TypeError) as exc:
@@ -155,11 +174,16 @@ def request_json[T: BaseModel](
     raise LLMError(f"no usable answer after 2 attempts ({last_error})")
 
 
-def _truncated(response: httpx.Response) -> bool:
+def _truncated(response: httpx.Response) -> str | None:
+    """The partial answer text when the answer was cut off at max_tokens, else None."""
     try:
-        return bool(response.json()["choices"][0].get("finish_reason") == "length")
+        choice = response.json()["choices"][0]
+        if choice.get("finish_reason") != "length":
+            return None
+        content = choice.get("message", {}).get("content")
     except ValueError, KeyError, IndexError, TypeError, AttributeError:
-        return False
+        return None
+    return content if isinstance(content, str) else ""
 
 
 def _parse[T: BaseModel](response: httpx.Response, schema: type[T]) -> tuple[T, Usage]:
@@ -463,6 +487,10 @@ skreślić” (także w tytule), dodaj pole RADIO z opcjami A i B, np. „Wynaj�
 
 4. title zaczyna się od „Wniosek”, „Zgłoszenie”, „Deklaracja” albo „Oświadczenie”, pisany \
 zwykłą wielkością liter, bez skrótów.
+
+5. Każde pole wypisz w fields dokładnie raz. Klucz (key) i etykieta (label) nie mogą się \
+powtórzyć. Nie powtarzaj pola, które już wypisałeś; gdy wypiszesz ostatnie pole blankietu, \
+zamknij listę fields.
 """
 
 
@@ -484,13 +512,125 @@ def inventory_messages(
 
 
 def inventory(
-    settings: Settings, document_text: str, *, transport: httpx.BaseTransport | None = None
+    settings: Settings,
+    document_text: str,
+    *,
+    max_tokens: int = INVENTORY_MAX_TOKENS,
+    transport: httpx.BaseTransport | None = None,
 ) -> InventoryIR:
     """Step A: title, addressee, applicant flags and a flat list of subject fields."""
     system, user = inventory_messages(document_text)
-    return complete_json(
-        settings, system, user, InventoryIR, INVENTORY_MAX_TOKENS, transport=transport
+    return complete_json(settings, system, user, InventoryIR, max_tokens, transport=transport)
+
+
+def rules_fields(analysis: Analysis) -> list[FieldIR]:
+    return [f for page in analysis.pages for s in page.sections for f in s.fields]
+
+
+def inventory_budget(analysis: Analysis, document_text: str) -> int:
+    """max_tokens for step A from the rules-mode field count and the length of the blank."""
+    need = max(
+        INVENTORY_TOKENS_PER_FIELD * len(rules_fields(analysis)),
+        round(INVENTORY_TOKENS_PER_CHAR * len(document_text)),
     )
+    return min(max(need + INVENTORY_BASE_TOKENS, INVENTORY_MIN_TOKENS), INVENTORY_MAX_TOKENS)
+
+
+_DECODER = json.JSONDecoder()
+_SPACE = re.compile(r"\s*")
+
+
+def complete_parts(content: str) -> tuple[dict[str, Any], list[Any]]:
+    """Top-level members and `fields` items of a JSON object cut off mid-way; complete ones only."""
+    text = FENCE.sub("", content.strip())
+    members: dict[str, Any] = {}
+    items: list[Any] = []
+
+    def skip(i: int) -> int:
+        match = _SPACE.match(text, i)
+        return match.end() if match else i
+
+    i = skip(0)
+    if not text.startswith("{", i):
+        return members, items
+    i += 1
+    try:
+        while True:
+            key, i = _DECODER.raw_decode(text, skip(i))
+            i = skip(i)
+            if not isinstance(key, str) or not text.startswith(":", i):
+                break
+            i = skip(i + 1)
+            if key == "fields" and text.startswith("[", i):
+                i += 1
+                while not text.startswith("]", i := skip(i)):
+                    item, i = _DECODER.raw_decode(text, i)
+                    items.append(item)
+                    i = skip(i)
+                    if text.startswith(",", i):
+                        i += 1
+                i += 1
+            else:
+                members[key], i = _DECODER.raw_decode(text, i)
+            i = skip(i)
+            if not text.startswith(",", i):
+                break
+            i += 1
+    except ValueError:
+        pass  # the cut: everything before it is kept
+    return members, items
+
+
+def covers_form(fields: list[InventoryField], analysis: Analysis) -> bool:
+    """The salvaged fields plausibly cover the whole form, judged against rules mode.
+
+    The fields must reach at least the line where the last rules-mode input field starts (the
+    model got through the blank as far as rules mode did), and after cleanup they must number
+    at least half the rules input fields (the model merges some, but never most: form 6 gave
+    19-21 for 21). Counting after cleanup rejects near-duplicates that survived the loop check.
+    """
+    inputs = [f for f in rules_fields(analysis) if f.type is not FieldType.TEXT_BLOCK]
+    starts = [min(lines) for f in inputs if (lines := _lines(f.src))]
+    reach = [max(lines) for f in fields if (lines := _lines(f.src))]
+    kept = clean_inventory(InventoryIR(title="", fields=fields)).fields
+    return bool(starts and reach) and max(reach) >= max(starts) and 2 * len(kept) >= len(inputs)
+
+
+def salvage(content: str, analysis: Analysis) -> InventoryIR | None:
+    """Complete fields of a cut-off answer before its loop, if they cover the form.
+
+    A cut-off answer has run into a loop: the same field again and again under the same key
+    (form 9 repeated its second field 85 times) or under numbered keys (`..._4` to `..._33`),
+    or one endless `src` list inside a field. Fields are kept up to the first repeated key;
+    copies under new keys are left to `clean_inventory`, and `covers_form` counts what it
+    keeps. Header parts the answer lacks (the title comes last in practice) or gives in a
+    wrong shape come from rules mode.
+    """
+    members, items = complete_parts(content)
+    fields: list[InventoryField] = []
+    for item in items:
+        try:
+            f = InventoryField.model_validate(item)
+        except ValidationError:
+            break
+        if any(f.key == seen.key for seen in fields):
+            break
+        fields.append(f)
+    if not covers_form(fields, analysis):
+        return None
+    header: dict[str, Any] = {
+        "title": analysis.title,
+        "addressee": analysis.addressee,
+        "applicant": analysis.applicant,
+    }
+    for name, value in members.items():
+        if name in header:
+            try:
+                InventoryIR.model_validate({**header, name: value})
+            except ValidationError:
+                continue
+            header[name] = value
+    return InventoryIR.model_validate({**header, "fields": fields})
 
 
 def norm(text: str) -> str:
@@ -748,7 +888,17 @@ def refine(
     Raises LLMError when the model fails or its answer does not assemble into a valid form,
     so the caller keeps `analysis`.
     """
-    inv = inventory(settings, document_text, transport=transport)
+    budget = inventory_budget(analysis, document_text)
+    try:
+        inv = inventory(settings, document_text, max_tokens=budget, transport=transport)
+    except TruncatedAnswer as exc:
+        salvaged = salvage(exc.content, analysis)
+        if salvaged is None:
+            raise
+        logger.warning(
+            "llm answer cut off at max_tokens=%d, salvaged %d fields", budget, len(salvaged.fields)
+        )
+        inv = salvaged
     title = inv.title.strip()
     if not title.startswith(TITLE_WORDS) or len(title) > MAX_TITLE_LENGTH:
         title = analysis.title
