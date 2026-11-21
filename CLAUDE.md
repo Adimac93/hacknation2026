@@ -12,6 +12,7 @@ Przeczytaj przed pracą:
 
 - [`ARCHITECTURE.md`](ARCHITECTURE.md): potok, IR, kontrakt wyjścia, reguły lintera, decyzje.
 - [`PLAN.md`](PLAN.md): kolejność prac i podział na tory.
+- [`DESIGN.md`](DESIGN.md): zasady interfejsu (tokeny, WCAG, komponenty). Obowiązkowe przy pracy nad `web/`. Źródło wizualne: `ksiega-znaku-biurokratka.pdf`, logo w `logo-pack/`.
 - `Docs/[Centralny Ośrodek Informatyki] Cyfryzacja Formularzy/`: treść zadania i regulamin.
 - `Docs/Materiały do zadania dla Uczestników/`: reguły techniczne, standardy projektowania, słowniki, dane inicjalne, schemat JSON.
 - `Docs/1. …` i `Docs/5. …`: dwa referencyjne JSON-y. **To one są wzorcem formatu**, nie plik schematu.
@@ -65,6 +66,8 @@ tika/Dockerfile
 compose.yaml, compose.metal.yaml
 outputs/           wynikowe JSON-y dla formularzy z Docs/ (wymagane do oddania)
 research/          raporty z researchu
+logo-pack/         logo Biurokratki (SVG, PNG, WebP), użyj zamiast rysować własne
+DESIGN.md, ksiega-znaku-biurokratka.pdf   wytyczne wizualne
 ```
 
 Nie twórz dodatkowych warstw: bez kontenerów DI, bez interfejsów z jedną implementacją, bez bazy danych, bez kolejki zadań.

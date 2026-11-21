@@ -14,4 +14,7 @@ Usługa przyjmuje blankiet formularza urzędowego (PDF, DOC, DOCX, ODS, XLSX, JP
 | [`PLAN.md`](PLAN.md) | plan realizacji, podział pracy, kamienie milowe, ryzyka |
 | [`CLAUDE.md`](CLAUDE.md) | zasady pracy dla agentów AI w repozytorium |
 | [`research/`](research/) | raporty: OCR i parsowanie, model LLM, konkurencja i wyróżniki, stos i licencje |
+| [`DESIGN.md`](DESIGN.md) | zasady interfejsu (tokeny, dostępność, komponenty) dla frontendu `web/` |
+| [`ksiega-znaku-biurokratka.pdf`](ksiega-znaku-biurokratka.pdf) | Księga znaku Biurokratka v2, źródło prawdy wizualnej |
+| [`logo-pack/`](logo-pack/README.md) | logo w wersjach kolorystycznych (SVG, PNG, WebP) |
 | `Docs/` | materiały organizatora |
