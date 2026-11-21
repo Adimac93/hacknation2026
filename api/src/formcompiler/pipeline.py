@@ -6,7 +6,7 @@ from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from typing import Literal
 
-from formcompiler import compiler, heuristics, ingest, lint, llm, schema, sections
+from formcompiler import compiler, dictionaries, heuristics, ingest, lint, llm, schema, sections
 from formcompiler.config import Settings
 from formcompiler.ingest import Reader
 from formcompiler.ir import FormIR
@@ -65,6 +65,7 @@ def process(
         lint=[LintIssue(**issue.model_dump()) for issue in issues],
         fields=_field_reports(ir),
         document=doc,
+        dictionary_proposals=dictionaries.propose(form),
     )
     return form, report
 

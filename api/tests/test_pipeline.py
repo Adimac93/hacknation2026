@@ -5,7 +5,8 @@ from formcompiler import ingest, pipeline
 from formcompiler.config import Settings
 from formcompiler.document import Document
 from formcompiler.heuristics import Analysis
-from formcompiler.lint import lint
+from formcompiler.ir import FieldIR, PageIR, SectionIR
+from formcompiler.lint import _items, lint
 from formcompiler.upload import FileKind, UploadError
 
 SETTINGS = Settings(_env_file=None)
@@ -96,3 +97,34 @@ def test_model_is_not_called_when_disabled() -> None:
     _, report = pipeline.process(b"%PDF-", FileKind.PDF, SETTINGS, read=read_form_3, refine=never)
 
     assert report.mode == "rules"
+
+
+def test_report_proposes_dictionaries_and_form_keeps_inline_options() -> None:
+    works = ["Wykopy", "Przewierty", "Przeciski"]
+
+    def with_choice(settings: Settings, text: str, analysis: Analysis) -> Analysis:
+        page = PageIR(
+            title="Roboty",
+            sections=[
+                SectionIR(
+                    key="roboty",
+                    title="Roboty",
+                    fields=[
+                        FieldIR(
+                            key="rodzaj_robot", label="Rodzaj robót", type="RADIO", options=works
+                        )
+                    ],
+                )
+            ],
+        )
+        return analysis.model_copy(update={"pages": [page]})
+
+    form, report = pipeline.process(
+        b"%PDF-", FileKind.PDF, LLM_SETTINGS, read=read_form_3, refine=with_choice
+    )
+
+    assert [(p.name, p.items, p.fields) for p in report.dictionary_proposals] == [
+        ("Rodzaj robót", works, ["rodzaj_robot"])
+    ]
+    field = next(i.field for i in _items(form) if i.field.techName == "rodzaj_robot")
+    assert (field.dictionaryName, [o.name for o in field.options]) == (None, works)
