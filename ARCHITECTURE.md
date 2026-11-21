@@ -383,4 +383,4 @@ Wyniki trafiają na slajd i do README.
 11. Czy `python:3.14-slim` zamiast Alpine jest akceptowalny dla usługi z bibliotekami ML? Czy sidecar Tika na Javie jest w porządku?
 12. Sprzęt i limit czasu na obronie; czy nowe pliki będą skanami lub zdjęciami?
 13. Próbki `5. …/*.DOC` i `7. …/*.DOC` mają w środku format DOCX. Czy walidacja ma taki plik przyjąć (traktujemy `.doc` i `.docx` jako jedną rodzinę), czy odrzucić?
-14. Godzina i sposób oddania projektu.
+14. ~~Godzina oddania~~: potwierdzona, niedziela 22.11.2026, 9:30. Sposób oddania do ustalenia.

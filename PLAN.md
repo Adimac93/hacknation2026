@@ -1,6 +1,6 @@
 # Plan realizacji
 
-Stan na 2026-11-21, godz. 14:30. Hackathon trwa 24 godziny, więc plan zakłada ok. 19 godzin do oddania. **Godzinę oddania trzeba potwierdzić u organizatora**; poniższe godziny przyjmują niedzielę 10:00.
+Stan na 2026-11-21, godz. 14:30. Hackathon trwa 24 godziny, więc plan zakłada ok. 19 godzin do oddania. **Godzina oddania potwierdzona: niedziela 22.11.2026, 9:30.** Poniższe kamienie milowe liczą się wstecz od niej.
 
 Architektura: [`ARCHITECTURE.md`](ARCHITECTURE.md). Uzasadnienia: [`research/`](research/).
 
@@ -82,7 +82,7 @@ Plan zmieniony o 17:45: kamień z 17:00 się spóźnił, więc szkielet od pliku
 | 05:00 | Formularze 6–9, komplet `outputs/`, deploy demo (D24), limity, bramka licencyjna, propozycja słownika. | wszyscy | komplet `outputs/`, link demo działa |
 | 07:00 | **Zamrożenie funkcji.** Tylko poprawki. Ostateczne `outputs/` z usługi (EdenAI, D21). Próbki zdegradowane, czasy, test na czystej maszynie amd64 (`wobbegong-ci`). | wszyscy | tabela czasów, `docker save` na nośniku |
 | 08:30 | README, prezentacja (10 slajdów, PDF), film (do 3 min). | wszyscy | pliki w repo |
-| 09:30 | Oddanie (godzinę potwierdzić u organizatora). | | potwierdzenie zgłoszenia |
+| 09:30 | Oddanie (godzina potwierdzona przez organizatora). | | potwierdzenie zgłoszenia |
 
 Zasada: jeśli kamień spóźnia się ponad godzinę, tniemy zakres z dołu listy rozszerzeń, nie przesuwamy zamrożenia.
 
