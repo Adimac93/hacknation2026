@@ -64,7 +64,7 @@ function weighted(ds: number[], weights: number[], mod: number): number {
 function validText(names: string[], rand: () => number): string {
   const d = (n: number) => Array.from({ length: n }, () => Math.floor(rand() * 10));
   if (names.includes("PESEL")) {
-    const ds = [...d(2), 0, 1, 1, 5, ...d(3)]; // month 01, day 15
+    const ds = [...d(2), 0, 1, 1, 5, ...d(4)]; // YY, month 01, day 15, serial: 10 digits + check
     const check = (10 - weighted(ds, [1, 3, 7, 9, 1, 3, 7, 9, 1, 3], 10)) % 10;
     return [...ds.slice(0, 10), check].join("");
   }

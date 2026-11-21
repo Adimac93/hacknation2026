@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
@@ -65,13 +65,14 @@ describe("jsonTree", () => {
   });
 
   it("handles the largest generated form quickly", () => {
-    const form: unknown = JSON.parse(
-      readFileSync(
-        // vitest runs from web/
-        resolve("../outputs/9-wniosek-o-przyznanie-stypendium-sportowego-rady-miasta-zgierza.json"),
-        "utf8",
-      ),
-    );
+    // vitest runs from web/; take the biggest generated form so renames in outputs/ do not matter
+    const dir = resolve("../outputs");
+    const files = readdirSync(dir).filter((f) => f.endsWith(".json"));
+    expect(files.length).toBeGreaterThan(0);
+    const biggest = files
+      .map((f) => ({ f, size: statSync(resolve(dir, f)).size }))
+      .sort((x, y) => y.size - x.size)[0];
+    const form: unknown = JSON.parse(readFileSync(resolve(dir, biggest?.f ?? ""), "utf8"));
     const t = performance.now();
     const all = flatten(form, allContainerIds(form));
     search(form, "techName");
