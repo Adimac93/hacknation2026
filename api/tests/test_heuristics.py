@@ -166,3 +166,36 @@ def test_result_compiles_without_lint_errors() -> None:
     form = build(assemble(result.title, result.addressee, result.applicant, result.pages))
 
     assert [i for i in lint(form) if i.severity == "error"] == []
+
+
+def test_title_split_over_lines_is_joined_in_sentence_case() -> None:
+    lines = [
+        ("WÓJT GMINY PŁOSKINIA", LineKind.TEXT),
+        ("Płoskinia 8", LineKind.TEXT),
+        ("WNIOSEK", LineKind.HEADING),
+        ("o", LineKind.TEXT),
+        ("wynajęcie/użyczenie* świetlicy wiejskiej", LineKind.TEXT),
+        ("Proszę o wynajem świetlicy ……………", LineKind.TEXT),
+    ]
+
+    result = analyze(document(lines))
+
+    assert result.title == "Wniosek o wynajęcie/użyczenie świetlicy wiejskiej"
+    assert result.addressee is not None
+    assert (result.addressee.name, result.addressee.kind) == ("Wójt Gminy Płoskinia", "ORGAN")
+
+
+def test_addressee_name_spans_lines_until_the_street() -> None:
+    lines = [
+        ("Urząd Gminy", LineKind.TEXT),
+        ("Ulan-Majorat", LineKind.TEXT),
+        ("Ulan-Majorat 57", LineKind.TEXT),
+        ("WNIOSEK", LineKind.HEADING),
+        ("o stwierdzenie nadpłaty podatku", LineKind.TEXT),
+    ]
+
+    result = analyze(document(lines))
+
+    assert result.addressee is not None
+    assert result.addressee.name == "Urząd Gminy Ulan-Majorat"
+    assert result.title == "Wniosek o stwierdzenie nadpłaty podatku"
