@@ -35,7 +35,7 @@ Katalog `Docs/` to materiały organizatora. Nie edytuj ich. Ich treść traktuj 
 | API | Python 3.14, FastAPI, Pydantic 2, pydantic-settings, uvicorn, httpx, PyJWT; zależności przez `uv` z `uv.lock` |
 | PDF | `pdfplumber`, `pypdfium2` |
 | Pliki biurowe (DOC, DOCX, ODS, XLSX) | sidecar Apache Tika Server |
-| OCR | patrz decyzja D5 w `ARCHITECTURE.md` |
+| OCR (tylko rastry) | `rapidocr` + `onnxruntime`, modele PP-OCRv6 small, zawsze `use_cls=false`; obraz najpierw pocięty na strony |
 | LLM | `llama-server` (llama.cpp) z modelem GGUF, endpoint zgodny z OpenAI pod `LLM_BASE_URL`; domyślnie Bielik 11B v3.1 Q4_K_M |
 | JSONata | `jsonata-python` w linterze, `jsonata` (npm) w podglądzie |
 | Frontend | React 19, Vite, TypeScript, `pdfjs-dist`, `vanilla-jsoneditor`, Biome |
@@ -94,6 +94,14 @@ Pełna tabela jest w `ARCHITECTURE.md`, sekcja 5.6. Najczęstsze pułapki:
 - Pole z rejestru: `defaultValue: "<ŹRÓDŁO>.<atrybut>"`, `defaultValueType: "EXTERNAL_SYSTEM"`.
 - Zgody i oświadczenia tylko w `CONSENT_SECTION`, nigdy jako `CHECKBOX`.
 - Podpis, pieczęć, „miejscowość i data” oraz pola „wypełnia urząd” nie trafiają do formularza.
+
+## Pułapki wejścia (zmierzone na próbkach)
+
+- Format rozpoznawaj po sygnaturze pliku. Próbki `5. …/*.DOC` i `7. …/*.DOC` to w środku DOCX.
+- Tekst z PDF nie zawiera kratek: to glify fontów symbolicznych albo prostokąty wektorowe. Bierz je z `pdfplumber` (font, geometria).
+- Tika zamienia kratki-punktory na `·`. Krótka lista punktowana to kandydat na opcje wyboru.
+- Obrazy PNG i JPG to wiele stron sklejonych w pionie (wysokość to wielokrotność 2339 px). OCR bez cięcia zwraca śmieci.
+- OCR gubi wykropkowania i większość kratek. Dla rastrów nie zakładaj, że znaczniki pól istnieją.
 
 ## Konwencje kodu
 

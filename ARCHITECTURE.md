@@ -78,10 +78,18 @@ Każdy format trafia do jednego modelu `Document`: lista stron, na każdej linie
 | Wejście | Narzędzie | Uwagi |
 |---|---|---|
 | PDF z warstwą tekstową | `pdfplumber` (tekst, linie, prostokąty), `pypdfium2` (render strony) | pola wyboru to często grafika wektorowa albo glif Wingdings; wykrywamy je z prostokątów i nazwy fontu, bo sam tekst ich nie zawiera |
-| PDF bez warstwy tekstowej, JPG, JPEG, PNG | cięcie na strony, potem OCR | patrz decyzja D5 w sekcji 13 |
-| DOC, DOCX, ODS, XLSX | Apache Tika Server, wynik XHTML | jeden adapter dla czterech formatów; tabele zachowane |
+| PDF bez warstwy tekstowej, JPG, JPEG, PNG | cięcie na strony, prostowanie, potem RapidOCR (`rapidocr` + `onnxruntime`, modele PP-OCRv6 small) z `use_cls=false` | zmierzone na M4: CER 1,2–4,2%, 1,0–1,8 s na stronę; z domyślnym klasyfikatorem orientacji CER rośnie do 16% |
+| DOC, DOCX, ODS, XLSX | Apache Tika Server 3.3.2, wynik XHTML | jeden adapter dla czterech formatów; tabele zachowane |
 
-Bardzo wysokie obrazy (próbki mają do 1654×37 424 px, wysokość to wielokrotność 2339 px, czyli A4 przy 200 DPI) tniemy na strony przed OCR. Gdy wysokość nie jest wielokrotnością strony, tniemy w najbliższym poziomym pasie bez tuszu.
+Zasada: **warstwa natywna zawsze, OCR tylko dla rastra.** Parser natywny działa w milisekundach, nie myli znaków i zachowuje kratki, wykropkowania i tabele. OCR gubi wszystkie wykropkowania i 62–100% kratek, więc dla rastrów heurystyki opierają się na samym tekście (etykieta z dwukropkiem, lista krótkich pozycji), a resztę rozstrzyga model.
+
+Pułapki zmierzone na próbkach:
+
+- Tika zamienia kratki zrobione jako punktory listy (`numbering.xml`) na znak `·`. Krótka lista punktowana jest więc kandydatem na opcje wyboru.
+- W PDF kratki to glify fontów symbolicznych (Wingdings U+F0F0, U+F071, U+2751, U+25A1) albo prostokąty wektorowe. Wykrywamy je po nazwie fontu i geometrii.
+- Żaden z dziewięciu przykładowych PDF nie ma pól AcroForm.
+
+Bardzo wysokie obrazy (próbki mają do 1654×37 424 px, wysokość to wielokrotność 2339 px, czyli A4 przy 200 DPI) tniemy na strony przed OCR. Bez cięcia RapidOCR daje CER 99,9%, a Tesseract odrzuca plik. Gdy wysokość nie jest wielokrotnością strony, tniemy w najszerszym poziomym pasie bez tuszu w zakresie ±15% wysokości strony, a gdy takiego pasa nie ma (zdjęcie), tniemy z zakładką i usuwamy zduplikowane linie.
 
 Po ingest dokument jest linearyzowany do tekstu z prostymi znacznikami: `[ ]` pole wyboru, `____` miejsce do wpisania, `|` komórki tabeli, `#` nagłówek, `--- strona N ---`.
 
@@ -263,7 +271,9 @@ Format `application/problem+json`. Kody: 400 zła nazwa pliku, 401 brak lub zły
 
 Kolejność: rozmiar (nagłówek, potem licznik bajtów) → nazwa (NFC, do 250 znaków, bez `; : > < / \ | ' * % $`) → rozszerzenie z białej listy → zgodność treści z rozszerzeniem.
 
-Zgodność treści: sygnatury PDF, PNG, JPEG; kontenery ZIP rozróżniamy po zawartości (`mimetype` dla ODS, `[Content_Types].xml` dla DOCX i XLSX); OLE2 po strumieniu `WordDocument` (DOC). Odrzucamy pliki z makrami. Limity chronią przed bombami dekompresyjnymi (liczba wpisów ZIP, rozmiar po rozpakowaniu, liczba pikseli obrazu, liczba stron).
+Zgodność treści: sygnatury PDF, PNG, JPEG; kontenery ZIP rozróżniamy po zawartości (`mimetype` dla ODS, `[Content_Types].xml` dla DOCX i XLSX); OLE2 po strumieniu `WordDocument` (DOC). Odrzucamy pliki z makrami.
+
+Rozszerzenia `.doc` i `.docx` traktujemy jako jedną rodzinę „dokument Word”, tak jak grupuje je treść zadania („DOC (.doc .docx)”). Powód: dwie próbki organizatora (`5. …/*.DOC`, `7. …/*.DOC`) mają rozszerzenie `.DOC`, a w środku OOXML. Plik `.doc` z treścią DOCX przyjmujemy, plik `.doc` z treścią arkusza albo PDF odrzucamy. Format do przetwarzania wybieramy zawsze po sygnaturze, nigdy po rozszerzeniu. Limity chronią przed bombami dekompresyjnymi (liczba wpisów ZIP, rozmiar po rozpakowaniu, liczba pikseli obrazu, liczba stron).
 
 Nazwa pliku nigdy nie staje się ścieżką. W logach jest tylko skrót SHA-256 i rozmiar, bez treści dokumentu. Aplikacja odrzuca `LLM_BASE_URL` spoza pętli zwrotnej i sieci prywatnych, chyba że ustawiono jawną flagę.
 
@@ -306,8 +316,8 @@ Wyniki trafiają na slajd i do README.
 | D2 | Model nie pisze końcowego JSON-a | czas generacji i spójność odwołań |
 | D3 | Bielik 11B v3.1 jako model domyślny | Apache-2.0, polski model, najlepsze dostępne wyniki dla polszczyzny w tej klasie rozmiaru, mieści się w 16 GB |
 | D4 | `llama-server` za `LLM_BASE_URL` | obraz 291 MB wobec 2,87 GB dla Ollamy, wymuszanie schematu, wymienny model |
-| D5 | OCR rastrów | do uzupełnienia po raporcie `research/01` |
-| D6 | Tika dla DOC, DOCX, ODS, XLSX | Apache-2.0, jedyna sensowna droga dla binarnego DOC bez copyleft, jeden adapter na cztery formaty |
+| D5 | OCR rastrów: RapidOCR 3.10 + ONNX Runtime, modele PP-OCRv6 small, `use_cls=false`. Zapas: Tesseract 5 `pol` | Apache-2.0 i MIT, bez PyTorch, działa na Pythonie 3.14; w pomiarze 2–10 razy mniejszy CER niż Tesseract na czystych stronach. PaddleOCR odpada, bo `paddlepaddle` nie ma kół dla 3.14. Tesseract lepiej trzyma diakrytyki na słabych skanach, dlatego zostaje jako zapas |
+| D6 | Tika dla DOC, DOCX, ODS, XLSX | Apache-2.0, jedyna utrzymywana droga dla binarnego DOC bez copyleft, jeden adapter na cztery formaty. Jeśli harness pokaże straty na DOCX lub arkuszach, przechodzimy na `python-docx` i `python-calamine`, a Tika zostaje tylko dla DOC |
 | D7 | `pdfplumber` + `pypdfium2` dla PDF | MIT i Apache/BSD; PyMuPDF jest na AGPL |
 | D8 | API synchroniczne i bezstanowe | wymóg przetwarzania tylko w pamięci, mniej kodu |
 | D9 | Propozycje słowników i pochodzenie pól poza JSON-em formularza | czysty plik do importu |
@@ -327,4 +337,5 @@ Wyniki trafiają na slajd i do README.
 10. Czy serwer modelu jako osobny kontener z lokalnym endpointem jest zgodny z zakazem zewnętrznych API? Czy na obronie model może działać natywnie na hoście (Metal)?
 11. Czy `python:3.14-slim` zamiast Alpine jest akceptowalny dla usługi z bibliotekami ML? Czy sidecar Tika na Javie jest w porządku?
 12. Sprzęt i limit czasu na obronie; czy nowe pliki będą skanami lub zdjęciami?
-13. Godzina i sposób oddania projektu.
+13. Próbki `5. …/*.DOC` i `7. …/*.DOC` mają w środku format DOCX. Czy walidacja ma taki plik przyjąć (traktujemy `.doc` i `.docx` jako jedną rodzinę), czy odrzucić?
+14. Godzina i sposób oddania projektu.
