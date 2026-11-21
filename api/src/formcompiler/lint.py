@@ -246,6 +246,18 @@ def check_dictionary(form: schema.Form) -> list[Issue]:
     return issues
 
 
+def check_choice_options(form: schema.Form) -> list[Issue]:
+    return [
+        _error(
+            "L025",
+            f"{it.path}.field.options",
+            "Pole wyboru (SELECT, RADIO, CHECKBOX) musi mieć opcje albo słownik",
+        )
+        for it in _items(form)
+        if it.field.type in CHOICE and not it.field.options and it.field.dictionaryName is None
+    ]
+
+
 def check_external_values(form: schema.Form) -> list[Issue]:
     issues = []
     for it in _items(form):
@@ -492,6 +504,7 @@ RULES: list[Rule] = [
     check_validation_list,
     check_validators,
     check_dictionary,
+    check_choice_options,
     check_external_values,
     check_pesel_read_only,
     check_unique_ids,

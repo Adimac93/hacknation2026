@@ -239,6 +239,11 @@ ERROR_CASES: list[tuple[str, Mutation, Callable[[Data], str]]] = [
         _set("kraj", options=[{"id": "Polska", "name": "Polska", "techName": "polska"}]),
         _path("kraj", ".field.dictionaryName"),
     ),
+    (
+        "L025",
+        _set("wybierz_jako_kto_wnioskujesz", options=[]),
+        _path("wybierz_jako_kto_wnioskujesz", ".field.options"),
+    ),
     ("L015", _set("imie", defaultValue="USOS.name"), _path("imie", ".field.defaultValue")),
     (
         "L015",
@@ -411,6 +416,7 @@ def _consent_checkbox(d: Data) -> None:
         "imie",
         type="CHECKBOX",
         title="Oświadczam, że dane są prawdziwe",
+        options=[{"id": "Tak", "name": "Tak", "techName": "tak"}],
         defaultValue=None,
         defaultValueType=None,
     )(d)
