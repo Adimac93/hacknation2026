@@ -45,7 +45,31 @@ Cztery tory niezależne po ustaleniu dwóch kontraktów: modelu `Document` (wyj�
 
 Przy trzech osobach tor D dzielą między siebie A (API, compose) i C (frontend po północy). Przy dwóch osobach: jedna bierze A + D, druga B + C, a pochodzenie pól i tryb wsadowy wypadają.
 
-**Decyzja D17: trzy osoby + agenci AI** (Adimac93, Stanisław Synowiec, fidok15). Przydział torów do potwierdzenia w zespole; na razie Adimac93 prowadzi tor A (kompilator, gotowy szkielet) i C (model), a frontend (tor D) robi agent w worktree `web`. Research OCR (tor B) wykonał fidok15. Pochodzenie pól z ramkami na PDF i tryb wsadowy wypadają (D16).
+**Decyzja D17: trzy osoby + agenci AI** (Adimac93, Stanisław Synowiec, fidok15):
+
+| Osoba | Tor |
+|---|---|
+| Adimac93 | A (kompilator, linter, sekcje predefiniowane) i C (model, EdenAI, ewaluacja) |
+| Stanisław Synowiec | D: frontend `web/` |
+| fidok15 | B: ingest i OCR (do potwierdzenia) |
+
+Pochodzenie pól z ramkami na PDF i tryb wsadowy wypadają (D16).
+
+### Tor D: stan przekazania (Stanisław)
+
+Gotowe na `main` (98 testów Vitest, `biome` i `npm run build` bez błędów, 148 pakietów npm na MIT, Apache-2.0, BSD, ISC):
+
+- renderer e-formularza (`web/src/renderer/`): kroki z `flow.links`, sekcje w siatce, 11 typów pól i komunikat dla nieznanego typu, `REPEATING_SECTION`, warunki `SHOW` i `READ_ONLY` przez `jsonata`, walidacja przy „Dalej” z podsumowaniem błędów, strona `FINISH` jako podsumowanie,
+- trasa `/podglad`: wczytanie pliku JSON, przeciągnij i upuść, przykłady 1 i 5 (`web/public/examples/`),
+- walidatory z wektorami w `fixtures/validators.json` (wspólne z backendem),
+- celowo bez `@vitejs/plugin-react` (zależność `caniuse-lite` jest na CC-BY-4.0); JSX kompiluje esbuild.
+
+Do zrobienia, w kolejności:
+
+1. Stanowisko urzędnika na `/` (teraz zaślepka): upload do `POST /api/v1/forms?details=true`, drzewo JSON (`vanilla-jsoneditor`), raport lintera, pobranie pliku, panel tekstu dokumentu z podświetleniem linii źródłowych pola (D16). Kontrakt odpowiedzi `report` ustalimy z torem A, gdy powstanie `main.py`.
+2. Uzgodnić `DESIGN.md` (Biurokratka) z D22: propozycja: stanowisko w stylu Biurokratki, podgląd e-formularza w wyglądzie e-usługi COI. Fonty Archivo i IBM Plex Mono są na OFL, której nie ma na liście licencji w `CLAUDE.md`: decyzja zespołu.
+3. Kontener `web` (nginx-unprivileged, proxy `/api`) do `compose.yaml` i demo D24.
+4. Pominięte świadomie: wysyłka formularza, pełne słowniki (są przykładowe zestawy), potwierdzenie przy „Przerwij wypełnianie”.
 
 ## Kamienie milowe
 
