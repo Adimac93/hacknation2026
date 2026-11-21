@@ -663,7 +663,6 @@ PERSONAL_LABELS = frozenset(norm(f.label) for f in LIBRARY_FIELDS) | frozenset(
         "Adres",
         "Adres zamieszkania",
         "Adres siedziby",
-        "Adres do korespondencji",
         "Nazwa firmy",
         "Nazwa wnioskodawcy",
         "REGON",
@@ -671,11 +670,6 @@ PERSONAL_LABELS = frozenset(norm(f.label) for f in LIBRARY_FIELDS) | frozenset(
 )
 PERSONAL_KEYS = frozenset(f.key for f in LIBRARY_FIELDS)
 PROXY_LABEL = re.compile(r"pełnomocni", re.IGNORECASE)
-# Address parts are the applicant's own when their section is about the applicant.
-APPLICANT_SECTION = re.compile(r"wnioskodaw|identyfikac|zamieszka|siedzib", re.IGNORECASE)
-ADDRESS_PARTS = ADDRESS_LABELS | frozenset(
-    norm(label) for label in ["Nr domu", "Numer domu", "Nr lokalu", "Adres"]
-)
 STATEMENT = re.compile(
     r"^(oświadcz|zapozna|zobowiąz|wyrażam|odpowiadam|ponosz|przyjmuj)", re.IGNORECASE
 )
@@ -701,15 +695,88 @@ TITLE_LINE = re.compile(
 NAME_WORD = re.compile(r"[^\W\d_]{3,}")
 
 
+# Words of the predefined applicant and contact labels, for labels the model rephrases, such as
+# "Nazwisko, imię / Nazwa pełna" or "Nr tel./fax". Matching runs on `norm` (ASCII, lower case).
+def _words(labels: list[str]) -> frozenset[str]:
+    return frozenset(w for label in labels for w in norm(label).split())
+
+
+_APPLICANT_KEYS = {"twoje_dane", "dane_podmiotu"}
+_ADDRESS_KEYS = {"adres_zamieszkania", "adres_siedziby"}
+IDENTITY_WORDS = _words(
+    [f.label for s in LIBRARY.applicant if s.key in _APPLICANT_KEYS for f in s.fields]
+    + ["imiona", "REGON", "KRS", "nazwa pełna firmy"]
+)
+CONTACT_WORDS = _words(
+    [f.label for s in LIBRARY.contact.sections for f in s.fields if f.dictionary is None]
+    + ["telefon", "tel", "fax", "faks", "faksu", "email", "komórkowy", "poczty elektronicznej"]
+)
+ADDRESS_WORDS = _words(
+    [
+        f.label
+        for s in LIBRARY.applicant
+        if s.key in _ADDRESS_KEYS
+        for f in s.fields
+        if f.dictionary is None
+    ]
+    + ["adres", "kraj", "województwo", "powiat", "gmina", "poczta", "nr domu", "mieszkania"]
+)
+# Words that only say whose data it is, or join alternatives ("NIP/REGON", "imię i nazwisko").
+APPLICANT_WORDS = _words(
+    [
+        "i lub oraz albo a w z do nr",
+        "dane podmiotu osoba osoby fizyczna fizycznej prawna prawnej",
+        "wnioskodawca wnioskodawcy składającego składającej deklarację",
+        "zamieszkania siedziby pełne kontaktowy kontaktowe kontaktowego identyfikacyjne",
+    ]
+)
+# Words that point at one strong library field; enough to drop a label anywhere on the form.
+LIBRARY_CORE_WORDS = _words(
+    ["imię imiona nazwisko PESEL NIP REGON KRS", "telefon telefonu tel fax faks faksu mail email"]
+)
+RESIDENCE_WORDS = _words(["zamieszkania siedziby"])
+HOUSE_NUMBER = re.compile(r"\b(nr|numer) nieruchomosci\b")
+# Sections about the applicant: their parts of an address are the applicant's own.
+APPLICANT_SECTION = re.compile(
+    r"wnioskodaw|skladajac|identyfikac|zamieszka|siedzib|kontakt|twoje|osobow|adresow|podmiot"
+    r"|osob\w* (fizyczn|prawn)|firm|przedsiebior"
+)
+# Data about someone or something other than the applicant, which the library does not ask for.
+# The library has no correspondence address, so the form's own stays.
+OTHER_PARTY = re.compile(
+    r"wspolmalz|malzon|wspolwlasciciel|wspolposiadacz|korespond|nieruchomos|poprzedni"
+    r"|inn\w* osob|wykonawc|dziec|sportowc|zawodni|podopieczn|uczn|uczen"
+)
+CONSENT_TEXT = re.compile(
+    r"^(zgod\w* .*(przetwarz|danych osobowych|rodo)|klauzul\w* informacyjn|rodo\b)"
+)
+
+
 def is_library_duplicate(f: InventoryField) -> bool:
-    """The field repeats what the predefined applicant or contact sections already ask."""
-    label = norm(f.label)
+    """The field repeats what the predefined applicant or contact sections already ask.
+
+    Data about other people or objects (a spouse, a co-owner, the property, a correspondence
+    address) stays even when its labels look like the applicant's.
+    """
+    if PROXY_LABEL.search(f.label):
+        return True
+    label = HOUSE_NUMBER.sub("numer domu", norm(f.label))
+    section = norm(f.section)
+    if OTHER_PARTY.search(label) or OTHER_PARTY.search(section):
+        return False
+    words = set(label.split())
+    person = IDENTITY_WORDS | CONTACT_WORDS
+    if words and words <= person | APPLICANT_WORDS and words & LIBRARY_CORE_WORDS:
+        return True
+    if words and words <= ADDRESS_WORDS | APPLICANT_WORDS and words & RESIDENCE_WORDS:
+        return True
+    if APPLICANT_SECTION.search(section) and words <= person | ADDRESS_WORDS | APPLICANT_WORDS:
+        return bool(words)
     return (
-        (label in ADDRESS_PARTS and bool(APPLICANT_SECTION.search(f.section)))
-        or f.key in PERSONAL_KEYS
+        f.key in PERSONAL_KEYS
         or label in PERSONAL_LABELS
         or any(difflib.SequenceMatcher(None, label, p).ratio() >= 0.9 for p in PERSONAL_LABELS)
-        or bool(PROXY_LABEL.search(f.label))
+        or bool(CONSENT_TEXT.match(label))
     )
 
 
