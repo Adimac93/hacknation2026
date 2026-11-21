@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { formatSize } from "../api/validate";
 import buttons from "../renderer/buttons.module.css";
 import styles from "./Queue.module.css";
@@ -19,6 +20,18 @@ const LABEL: Record<JobStatus, string> = {
   error: "Błąd",
 };
 
+/** Seconds since `active` became true; resets when it turns false. */
+function useElapsed(active: boolean): number {
+  const [seconds, setSeconds] = useState(0);
+  useEffect(() => {
+    if (!active) return;
+    setSeconds(0);
+    const timer = setInterval(() => setSeconds((s) => s + 1), 1000);
+    return () => clearInterval(timer);
+  }, [active]);
+  return seconds;
+}
+
 interface Props {
   jobs: Job[];
   selected: number | null;
@@ -30,6 +43,7 @@ interface Props {
 export function Queue({ jobs, selected, onSelect, onRemove }: Props) {
   const done = jobs.filter((j) => j.status === "done" || j.status === "error").length;
   const running = jobs.find((j) => j.status === "running");
+  const elapsed = useElapsed(Boolean(running));
   return (
     <section aria-labelledby="queue-title" className={styles.queue}>
       <h2 id="queue-title">Kolejka plików</h2>
@@ -47,7 +61,14 @@ export function Queue({ jobs, selected, onSelect, onRemove }: Props) {
         }
       >
         <div className={styles.bar} style={{ width: `${(done / jobs.length) * 100}%` }} />
+        {running ? <div className={styles.working} /> : null}
       </div>
+      {running ? (
+        <p className={styles.status}>
+          Analizuję plik {done + 1} z {jobs.length}: {running.name}. Trwa to {elapsed} s. Duże pliki
+          i skany mogą potrzebować nawet kilku minut, nie zamykaj tej strony.
+        </p>
+      ) : null}
       <p className="visually-hidden" aria-live="polite">
         {running
           ? `Analizuję plik ${done + 1} z ${jobs.length}`
@@ -82,6 +103,7 @@ export function Queue({ jobs, selected, onSelect, onRemove }: Props) {
                 <span className={styles.tag} data-status={job.status}>
                   {LABEL[job.status]}
                 </span>
+                {job.status === "running" ? <span className="mono"> {elapsed} s</span> : null}
                 {job.error ? <p className={styles.error}>{job.error}</p> : null}
               </td>
               <td>

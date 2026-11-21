@@ -3,6 +3,8 @@
 }
 
 .track {
+  position: relative;
+  overflow: hidden;
   height: 12px;
   margin-bottom: var(--space-4);
   background: var(--color-track);
@@ -60,4 +62,28 @@
   margin-top: var(--space-1);
   font-size: 0.875rem;
   color: var(--color-accent-text);
+}
+
+.status {
+  margin: calc(var(--space-2) * -1) 0 var(--space-4);
+  font-weight: 600;
+}
+
+/* Indeterminate stripe: moves with transform only; static under reduced motion (the text
+   with the elapsed seconds still shows that work continues). */
+.working {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 25%;
+  background: var(--color-text);
+  animation: slide 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes slide {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(300%);
+  }
 }

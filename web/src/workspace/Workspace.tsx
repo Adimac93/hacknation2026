@@ -95,6 +95,13 @@ export function Workspace() {
       });
   }, [jobs, token]);
 
+  // A new file adds a queue row below the fold; bring it into view so progress is visible.
+  const queued = jobs.length;
+  // biome-ignore lint/correctness/useExhaustiveDependencies: only react to the count growing.
+  useEffect(() => {
+    if (queued > 0) document.getElementById("queue-title")?.scrollIntoView({ block: "start" });
+  }, [queued]);
+
   const remove = (id: number) => {
     results.current.delete(id);
     files.current.delete(id);
