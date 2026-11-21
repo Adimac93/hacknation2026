@@ -9,6 +9,8 @@ export interface RendererApi {
   isReadOnly: (field: FormField, key: string) => boolean;
   errorOf: (key: string) => string | undefined;
   domId: (key: string) => string;
+  /** Template key and badge text of the field marked from outside (document review). */
+  marked?: { template: string; badge: string };
   rowsOf: (sectionKey: string) => number[];
   addRow: (sectionKey: string) => void;
   removeRow: (sectionKey: string, rowId: number) => void;

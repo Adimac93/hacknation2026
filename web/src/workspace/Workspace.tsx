@@ -7,11 +7,10 @@ import { validateUpload } from "../api/validate";
 import { AppHeader } from "../brand/AppHeader";
 import { ConfigError, normalizeConfig } from "../form/parse";
 import type { FormConfig } from "../form/types";
-import { FormRenderer } from "../renderer/FormRenderer";
+import { CompareView } from "./CompareView";
 import { JsonPanel } from "./JsonPanel";
 import { type Job, Queue } from "./Queue";
 import { ReportPanel } from "./ReportPanel";
-import { SourcePanel } from "./SourcePanel";
 import { Upload } from "./Upload";
 import styles from "./Workspace.module.css";
 
@@ -218,17 +217,11 @@ export function Workspace() {
             </div>
             <div role="tabpanel" id={`panel-${view}`} aria-labelledby={`tab-${view}`}>
               {view === "compare" ? (
-                <div className={styles.compare}>
-                  <SourcePanel report={result.report} />
-                  {config ? (
-                    <div className={styles.preview}>
-                      <h2>Podgląd e-formularza</h2>
-                      <FormRenderer key={selected} config={config} />
-                    </div>
-                  ) : (
-                    <p role="alert">{configError}</p>
-                  )}
-                </div>
+                config ? (
+                  <CompareView key={selected} report={result.report} config={config} />
+                ) : (
+                  <p role="alert">{configError}</p>
+                )
               ) : null}
               {view === "json" ? <JsonPanel form={result.form} fileName={job.name} /> : null}
               {view === "report" ? <ReportPanel report={result.report} /> : null}

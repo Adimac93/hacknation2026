@@ -13,8 +13,10 @@ import {
   isExternal,
   isFinish,
   labelOf,
+  locateField,
   orderTabs,
   rowsOf,
+  templateKey,
 } from "../form/model";
 import { formReducer, initialFormState } from "../form/state";
 import type { Answer, FormConfig, FormField } from "../form/types";
@@ -26,8 +28,18 @@ import styles from "./FormRenderer.module.css";
 import { Section } from "./Section";
 import { Summary } from "./Summary";
 
+export interface FocusRequest {
+  techName: string;
+  /** Badge text shown on the marked field, e.g. "Źródło: L7, L8". */
+  badge: string;
+  /** Changes on every request, so the same field can be focused again. */
+  seq: number;
+}
+
 interface Props {
   config: FormConfig;
+  /** Marks a field and, when `seq` changes, moves to its step and focuses it. */
+  focusField?: FocusRequest | null;
 }
 
 const domId = (key: string) => `pole-${key.replace(/\W/g, "_")}`;
@@ -36,7 +48,7 @@ const domId = (key: string) => `pole-${key.replace(/\W/g, "_")}`;
  * Renders a COI form configuration as a step-by-step e-form. Independent of the API: it
  * takes a parsed config and keeps all answers in memory.
  */
-export function FormRenderer({ config }: Props) {
+export function FormRenderer({ config, focusField }: Props) {
   const order = useMemo(() => orderTabs(config), [config]);
   const compiled = useMemo(() => compileConditions(config), [config]);
   const [state, dispatch] = useReducer(formReducer, initialFormState);
@@ -71,6 +83,31 @@ export function FormRenderer({ config }: Props) {
     window.scrollTo?.({ top: 0 });
   }, [state.step]);
 
+  // Review request: switch to the field's step first, focus it once it is rendered.
+  const target = useMemo(
+    () => (focusField ? locateField(config, focusField.techName) : null),
+    [config, focusField],
+  );
+  const handled = useRef(0);
+  const targetStep = target ? order.indexOf(target.t) : -1;
+  // biome-ignore lint/correctness/useExhaustiveDependencies: runs per request and step change.
+  useEffect(() => {
+    if (!focusField || !target || targetStep < 0 || handled.current === focusField.seq) return;
+    if (targetStep !== Math.min(state.step, order.length - 1)) {
+      dispatch({ type: "goTo", step: targetStep });
+      return;
+    }
+    const id = domId(templateKey(target.t, target.q, target.g));
+    const cell = document.querySelector<HTMLElement>(`[data-cell="${id}"]`);
+    if (!cell) return; // hidden by a condition, or conditions still pending
+    handled.current = focusField.seq;
+    const el =
+      document.getElementById(id) ??
+      cell.querySelector<HTMLElement>("input,select,textarea,button");
+    (el ?? cell).scrollIntoView?.({ block: "center" });
+    el?.focus({ preventScroll: true });
+  }, [focusField?.seq, state.step, conditions]);
+
   const isHidden = (key: string, template: string) =>
     conditions ? conditions.hidden.has(key) : pendingHidden(compiled, template);
 
@@ -84,6 +121,10 @@ export function FormRenderer({ config }: Props) {
     isReadOnly,
     errorOf: (key) => state.errors[key],
     domId,
+    marked:
+      focusField && target
+        ? { template: templateKey(target.t, target.q, target.g), badge: focusField.badge }
+        : undefined,
     rowsOf: (key) => rowsOf(state.repeats, key),
     addRow: (section) => dispatch({ type: "addRow", section }),
     removeRow: (section, rowId) => dispatch({ type: "removeRow", section, rowId }),

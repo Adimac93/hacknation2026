@@ -15,7 +15,9 @@ export async function demoResult(): Promise<AnalysisResult> {
       for (const cell of section.field.repeatingSectionGrid) {
         const id = `L${++n}`;
         lines.push({ id, text: cell.field.title || cell.field.techName, kind: "TEXT" });
-        fields.push({ techName: cell.field.techName, src: [id], confidence: 0.9 });
+        // Every 7th field is shaky, so the review list has something to show.
+        const confidence = fields.length % 7 === 3 ? 0.4 + (fields.length % 3) * 0.1 : 0.9;
+        fields.push({ techName: cell.field.techName, src: [id], confidence });
       }
     }
     pages.push({ number: i + 1, lines });

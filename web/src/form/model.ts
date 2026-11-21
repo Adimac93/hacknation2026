@@ -165,6 +165,22 @@ export function rowsOf(repeats: Record<string, number[]>, key: string): number[]
   return repeats[key] ?? [0];
 }
 
+/** Position of the first field with this techName, as indices into config.tabs. */
+export function locateField(
+  config: FormConfig,
+  techName: string,
+): { t: number; q: number; g: number } | null {
+  for (const [t, tab] of config.tabs.entries()) {
+    for (const [q, section] of tab.questions.entries()) {
+      const g = (section.field.repeatingSectionGrid ?? []).findIndex(
+        (c) => c.field.techName === techName,
+      );
+      if (g >= 0) return { t, q, g };
+    }
+  }
+  return null;
+}
+
 /** Every field instance on one tab, in visual order. */
 export function fieldInstances(
   config: FormConfig,

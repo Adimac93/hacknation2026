@@ -30,6 +30,20 @@
   padding-right: var(--space-2);
 }
 
+/* The marked field is outlined and labelled, so the mark does not rely on colour alone. */
+.cell[data-marked="true"] {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.badge {
+  margin: 0 0 var(--space-1);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-accent-text);
+}
+
 .row {
   border-top: var(--rule) solid var(--color-divider);
   padding-top: var(--space-3);

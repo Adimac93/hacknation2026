@@ -39,8 +39,18 @@ function FieldCell({
   if (api.isHidden(key, templateKey(t, q, g))) return null;
   const field = cell.field;
   const Component = componentFor(field.type);
+  // Only the first row of a repeating section is marked.
+  const marked =
+    api.marked?.template === templateKey(t, q, g) &&
+    (rowId === undefined || rowId === api.rowsOf(sectionKey(t, q))[0]);
   return (
-    <div className={styles.cell} style={gridArea(cell)}>
+    <div
+      className={styles.cell}
+      style={gridArea(cell)}
+      data-marked={marked || undefined}
+      data-cell={api.domId(key)}
+    >
+      {marked ? <p className={styles.badge}>{api.marked?.badge}</p> : null}
       <Component
         field={field}
         id={api.domId(key)}
