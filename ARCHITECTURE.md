@@ -77,7 +77,7 @@ Każdy format trafia do jednego modelu `Document`: lista stron, na każdej linie
 |---|---|---|
 | PDF z warstwą tekstową | `pdfplumber` (tekst, linie, prostokąty), `pypdfium2` (render strony) | pola wyboru to często grafika wektorowa albo glif Wingdings; wykrywamy je z prostokątów i nazwy fontu, bo sam tekst ich nie zawiera |
 | PDF bez warstwy tekstowej, JPG, JPEG, PNG | cięcie na strony, prostowanie, potem RapidOCR (`rapidocr` + `onnxruntime`, modele PP-OCRv6 small) z `use_cls=false` | zmierzone na M4: CER 1,2–4,2%, 1,0–1,8 s na stronę; z domyślnym klasyfikatorem orientacji CER rośnie do 16% |
-| DOC, DOCX, ODS, XLSX | Apache Tika Server 3.3.2, wynik XHTML | jeden adapter dla czterech formatów; tabele zachowane |
+| DOC, DOCX, ODS, XLSX | Apache Tika Server 3.3.2, wynik XHTML | jeden adapter dla czterech formatów; tabele zachowane. Klient musi wysłać `Content-Type` pliku (albo `application/octet-stream`): bez niego, np. z `urllib`, Tika wybiera `EmptyParser` i zwraca pusty tekst (sprawdzone); `httpx` z `content=` działa poprawnie |
 
 Zasada: **warstwa natywna zawsze, OCR tylko dla rastra.** Parser natywny działa w milisekundach, nie myli znaków i zachowuje kratki, wykropkowania i tabele. OCR gubi wszystkie wykropkowania i 62–100% kratek, więc dla rastrów heurystyki opierają się na samym tekście (etykieta z dwukropkiem, lista krótkich pozycji), a resztę rozstrzyga model.
 
@@ -212,6 +212,8 @@ Reguły pochodzą z „Reguł technicznych konfiguracji formularzy”. Każda ma
 - `flow.links` łączy wszystkie strony w jedną ścieżkę do `FINISH`,
 - zgodność ze schematem JSON organizatora.
 
+Kody reguł: błędy `L001`–`L024`, ostrzeżenia `L101`–`L111` (tabela w docstringu `api/src/formcompiler/lint.py`).
+
 Druga grupa to ostrzeżenia jakościowe ze standardów COI (nie blokują): etykiety prostym językiem (słowa powyżej 4 sylab, formy bezosobowe, „dokonać”, „posiadać”, imiesłowy na „-ąc”), zgody tylko w sekcji zgód, lista powyżej 15 opcji ma wyszukiwarkę.
 
 ## 6. Model LLM i runtime
@@ -308,7 +310,7 @@ Nazwa pliku nigdy nie staje się ścieżką. W logach jest tylko skrót SHA-256 
 |---|---|---|
 | `web` | `nginxinc/nginx-unprivileged`, wariant alpine-slim | jedyny publikowany port (8080); SPA i proxy `/api` |
 | `api` | `python:3.14-slim-trixie` | `onnxruntime` nie ma kół dla musl, więc tu nie Alpine; uzasadnienie w README |
-| `tika` | `eclipse-temurin` 25 JRE na Alpine + przypięty `tika-server` z sumą SHA-256 | własny krótki Dockerfile, non-root, limit pamięci JVM |
+| `tika` | `eclipse-temurin:25.0.5.1_2-jre-alpine-3.24` + `tika-server-standard` 3.3.2 z sumą SHA-512 (Apache publikuje dla tego pliku tylko `.sha512`) | własny krótki Dockerfile, non-root, limit pamięci JVM |
 
 Wspólne: budowanie wieloetapowe, przypięte wersje (bez `latest`), dedykowany użytkownik, `read_only: true`, `tmpfs` na `/tmp`, `cap_drop: [ALL]`, `no-new-privileges`, limity pamięci, healthcheck. Wagi RapidOCR (PP-OCRv6 small) są wypiekane w obrazie `api` z sumą SHA-256, bo w czasie żądania nic nie pobieramy; zapasowy Tesseract i dane `pol` pochodzą z pakietu systemowego. Compose nie zawiera usługi modelu (D14).
 
