@@ -1,0 +1,40 @@
+/* Design tokens read from the COI form visualisations (Docs/, "wizualizacja formularza"). */
+:root {
+  --color-bg: #f0f5fa;
+  --color-surface: #ffffff;
+  --color-readonly: #f6f8f9;
+  --color-text: #101317;
+  --color-border: #101317;
+  --color-primary: #0452a8;
+  --color-primary-hover: #033e80;
+  --color-on-primary: #ffffff;
+  /* The visualisations use #808893 for helper text, but it reaches only 3.6:1 on white.
+     Text uses the darker shade (6.1:1); #808893 stays for decorative lines. */
+  --color-muted-decor: #808893;
+  --color-muted: #5b636d;
+  --color-divider: #dde3ea;
+  --color-error: #b3261e;
+  --color-error-bg: #fdf1f0;
+  --color-info-bg: #eaf2fb;
+
+  --font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.5rem;
+  --line-height: 1.5;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  --radius-card: 8px;
+  --radius-control: 4px;
+  --control-height: 44px;
+  --content-width: 760px;
+
+  --focus-ring: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-primary);
+}
