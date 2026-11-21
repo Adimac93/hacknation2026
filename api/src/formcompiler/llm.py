@@ -34,6 +34,9 @@ INVENTORY_MAX_TOKENS = 4096
 MAX_KEY_LENGTH = 60
 MAX_TITLE_LENGTH = 255
 TITLE_WORDS = ("Wniosek", "Zgłoszenie", "Deklaracja", "Oświadczenie")
+# An addressee named after an official is an ORGAN, one named after an office is an URZAD.
+ORGAN_NAME = re.compile(r"^(Wójt|Burmistrz|Prezydent|Starosta|Marszałek|Zarząd)\b", re.IGNORECASE)
+OFFICE_NAME = re.compile(r"^(Urząd|Starostwo)\b", re.IGNORECASE)
 LINE_ID = re.compile(r"^L\d+$")
 FENCE = re.compile(r"^```(?:json)?\s*|\s*```$")
 RETRYABLE_STATUS = frozenset({429, 500, 502, 503, 504})
@@ -401,7 +404,8 @@ klauzula RODO, pełnomocnictwo, opłata skarbowa. Zamiast tego ustaw:
 jest funkcja (Wójt, Burmistrz, Prezydent Miasta, Starosta, Marszałek), kind=ORGAN, a name to \
 funkcja z nazwą jednostki, np. „Wójt Gminy Elbląg”; gdy adresatem jest urząd, kind=URZAD, a name \
 to pełna nazwa ze wszystkich linii bloku, np. „Urząd Gminy Ulan-Majorat”, nigdy samo „Urząd \
-Gminy”; null, gdy blankiet go nie podaje,
+Gminy”; tylko z bloku adresata, nigdy z klauzuli informacyjnej ani z danych administratora; \
+null, gdy blankiet go nie podaje,
 - applicant.persons: wniosek może złożyć osoba fizyczna,
 - applicant.entities: wniosek może złożyć firma, osoba prawna lub jednostka (np. „nazwa \
 firmy”, „siedziba”, „nazwa wnioskodawcy”, NIP),
@@ -415,8 +419,9 @@ przypisy, pouczenia, podstawy prawne, klauzule.
 - label: krótko i prostym językiem, bez dwukropka, wielka litera tylko na początku,
 - key: snake_case z liter ASCII bez polskich znaków, cyfr i „_”, do {MAX_KEY_LENGTH} znaków, \
 unikalny; nie używaj kluczy zajętych przez sekcje predefiniowane: {RESERVED_LIST},
-- type: TEXT_FIELD krótki tekst; TEXTAREA dłuższy opis lub uzasadnienie; NUMBER kwota lub \
-liczba; DATEPICKER data; RADIO jeden wybór z kilku wariantów; CHECKBOX wiele wyborów; SELECT \
+- type: TEXT_FIELD krótki tekst; TEXTAREA dłuższy opis lub uzasadnienie; NUMBER kwota, \
+liczba osób, powierzchnia lub inna liczba; DATEPICKER data; RADIO jeden wybór z kilku \
+wariantów; CHECKBOX wiele wyborów; SELECT \
 jeden wybór z długiej listy albo ze słownika; FILE_UPLOADER załącznik („w załączeniu”, \
 „załączam”); TEXT_BLOCK informacja dla wnioskodawcy bez danych do wpisania; nie używaj \
 CONSENT_SECTION ani INFO_SECTION,
@@ -545,6 +550,19 @@ def _with_conditions(
     ]
 
 
+def _consistent(addressee: Addressee | None) -> Addressee | None:
+    """Fix the addressee kind when the name says otherwise; the model often mixes them up."""
+    if addressee is None or not addressee.name.strip():
+        return None
+    name = addressee.name.strip()
+    kind = addressee.kind
+    if ORGAN_NAME.match(name):
+        kind = "ORGAN"
+    elif OFFICE_NAME.match(name):
+        kind = "URZAD"
+    return Addressee(name=name, kind=kind)
+
+
 def refine(
     settings: Settings,
     document_text: str,
@@ -563,7 +581,7 @@ def refine(
         title = analysis.title
     refined = Analysis(
         title=title,
-        addressee=inv.addressee or analysis.addressee,
+        addressee=_consistent(inv.addressee) or analysis.addressee,
         applicant=inv.applicant,
         pages=to_subject_pages(inv) or analysis.pages,
     )

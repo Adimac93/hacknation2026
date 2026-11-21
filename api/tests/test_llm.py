@@ -443,3 +443,25 @@ def test_refine_raises_when_the_model_fails() -> None:
 
     with pytest.raises(LLMError):
         refine(make(), "L1 Blankiet", RULES, transport=httpx.MockTransport(handler))
+
+
+@pytest.mark.parametrize(
+    ("given", "expected"),
+    [
+        (Addressee(name="Burmistrz Miasta i Gminy Daleszyce", kind="URZAD"), "ORGAN"),
+        (Addressee(name="Urząd Gminy Ulan-Majorat", kind="ORGAN"), "URZAD"),
+        (Addressee(name="Rada Gminy Testowej", kind="ORGAN"), "ORGAN"),
+    ],
+)
+def test_refine_makes_addressee_kind_match_its_name(given: Addressee, expected: str) -> None:
+    result = refine_with(InventoryIR(title="Wniosek o test", addressee=given))
+
+    assert result.addressee == Addressee(name=given.name, kind=expected)
+
+
+def test_refine_drops_a_blank_addressee() -> None:
+    blank = Addressee(name=" ", kind="URZAD")
+
+    assert refine_with(InventoryIR(title="Wniosek o test", addressee=blank)).addressee == (
+        RULES.addressee
+    )
