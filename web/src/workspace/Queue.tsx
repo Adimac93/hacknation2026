@@ -11,6 +11,8 @@ export interface Job {
   size: number;
   status: JobStatus;
   error?: string;
+  /** The File is still held, so "Spróbuj ponownie" works. */
+  canRetry?: boolean;
   /** Epoch ms when a rate-limited job is retried (status "limited"). */
   retryAt?: number;
 }
@@ -52,11 +54,26 @@ interface Props {
   selected: number | null;
   onSelect: (id: number) => void;
   onRemove: (id: number) => void;
+  onRetry: (id: number) => void;
+  onClearFinished: () => void;
+  onRemoveAll: () => void;
 }
 
 /** Queue of uploaded files (batch mode); the status is text, not only colour. */
-export function Queue({ jobs, selected, onSelect, onRemove }: Props) {
+export function Queue({
+  jobs,
+  selected,
+  onSelect,
+  onRemove,
+  onRetry,
+  onClearFinished,
+  onRemoveAll,
+}: Props) {
   const done = jobs.filter((j) => j.status === "done" || j.status === "error").length;
+  const count = (s: JobStatus) => jobs.filter((j) => j.status === s).length;
+  const ready = count("done");
+  const failed = count("error");
+  const pending = jobs.length - ready - failed;
   const running = jobs.find((j) => j.status === "running");
   const elapsed = useElapsed(Boolean(running));
   const limited = jobs.find((j) => j.status === "limited");
@@ -100,6 +117,27 @@ export function Queue({ jobs, selected, onSelect, onRemove }: Props) {
             ? `Analizuję plik ${done + 1} z ${jobs.length}`
             : `Zakończono ${done} z ${jobs.length}`}
       </p>
+      <p className={styles.summary}>
+        Gotowe: {ready}, błędy: {failed}, w kolejce: {pending}
+      </p>
+      <div className={styles.bulk}>
+        <button
+          type="button"
+          className={buttons.secondary}
+          onClick={onClearFinished}
+          disabled={ready + failed === 0}
+        >
+          Wyczyść zakończone
+        </button>
+        <button
+          type="button"
+          className={buttons.secondary}
+          onClick={onRemoveAll}
+          disabled={Boolean(running)}
+        >
+          Usuń wszystkie
+        </button>
+      </div>
       <table>
         <caption className="visually-hidden">Pliki w kolejce i ich stan</caption>
         <thead>
@@ -131,9 +169,22 @@ export function Queue({ jobs, selected, onSelect, onRemove }: Props) {
                 </span>
                 {job.status === "running" ? <span className="mono"> {elapsed} s</span> : null}
                 {job.status === "limited" ? <span className="mono"> za {left} s</span> : null}
-                {job.error ? <p className={styles.error}>{job.error}</p> : null}
+                {job.error ? (
+                  <p className={styles.error} role="alert">
+                    {job.error}
+                  </p>
+                ) : null}
               </td>
               <td>
+                {job.status === "error" && job.canRetry ? (
+                  <button
+                    type="button"
+                    className={`${buttons.link} ${buttons.small}`}
+                    onClick={() => onRetry(job.id)}
+                  >
+                    Spróbuj ponownie<span className="visually-hidden">: {job.name}</span>
+                  </button>
+                ) : null}{" "}
                 <button
                   type="button"
                   className={`${buttons.link} ${buttons.small}`}
