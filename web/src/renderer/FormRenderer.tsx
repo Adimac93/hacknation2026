@@ -40,13 +40,16 @@ export function FormRenderer({ config }: Props) {
   const order = useMemo(() => orderTabs(config), [config]);
   const compiled = useMemo(() => compileConditions(config), [config]);
   const [state, dispatch] = useReducer(formReducer, initialFormState);
+  // Register data is made up; it stays off until the user asks for it, so the form starts as
+  // empty as the paper blank.
+  const [registers, setRegisters] = useState(false);
   const [conditions, setConditions] = useState<Conditions | null>(null);
   const evaluation = useRef(0);
   const pageTitle = useRef<HTMLHeadingElement>(null);
   const firstRender = useRef(true);
 
   const answerOf = (field: FormField, key: string): Answer =>
-    state.answers[key] ?? initialValue(field);
+    state.answers[key] ?? initialValue(field, registers);
 
   // Conditions are asynchronous in jsonata; a newer evaluation supersedes older ones.
   // biome-ignore lint/correctness/useExhaustiveDependencies: answerOf reads state.answers.
@@ -55,7 +58,7 @@ export function FormRenderer({ config }: Props) {
     evaluateConditions(config, compiled, answerOf, state.repeats).then((result) => {
       if (run === evaluation.current) setConditions(result);
     });
-  }, [config, compiled, state.answers, state.repeats]);
+  }, [config, compiled, state.answers, state.repeats, registers]);
 
   // Move focus to the new page title on every step change, but not on first render.
   // biome-ignore lint/correctness/useExhaustiveDependencies: runs on step change only.
@@ -129,6 +132,22 @@ export function FormRenderer({ config }: Props) {
     <RendererContext.Provider value={api}>
       <div className={styles.form}>
         {config.title ? <p className={styles.formTitle}>{config.title}</p> : null}
+
+        <div className={styles.registers}>
+          <label className={styles.registersLabel}>
+            <input
+              type="checkbox"
+              checked={registers}
+              onChange={(e) => setRegisters(e.target.checked)}
+            />
+            Pokaż przykładowe dane z rejestrów
+          </label>
+          <p>
+            Blankiet jest pusty. W prawdziwej e-usłudze część pól (np. imię, nazwisko, PESEL, adres,
+            telefon) zostałaby uzupełniona danymi z rejestrów zalogowanego obywatela. Tutaj są to
+            wymyślone dane przykładowe.
+          </p>
+        </div>
 
         <nav aria-label="Kroki formularza" className={styles.steps}>
           <p className={styles.stepCount}>

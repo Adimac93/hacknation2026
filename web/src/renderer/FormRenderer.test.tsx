@@ -107,9 +107,13 @@ describe("SHOW conditions in reference 5", () => {
     expect(otherPerson()).toBeNull();
   });
 
-  it("register fields are read-only with sample data", async () => {
+  it("register fields start empty and show sample data only on request", async () => {
+    const user = userEvent.setup();
     render(<FormRenderer config={loadExample("przyklad-5.json")} />);
     const pesel = (await screen.findByLabelText("Numer PESEL")) as HTMLInputElement;
+    expect(pesel.value).toBe("");
+
+    await user.click(screen.getByLabelText("Pokaż przykładowe dane z rejestrów"));
     expect(pesel.readOnly).toBe(true);
     expect(pesel.value).toMatch(/^\d{11}$/);
   });
