@@ -212,7 +212,7 @@ Reguły pochodzą z „Reguł technicznych konfiguracji formularzy”. Każda ma
 - `flow.links` łączy wszystkie strony w jedną ścieżkę do `FINISH`,
 - zgodność ze schematem JSON organizatora.
 
-Kody reguł: błędy `L001`–`L024`, ostrzeżenia `L101`–`L111` (tabela w docstringu `api/src/formcompiler/lint.py`).
+Kody reguł: błędy `L001`–`L025`, ostrzeżenia `L101`–`L111` (tabela w docstringu `api/src/formcompiler/lint.py`).
 
 Druga grupa to ostrzeżenia jakościowe ze standardów COI (nie blokują): etykiety prostym językiem (słowa powyżej 4 sylab, formy bezosobowe, „dokonać”, „posiadać”, imiesłowy na „-ąc”), zgody tylko w sekcji zgód, lista powyżej 15 opcji ma wyszukiwarkę.
 
