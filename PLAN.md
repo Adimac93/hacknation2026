@@ -68,7 +68,7 @@ Do zrobienia, w kolejności:
 
 1. Stanowisko urzędnika na `/` (teraz zaślepka): upload do `POST /api/v1/forms?details=true`, drzewo JSON (`vanilla-jsoneditor`), raport lintera, pobranie pliku, panel tekstu dokumentu z podświetleniem linii źródłowych pola (D16). Kontrakt odpowiedzi `report` ustalimy z torem A, gdy powstanie `main.py`.
 2. Uzgodnić `DESIGN.md` (Biurokratka) z D22: propozycja: stanowisko w stylu Biurokratki, podgląd e-formularza w wyglądzie e-usługi COI. Fonty Archivo i IBM Plex Mono są na OFL, której nie ma na liście licencji w `CLAUDE.md`: decyzja zespołu.
-3. Kontener `web` (nginx-unprivileged, proxy `/api`) do `compose.yaml` i demo D24.
+3. ~~Kontener `web` (nginx-unprivileged, proxy `/api`) do `compose.yaml` i demo D24.~~ Gotowe 22:00, sprawdzone na czystym amd64 (`wobbegong-ci`).
 4. Pominięte świadomie: wysyłka formularza, pełne słowniki (są przykładowe zestawy), potwierdzenie przy „Przerwij wypełnianie”.
 
 ## Kamienie milowe
