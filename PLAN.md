@@ -4,6 +4,56 @@ Stan na 2026-11-21, godz. 14:30. Hackathon trwa 24 godziny, więc plan zakłada 
 
 Architektura: [`ARCHITECTURE.md`](ARCHITECTURE.md). Uzasadnienia: [`research/`](research/).
 
+## Stan o 22:45 i plan do oddania
+
+Zostało niecałe 11 godzin. Zamrożenie funkcji o 07:00 bez zmian, oddanie o 9:30.
+
+**Gotowe i sprawdzone** (`main`, demo `formularze.heckyeah.pl` w tej samej wersji):
+
+- REST API dla ośmiu formatów: macierz 54 plików (formularze 3–9 w każdym formacie) daje 54 × HTTP 200 i 0 błędów lintera, tytuł spójny między formatami; stos w kontenerach na czystym amd64,
+- OCR rastrów: strony równolegle; zdjęcie formularza 9 (16 stron) w 15 s na M1 Pro, w 21 s na serwerze,
+- stanowisko urzędnika na `/` i podgląd na `/podglad`, kontener `web` z limitem 10 POST na minutę na IP,
+- `outputs/` dla formularzy 3, 4, 6–9 z trybu reguł (generator: `devtools/generate_outputs.py`),
+- tryb modelu: Qwen3.5-9B przez EdenAI, ok. 0,001 USD i 7–45 s na formularz.
+
+**Znane problemy:**
+
+- model wpada w pętlę powtórzeń (to samo pole w kółko, formularze 3 i 9). EdenAI nie trzyma ziarna, więc wynik zmienia się między przebiegami. Usługa wraca wtedy do reguł, ale traci do 60 s,
+- `report.dictionary_proposals` jest zawsze puste (rozszerzenie II nie działa po stronie backendu),
+- nazwy plików w `outputs/` zależą od tytułu, więc tryb modelu i tryb reguł dają różne nazwy,
+- brak bramki licencyjnej `pip-licenses` i README bez opisu lokalnego hostowania modelu.
+
+### Backend i model (Adimac93 + agenci), do 07:00
+
+| # | Zadanie | Dlaczego | Gotowe, gdy |
+|---|---|---|---|
+| B1 | Pętle modelu: budżet `max_tokens` zależny od liczby pól z heurystyk, wykrycie powtórzonego klucza i natychmiastowy powrót do reguł | demo na żywo nie może czekać 60 s | formularze 3–9 w trybie modelu bez ucięcia w 3 przebiegach z rzędu |
+| B2 | Stałe nazwy plików w `outputs/` (numer + nazwa z katalogu `Docs/`) | powtarzalne oddanie | nazwy niezależne od trybu |
+| B3 | Propozycje słowników (`dictionary_proposals`): pola wyboru z co najmniej 3 opcjami spoza słowników COI | rozszerzenie II, frontend już to pokazuje | test + propozycja na formularzu 6 lub 8 |
+| B4 | Macierz formatów jako skrypt w `devtools/` i tabela w `research/` | liczby na slajd („spójność 8 formatów”) | tabela czasów i pól w repo |
+| B5 | Pokrycie pól względem referencji 1 i 5 (dekompilacja, porównanie etykiet) | liczby na slajd („pokrycie”) | metryka w tabeli |
+| B6 | Bramka `pip-licenses` + raport licencji npm, README: lokalny `llama-server`, koszt na formularz, tabela czasów | jakość kodu, potencjał wdrożeniowy | polecenie w README, raport w repo |
+| B7 | Ostateczne `outputs/` w trybie modelu (D21), przy pętli zostaje wynik z reguł | wymagane do oddania | o 07:00 |
+| B8 | `docker save` obrazów na nośnik, porządek w worktree | zapas na obronę | pliki `.tar` poza repo |
+
+### Frontend (Stanisław), do 07:00
+
+| # | Zadanie | Dlaczego |
+|---|---|---|
+| F1 | Tryb wsadowy: obsłużyć 429 z `Retry-After` (kolejka czeka i ponawia), komunikat dla 504 | nginx przepuszcza 10 plików na minutę; wsad 20 plików teraz się wyłoży |
+| F2 | Lista pól do sprawdzenia: pola z `confidence` < 0,7 w raporcie, klik przenosi do pola i podświetla źródło | „urzędnik jako audytor”, najmocniejszy wyróżnik |
+| F3 | Klik w linię dokumentu zaznacza pole, które z niej powstało (odwrotność obecnego podświetlenia) | intuicyjność |
+| F4 | Czas oczekiwania: komunikat, że zdjęcia i tryb modelu trwają 15–60 s | demo na żywo |
+| F5 | Test dymny Playwright na stosie `docker compose` (upload PDF, PNG, zły plik) | przypadek negatywny na obronie |
+| F6 | Decyzja o wyglądzie podglądu e-formularza (pkt 2 niżej) i kontrola WCAG (klawiatura, kontrast, rzutnik 1366 px) | intuicyjność 20% |
+| F7 | Od 07:00: nagranie filmu do 3 minut i zrzuty ekranu do prezentacji | materiały do oddania |
+
+Bez nowych zależności npm bez sprawdzenia licencji (ostatnio doszły `lucide-react` na ISC i fonty na OFL, D25).
+
+### 07:00–09:30: wszyscy
+
+Zamrożenie funkcji. Ostateczne `outputs/`, próba scenariusza demo na obcych plikach (w tym zły plik i tryb `LLM_ENABLED=false`), prezentacja (10 slajdów, PDF, konspekt w `research/03`), film, README, oddanie przed 9:30.
+
 ## Jak wygrywamy
 
 Kryteria: kompletność 30%, intuicyjność 20%, jakość kodu 20%, potencjał wdrożeniowy z kosztem 20%, oryginalność 10%. Finaliści uruchamiają rozwiązanie na żywo na nowych plikach.
@@ -66,7 +116,7 @@ Gotowe na `main` (98 testów Vitest, `biome` i `npm run build` bez błędów, 14
 
 Do zrobienia, w kolejności:
 
-1. Stanowisko urzędnika na `/` (teraz zaślepka): upload do `POST /api/v1/forms?details=true`, drzewo JSON (`vanilla-jsoneditor`), raport lintera, pobranie pliku, panel tekstu dokumentu z podświetleniem linii źródłowych pola (D16). Kontrakt odpowiedzi `report` ustalimy z torem A, gdy powstanie `main.py`.
+1. ~~Stanowisko urzędnika na `/`~~ Gotowe 22:00 (`feat/web-workspace`). Pierwotny zakres: upload do `POST /api/v1/forms?details=true`, drzewo JSON (`vanilla-jsoneditor`), raport lintera, pobranie pliku, panel tekstu dokumentu z podświetleniem linii źródłowych pola (D16). Kontrakt odpowiedzi `report` ustalimy z torem A, gdy powstanie `main.py`.
 2. Uzgodnić `DESIGN.md` (Biurokratka) z D22: propozycja: stanowisko w stylu Biurokratki, podgląd e-formularza w wyglądzie e-usługi COI. Fonty Archivo i IBM Plex Mono są na SIL OFL-1.1; dopuszczone w D25 i `CLAUDE.md` (tylko fonty, teksty licencji w `web/licenses/`). Zostaje decyzja o wyglądzie podglądu e-formularza.
 3. ~~Kontener `web` (nginx-unprivileged, proxy `/api`) do `compose.yaml` i demo D24.~~ Gotowe 22:00, sprawdzone na czystym amd64 (`wobbegong-ci`).
 4. Pominięte świadomie: wysyłka formularza, pełne słowniki (są przykładowe zestawy), potwierdzenie przy „Przerwij wypełnianie”.
