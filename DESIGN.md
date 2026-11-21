@@ -1,6 +1,6 @@
 # DESIGN.md — Biurokratka
 
-Zasady budowania interfejsów Biurokratki (frontend `web/`: React 19, Vite, TypeScript). Źródło prawdy wizualnej: `Księga znaku Biurokratka` (PDF). Ten plik jest wiążący dla agentów AI i ludzi. Jeśli coś tu nie pasuje do zadania, zapytaj — nie improwizuj nowego stylu.
+Zasady budowania interfejsów Biurokratki (frontend `web/`: React 19, Vite, TypeScript). Źródło prawdy wizualnej: `ksiega-znaku-biurokratka.pdf` (PDF). Ten plik jest wiążący dla agentów AI i ludzi. Jeśli coś tu nie pasuje do zadania, zapytaj — nie improwizuj nowego stylu.
 
 ## 1. Zasady nadrzędne
 
