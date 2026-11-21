@@ -18,3 +18,27 @@ Usługa przyjmuje blankiet formularza urzędowego (PDF, DOC, DOCX, ODS, XLSX, JP
 | [`ksiega-znaku-biurokratka.pdf`](ksiega-znaku-biurokratka.pdf) | Księga znaku Biurokratka v2, źródło prawdy wizualnej |
 | [`logo-pack/`](logo-pack/README.md) | logo w wersjach kolorystycznych (SVG, PNG, WebP) |
 | `Docs/` | materiały organizatora |
+
+## Uruchomienie
+
+Sprawdzone na Debianie 13 (amd64, Docker 26.1, Compose 2.26) w trybie reguł, bez modelu.
+
+```sh
+cp .env.example .env            # opcjonalnie; bez .env usługa działa w trybie reguł
+docker compose up -d --build --wait
+docker compose ps               # api i tika: healthy
+```
+
+Usługi: `api` (port 8000, opublikowany tylko na `127.0.0.1`) i `tika` (tylko sieć wewnętrzna `backend`, bez wyjścia na zewnątrz). Oba kontenery działają jako użytkownik bez uprawnień (uid 10001), z systemem plików tylko do odczytu i `/tmp` w `tmpfs`.
+
+Najważniejsze zmienne (`.env`): `LLM_ENABLED` (`false` = tryb reguł), `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY`, `LLM_ALLOW_REMOTE`, `MAX_UPLOAD_MB` (domyślnie 20), `REQUEST_TIMEOUT_S`. `TIKA_URL` ustawia `compose.yaml`.
+
+```sh
+curl http://127.0.0.1:8000/health
+# {"status":"ok","llm_enabled":false}
+
+curl -F "file=@wniosek.pdf" http://127.0.0.1:8000/api/v1/forms                 # JSON formularza
+curl -F "file=@wniosek.pdf" "http://127.0.0.1:8000/api/v1/forms?details=true"  # {form, report}
+```
+
+Błędy mają format `application/problem+json`, np. 415 (treść niezgodna z rozszerzeniem) i 413 (plik ponad `MAX_UPLOAD_MB`).
