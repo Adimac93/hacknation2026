@@ -512,6 +512,8 @@ def test_clean_drops_fields_the_predefined_sections_cover() -> None:
             field("Budynek", "Kontakt", "nr_tel", "Nr telefonu"),
             field("Budynek", "Załączniki", "pelnomocnictwo", "Plik pełnomocnictwa"),
             field("Budynek", "Wykonawca", "telefon_wykonawcy", "Telefon wykonawcy"),
+            field("Budynek", "Dane wnioskodawcy", "ulica_wn", "Ulica"),
+            field("Budynek", "Adres zamieszkania", "nr_domu", "Nr domu"),
         ],
     )
 

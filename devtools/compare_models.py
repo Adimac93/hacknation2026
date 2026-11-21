@@ -4,6 +4,7 @@ Development tool only, never part of the image. Needs LLM_* in the repo .env (Ed
 Run from api/: uv run python ../devtools/compare_models.py [--out DIR] [--models M ...]
 Forms without a gold standard (round 2): --unlabeled 3 4 6 runs the production path
 (heuristics, refine, assemble, build, lint.fix) and stores the fields for manual review.
+--pipeline 3 4 6 7 runs the whole pipeline.process with the PDF text from load_document.
 
 Gold standard: subject pages of the decompiled reference JSON, plus addressee and applicant
 flags read by hand from the references. Each call is written to --out as soon as it returns:
@@ -21,7 +22,7 @@ from typing import Any, NamedTuple
 import httpx
 import pdfplumber
 
-from formcompiler import compiler, heuristics, lint
+from formcompiler import compiler, heuristics, lint, pipeline
 from formcompiler.compiler import slugify
 from formcompiler.config import Settings
 from formcompiler.decompile import decompile
@@ -38,6 +39,7 @@ from formcompiler.llm import (
 )
 from formcompiler.schema import Form
 from formcompiler.sections import LIBRARY, RESERVED_KEYS, assemble
+from formcompiler.upload import FileKind
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "Docs"
@@ -286,6 +288,70 @@ def run_unlabeled(settings: Settings, model: str, form: str, out: Path) -> dict[
     }
 
 
+def run_pipeline(settings: Settings, model: str, form: str, out: Path) -> dict[str, Any]:
+    """Full pipeline.process on the PDF text; refine is wrapped to record usage and its result."""
+    doc = load_document(next(DOCS.glob(f"{form}. */*.[pP][dD][fF]")))
+    recorder = Recorder(out / "raw", f"{slugify(model)}-pipeline-form{form}")
+    config = settings.model_copy(
+        update={"llm_model": model, "llm_timeout_s": 120.0, "llm_enabled": True}
+    )
+    seen: list[heuristics.Analysis] = []
+
+    def recorded(s: Settings, text: str, analysis: heuristics.Analysis) -> heuristics.Analysis:
+        result = refine(s, text, analysis, transport=recorder)
+        seen.append(result)
+        return result
+
+    started = time.perf_counter()
+    try:
+        built, report = pipeline.process(
+            b"", FileKind.PDF, config, read=lambda *_: doc, refine=recorded
+        )
+    finally:
+        recorder.close()
+    elapsed = time.perf_counter() - started
+    prompt = int(recorder.usage.get("prompt_tokens", 0))
+    completion = int(recorder.usage.get("completion_tokens", 0))
+    price_in, price_out = MODELS[model]
+    subject_tabs = built.tabs[1:-2]
+    row: dict[str, Any] = {
+        "model": model,
+        "form": form,
+        "variant": "pipeline",
+        "mode": report.mode,
+        "elapsed_s": elapsed,
+        "llm_ms": report.timings_ms.llm,
+        "attempts": recorder.count,
+        "prompt_tokens": prompt,
+        "completion_tokens": completion,
+        "cost_usd": (prompt * price_in + completion * price_out) / 1e6,
+        "title": built.title,
+        "lint_errors": [i.code for i in report.lint if i.severity == "error" and not i.fixed],
+        "lint_warnings": [i.code for i in report.lint if i.severity == "warning" and not i.fixed],
+        "subject_pages": [t.title for t in subject_tabs],
+        "fields": [
+            {
+                "page": tab.title,
+                "section": q.field.title,
+                "key": item.field.techName,
+                "label": item.field.title,
+                "type": item.field.type,
+                "options": [o.name for o in item.field.options],
+                "dictionary": item.field.dictionaryName,
+                "conditional": bool(item.field.states),
+            }
+            for tab in subject_tabs
+            for q in tab.questions
+            for item in q.field.repeatingSectionGrid
+        ],
+    }
+    if seen:
+        result = seen[-1]
+        row["addressee"] = result.addressee.model_dump() if result.addressee else None
+        row["applicant"] = result.applicant.model_dump()
+    return row
+
+
 def table(rows: list[dict[str, Any]]) -> str:
     head = (
         "| Model | Formularz | Wariant | Pokrycie | Zgodność typów | Nadmiarowe (z biblioteki) "
@@ -317,6 +383,7 @@ def main() -> None:
     parser.add_argument("--variants", nargs="+", default=["loo", "full"])
     parser.add_argument("--models", nargs="+", default=list(MODELS), choices=list(MODELS))
     parser.add_argument("--unlabeled", nargs="+", default=[], metavar="FORM")
+    parser.add_argument("--pipeline", nargs="+", default=[], metavar="FORM")
     args = parser.parse_args()
     out: Path = args.out
     (out / "raw").mkdir(parents=True, exist_ok=True)
@@ -324,6 +391,20 @@ def main() -> None:
     rows: list[dict[str, Any]] = []
     spent = 0.0
     with (out / "results.jsonl").open("a", encoding="utf-8") as log:
+        for form in args.pipeline:
+            for model in args.models:
+                row = run_pipeline(settings, model, form, out)
+                spent += row["cost_usd"]
+                log.write(json.dumps(row, ensure_ascii=False) + "\n")
+                log.flush()
+                print(
+                    f"{model} form {form}: mode={row['mode']} fields={len(row['fields'])} "
+                    f"lint={row['lint_errors']} {row['elapsed_s']:.1f}s",
+                    flush=True,
+                )
+        if args.pipeline:
+            print(f"\nkoszt łączny: {spent:.5f} USD; wyniki: {out}")
+            return
         for form in args.unlabeled:
             for model in args.models:
                 row = run_unlabeled(settings, model, form, out)

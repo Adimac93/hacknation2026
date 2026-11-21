@@ -520,6 +520,11 @@ PERSONAL_LABELS = frozenset(norm(f.label) for f in LIBRARY_FIELDS) | frozenset(
 )
 PERSONAL_KEYS = frozenset(f.key for f in LIBRARY_FIELDS)
 PROXY_LABEL = re.compile(r"pełnomocni", re.IGNORECASE)
+# Address parts are the applicant's own when their section is about the applicant.
+APPLICANT_SECTION = re.compile(r"wnioskodaw|identyfikac|zamieszka|siedzib", re.IGNORECASE)
+ADDRESS_PARTS = ADDRESS_LABELS | frozenset(
+    norm(label) for label in ["Nr domu", "Numer domu", "Nr lokalu", "Adres"]
+)
 STATEMENT = re.compile(
     r"^(oświadcz|zapozna|zobowiąz|wyrażam|odpowiadam|ponosz|przyjmuj)", re.IGNORECASE
 )
@@ -542,7 +547,8 @@ def is_library_duplicate(f: InventoryField) -> bool:
     """The field repeats what the predefined applicant or contact sections already ask."""
     label = norm(f.label)
     return (
-        f.key in PERSONAL_KEYS
+        (label in ADDRESS_PARTS and bool(APPLICANT_SECTION.search(f.section)))
+        or f.key in PERSONAL_KEYS
         or label in PERSONAL_LABELS
         or any(difflib.SequenceMatcher(None, label, p).ratio() >= 0.9 for p in PERSONAL_LABELS)
         or bool(PROXY_LABEL.search(f.label))
