@@ -9,9 +9,11 @@ import pytest
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from fastapi.testclient import TestClient
+from test_heuristics import FORM_3, document
 
-from formcompiler import main, pipeline, schema
+from formcompiler import ingest, main, pipeline, schema
 from formcompiler.config import Settings
+from formcompiler.document import Document
 from formcompiler.report import Report
 from formcompiler.upload import FileKind
 
@@ -20,6 +22,17 @@ PDF_PATH = next(DOCS.glob("3. */*.pdf"))
 PDF = PDF_PATH.read_bytes()
 SECRET = "sekret-testowy-o-dlugosci-co-najmniej-32-bajtow"
 PROBLEM_KEYS = {"type", "title", "status", "detail"}
+
+
+@pytest.fixture(autouse=True)
+def fake_readers(monkeypatch: pytest.MonkeyPatch) -> None:
+    """API tests do not depend on the format readers (track B): every format reads as form 3."""
+
+    def read(data: bytes, kind: FileKind, settings: Settings) -> Document:
+        return document(FORM_3)
+
+    for kind in FileKind:
+        monkeypatch.setitem(ingest.READERS, kind, read)
 
 
 @pytest.fixture

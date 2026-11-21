@@ -212,7 +212,7 @@ Reguły pochodzą z „Reguł technicznych konfiguracji formularzy”. Każda ma
 - `flow.links` łączy wszystkie strony w jedną ścieżkę do `FINISH`,
 - zgodność ze schematem JSON organizatora.
 
-Kody reguł: błędy `L001`–`L024`, ostrzeżenia `L101`–`L111` (tabela w docstringu `api/src/formcompiler/lint.py`).
+Kody reguł: błędy `L001`–`L025`, ostrzeżenia `L101`–`L111` (tabela w docstringu `api/src/formcompiler/lint.py`).
 
 Druga grupa to ostrzeżenia jakościowe ze standardów COI (nie blokują): etykiety prostym językiem (słowa powyżej 4 sylab, formy bezosobowe, „dokonać”, „posiadać”, imiesłowy na „-ąc”), zgody tylko w sekcji zgód, lista powyżej 15 opcji ma wyszukiwarkę.
 
@@ -220,7 +220,7 @@ Druga grupa to ostrzeżenia jakościowe ze standardów COI (nie blokują): etyki
 
 | Element | Wybór | Zapas |
 |---|---|---|
-| Model | `Ministral-3-8B-Instruct-2512`, Apache-2.0, open-weight; na hackathonie `mistral/ministral-8b-2512@eu` przez EdenAI | `Qwen3.5-9B` (Apache-2.0); Bielik i PLLuM jako modele do podmiany, nietestowane |
+| Model | `Qwen/Qwen3.5-9B`, Apache-2.0, open-weight; na hackathonie `flexai/Qwen3.5-9B@eu` przez EdenAI; lokalnie tryb rozumowania wyłączony w szablonie czatu `llama-server` | `Ministral-3-8B-Instruct-2512` (Apache-2.0); Bielik i PLLuM jako modele do podmiany, nietestowane |
 | Serwer | hackathon: EdenAI (endpoint UE); docelowo `llama-server` (llama.cpp, MIT) z GGUF Q4_K_M, ok. 5,5 GB | Ollama |
 | Klient | `httpx` + modele Pydantic | — |
 
@@ -258,7 +258,7 @@ Kontrakt `?details=true` (ustalony 17:45 dla frontendu; pola mogą dochodzić, i
   "form": { "title": "…", "tabs": [], "flow": { "links": [] } },
   "report": {
     "mode": "llm",
-    "model": "mistral/ministral-8b-2512@eu",
+    "model": "flexai/Qwen3.5-9B@eu",
     "timings_ms": { "ingest": 120, "heuristics": 4, "llm": 9100, "compile": 3, "lint": 2 },
     "lint": [
       { "code": "L005", "severity": "error", "message": "Pole leży poza sekcją", "path": "tabs[1].questions[0]", "fixed": true }
@@ -350,7 +350,7 @@ Wyniki trafiają na slajd i do README.
 |---|---|---|
 | D1 | Python 3.14, FastAPI, Pydantic 2, `uv` | preferencja organizatora, ekosystem parserów i OCR, jeden model danych dla IR, walidacji i OpenAPI |
 | D2 | Model nie pisze końcowego JSON-a | czas generacji i spójność odwołań |
-| D3 | `Ministral-3-8B-Instruct-2512` jako model (zastępuje Bielika, D20) | Apache-2.0, open-weight, te same wagi dostępne w EdenAI (UE) i do hostowania lokalnie; Bielika nie ma w EdenAI |
+| D3 | `Qwen3.5-9B` jako model (zastępuje Bielika, D20; Ministral-3-8B odrzucony po porównaniu) | Apache-2.0, open-weight, te same wagi w EdenAI (UE) i do hostowania lokalnie; w `research/06`: precyzja 82% wobec 62% dla Ministrala, powtarzalne odpowiedzi przy tym samym ziarnie (Ministral przez EdenAI nie), 2–3 razy szybszy; Bielika nie ma w EdenAI |
 | D4 | Endpoint zgodny z OpenAI za `LLM_BASE_URL`; docelowo `llama-server` | ten sam klient dla EdenAI i serwera lokalnego, wymienny model |
 | D5 | OCR rastrów: RapidOCR 3.10 + ONNX Runtime, modele PP-OCRv6 small, `use_cls=false`. Zapas: Tesseract 5 `pol` | Apache-2.0 i MIT, bez PyTorch, działa na Pythonie 3.14; w pomiarze 2–10 razy mniejszy CER niż Tesseract na czystych stronach. PaddleOCR odpada, bo `paddlepaddle` nie ma kół dla 3.14. Tesseract lepiej trzyma diakrytyki na słabych skanach, dlatego zostaje jako zapas |
 | D6 | Tika dla DOC, DOCX, ODS, XLSX | Apache-2.0, jedyna utrzymywana droga dla binarnego DOC bez copyleft, jeden adapter na cztery formaty. Jeśli harness pokaże straty na DOCX lub arkuszach, przechodzimy na `python-docx` i `python-calamine`, a Tika zostaje tylko dla DOC |
@@ -378,7 +378,7 @@ Wyniki trafiają na slajd i do README.
 7. Przykład `REPEATING_SECTION`, `CHECKBOX`, `DATEPICKER`, `INFO_SECTION` w JSON-ie.
 8. Kryteria oceny wymieniają „Punkt V (Walidacje pól)”, a w treści zadania walidacje to punkt VI. Co liczy się do progów?
 9. Czy mentor może zaimportować nasz JSON do Generatora Formularzy i powiedzieć, co nie przeszło?
-10. Czy na obronie model open-weight (Ministral-3-8B, Apache-2.0) może być wołany przez EdenAI, skoro kod działa bez zmian z lokalnym `llama-server`? Jeśli nie: czy wystarczy tryb reguł?
+10. Czy na obronie model open-weight (Qwen3.5-9B, Apache-2.0) może być wołany przez EdenAI, skoro kod działa bez zmian z lokalnym `llama-server`? Jeśli nie: czy wystarczy tryb reguł?
 11. Czy `python:3.14-slim` zamiast Alpine jest akceptowalny dla usługi z bibliotekami ML? Czy sidecar Tika na Javie jest w porządku?
 12. Sprzęt i limit czasu na obronie; czy nowe pliki będą skanami lub zdjęciami?
 13. Próbki `5. …/*.DOC` i `7. …/*.DOC` mają w środku format DOCX. Czy walidacja ma taki plik przyjąć (traktujemy `.doc` i `.docx` jako jedną rodzinę), czy odrzucić?
