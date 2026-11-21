@@ -78,3 +78,65 @@ Surowe odpowiedzi i `results.jsonl` są w katalogu tymczasowym autora, poza repo
 ## Decyzja (18:50)
 
 Model docelowy: **Qwen3.5-9B** (D20, D3). Na hackathonie `flexai/Qwen3.5-9B@eu` przez EdenAI. Poprawki promptu kroku A z listy wyżej wchodzą niezależnie od modelu.
+
+## Runda 2: formularze 3, 4, 6
+
+Data: 2026-11-21, wieczór. Tylko `flexai/Qwen3.5-9B@eu`. Prompt kroku A po poprawkach z listy wyżej:
+
+- adresat z bloku adresata: funkcja to ORGAN, a nazwa urzędu w całości,
+- jedno `FILE_UPLOADER` na każdy nazwany załącznik, bez pól na puste pozycje listy,
+- pola zależne od wariantu wypisane zaraz po RADIO, z nowym polem `show_if_option` (`field_key`, `value`), które `to_subject_pages` zamienia na `Cond` IR.
+
+Formularze 3, 4 i 6 nie mają wzorca, a prompt zawiera przykłady tylko z referencji 1 i 5 (D12), więc model tych formularzy nie widział. Przebieg jest taki jak w usłudze: tekst PDF (`pdfplumber`), potem `heuristics.analyze`, `llm.refine`, `sections.assemble`, `compiler.build` i `lint.fix`. Narzędzie: `devtools/compare_models.py --unlabeled 3 4 6`.
+
+| Formularz | Pola | Trafne | Zbędne lub błędne | Brakujące | Adresat | Lint (błędy / ostrzeżenia) | Czas [s] | Tokeny wej./wyj. | Koszt [USD] |
+|---|---|---|---|---|---|---|---|---|---|
+| 3. Zaświadczenie | 5 | 4 | 1 (pole „Inny cel” dwa razy, jako TEXT_FIELD i jako TEXTAREA) | brak | dobrze: „Urząd Miasta i Gminy Młynary”, URZAD | 0 / 6 (L103) | 5.7 | 3898/590 | 0.00048 |
+| 4. Świetlica | 11 | 6 | 5 (4 oświadczenia jako CHECKBOX bez opcji; „Zgoda osoby odpowiedzialnej” jako TEXT_FIELD) | RADIO „wynajęcie albo użyczenie” | dobrze: „Wójt Gminy Płoskinia”, ORGAN | 0 / 9 (L103) | 7.0 | 3944/873 | 0.00052 |
+| 6. Pas drogowy | 21 | 20 | 1 (plik pełnomocnictwa dubluje bibliotekę) | adres osoby odpowiedzialnej („zam.”); drobiazg | źle: „Burmistrz Miasta i Gminy w Daleszycach” z klauzuli RODO, do tego URZAD; na blankiecie jest „Urząd Miasta i Gminy Miasteczko” | 0 / 12 (L103) | 12.8 | 4819/1646 | 0.00093 |
+
+Koszt rundy 2: 0,0017 USD za trzy formularze plus 0,0008 USD za powtórkę `loo`. Każde wywołanie przeszło w pierwszej próbie. Każdy formularz złożył się w poprawny JSON bez błędów lintera; ostrzeżenia to wyłącznie L103 (długie słowa w etykietach i tekstach).
+
+Jakość etykiet: krótkie i rzeczowe, np. „Numer ewidencyjny działki”, „Data rozpoczęcia robót”, „Szczegółowy plan sytuacyjny”, „Instytucja, do której złożony zostanie wniosek”. Słabsze:
+
+- „Cel złożenia zaświadczenia” (formularz 3) zamiast „Czego ma dotyczyć zaświadczenie”,
+- powierzchnie w formularzu 6 jako TEXT_FIELD z jednostką w etykiecie („- m2”) zamiast NUMBER,
+- „Przewidywana ilość uczestników” w formularzu 4 jako TEXT_FIELD zamiast NUMBER,
+- tytuły stron przedmiotu bywają mylące („Dane wnioskodawcy” dla celu zaświadczenia).
+
+Dobre przeprojektowanie: w formularzu 6 model zamienił tabelę „długość × szerokość × razem” (po dwa wiersze na kategorię) na jedno pole powierzchni na kategorię, dołożył pole „Całkowita powierzchnia zajęcia” i nie powielał wierszy. W formularzu 3 dodał załącznik z potwierdzeniem opłaty skarbowej, wywnioskowany z pouczenia o opłacie 17 zł, i pole „Inny cel” z warunkiem `show_if` na opcji „Inne”.
+
+### Przykład: formularz 3 po poprawkach
+
+```text
+strona „Dane wnioskodawcy” (nazwa do poprawy), adresat: Urząd Miasta i Gminy Młynary (URZAD), applicant: wszystkie flagi true
+sekcja „Cel wniosku”
+  cel_zlozenia_zaswiadczenia  CHECKBOX, wymagane  „Cel złożenia zaświadczenia”
+    opcje: Ilość posiadanych użytków rolnych w hektarach fizycznych i przeliczeniowych;
+           Ilość dzierżawionych użytków rolnych …; Okres posiadania gospodarstwa rolnego;
+           Nieposiadanie użytków rolnych / gospodarstwa rolnego na terenie Gminy Młynary; Inne
+  cel_zlozenia_zaswiadczenia_inne  TEXT_FIELD  „Inny cel (proszę wpisać)”  show_if: cel = „Inne”
+  cel_zlozenia_zaswiadczenia_inny  TEXTAREA    „Inny cel (proszę wpisać)”  show_if: cel = „Inne”   ← duplikat
+  instytucja_do_ktorej_zlozony_wniosek  TEXT_FIELD, wymagane  „Instytucja, do której złożony zostanie wniosek”
+sekcja „Załączniki”
+  plik_potwierdzenia_przelewu  FILE_UPLOADER, wymagane  „Potwierdzenie uiszczenia opłaty skarbowej”
+```
+
+### Formularze 1 i 5 (`loo`) przed i po poprawkach promptu
+
+| Formularz | Przed: pokrycie, nadmiarowe, adresat | Po: pokrycie, nadmiarowe, adresat |
+|---|---|---|
+| 1 | 4/4, 0, źle („Urząd Gminy Elbląg”, URZAD) | 4/4, 0, **dobrze** („Wójt Gminy Elbląg”, ORGAN) |
+| 5 | 2/7 automatycznie (5/7 ręcznie), 5, źle („Urząd Gminy”) | 3/7 automatycznie (6/7 ręcznie), 3, **dobrze** („Urząd Gminy Ulan-Majorat”) |
+
+W formularzu 5 zniknęły „Liczba załączników” i „Dodatkowe załączniki”. Pojawił się `show_if_option`: „Numer rachunku bankowego” jest widoczny tylko przy opcji „Zwrócić przelewem na wskazany rachunek” i poprawnie przechodzi na `Cond`. Nadal brakuje pola „Nazwa podatku” przy zaliczeniu. „Kwota nadpłaty” spadła z NUMBER na TEXT_FIELD.
+
+### Wnioski i dalsze poprawki
+
+1. Adresat działa, gdy blok adresata jest jednoznaczny (1, 3, 4, 5). W formularzu 6 blok ma tylko „Urząd Miasta i Gminy / Miasteczko”, a model wolał nazwę z klauzuli RODO. Do promptu: „bierz adresata tylko z bloku adresata, nigdy z klauzuli informacyjnej”. Spójność rodzaju z nazwą (słowo „Burmistrz” w nazwie daje ORGAN) warto wymusić w `refine`, kodem.
+2. Oświadczenia nadal trafiają jako CHECKBOX bez opcji (formularz 4). Łamie to zasadę „zgody i oświadczenia tylko w CONSENT_SECTION”, a linter tego nie złapał. Do zrobienia:
+   - w `to_subject_pages` odrzucać CHECKBOX bez opcji albo zamieniać go na treść zgody,
+   - w linterze dodać regułę na CHECKBOX bez opcji i bez słownika.
+3. Typy liczbowe: dopisać do promptu „powierzchnia, liczba osób, kwota to NUMBER”.
+4. Duplikaty pól zależnych („Inny cel” dwa razy): w `to_subject_pages` scalać pola o tej samej etykiecie w jednej sekcji.
+5. Brak RADIO „wynajęcie albo użyczenie” (formularz 4): wybór zapisany w tytule z gwiazdką „niepotrzebne skreślić” model pomija. Kandydat na heurystykę: ukośnik plus przypis „niepotrzebne skreślić” w tytule daje RADIO.
