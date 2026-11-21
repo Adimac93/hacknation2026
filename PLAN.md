@@ -54,6 +54,7 @@ Przy trzech osobach tor D dzielą między siebie A (API, compose) i C (frontend 
 | 15:30 | Kontrakty `Document` i IR spisane. Pytania zadane mentorom. Klucz EdenAI w `.env`, kandydaci na model docelowy porównani przez API (D20). | commit z modelami Pydantic, wynik porównania w `research/` |
 | 17:00 | **Szkielet od końca do końca bez modelu:** PDF → heurystyki → kompilator → poprawny JSON z sekcjami predefiniowanymi. `docker compose up` działa. | `curl` z plikiem 3 zwraca JSON, linter bez błędów |
 | 20:00 | Test odwracalności przechodzi dla obu referencji. Wszystkie osiem formatów przechodzi ingest. Krok A modelu działa na formularzach 3 i 4. Frontend: upload i drzewo JSON. | testy zielone, tabela formatów |
+| 20:00+ | Pierwszy deploy demo na `formularze.heckyeah.pl` (D24), gdy `compose.yaml` działa; potem po każdym większym commicie. | link działa z telefonu |
 | 00:00 | Kroki B i C, warunki `SHOW`, słowniki, dane inicjalne, walidatory. Harness ewaluacji daje liczby. Formularze 6 i 7. | pierwsza tabela metryk |
 | 04:00 | Formularze 8 i 9. Podgląd e-formularza z JSONata. Propozycja słownika. JWT, limity, bramka licencyjna. | komplet `outputs/` |
 | 07:00 | **Zamrożenie funkcji.** Tylko poprawki. Ostateczne wygenerowanie `outputs/` usługą (EdenAI, D21). Próbki zdegradowane, czasy, test na czystej maszynie amd64 (`wobbegong-ci` na PVE). | tabela czasów, `docker save` na nośniku |

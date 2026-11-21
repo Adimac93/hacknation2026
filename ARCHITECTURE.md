@@ -329,6 +329,7 @@ Wyniki trafiają na slajd i do README.
 | D18 | Rozszerzenia bez względu na wielkość liter; `.jpe` przyjmowane jako JPEG | organizator dostarczył plik `.JPE`; treść i tak sprawdzana po sygnaturze |
 | D22 | Stylowanie: tokeny CSS + CSS Modules, kontrolki natywne | pełna kontrola nad wyglądem e-usługi, zero zależności w runtime, dostępność z natywnego HTML |
 | D23 | Renderer jako osobna trasa `/podglad` i panel stanowiska | rozszerzenie V wprost; render referencyjnych JSON-ów dowodzi poprawności |
+| D24 | Publiczne demo `formularze.heckyeah.pl`: `docker compose` w nowym LXC `wobbegong-demo` na PVE, wystawione przez Cloudflare Tunnel; dostęp publiczny z limitem zapytań na IP w nginx, limitem wydatków EdenAI i `MAX_UPLOAD_MB`; `REQUEST_TIMEOUT_S=90` | jeden host dla `web`, `api` i `tika` (Vercel nie uruchomi Tiki ani Tesseracta); bez otwierania portów; Cloudflare zrywa żądania po 100 s, więc wynik z trybu reguł musi przyjść wcześniej; obrona i tak na laptopie (D13) |
 
 ## 14. Otwarte pytania do mentorów COI
 
