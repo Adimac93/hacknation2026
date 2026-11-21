@@ -158,3 +158,80 @@ Koszt: 0,0013 USD.
   - Odpowiedzi tego samego modelu przy niewielkiej zmianie promptu potrafią się wyraźnie zmienić, więc pojedynczy przebieg jest słabą miarą.
 
 Otwarte: punkty 2, 4 i 5 z listy wyżej (CHECKBOX bez opcji w linterze, scalanie duplikatów, RADIO z „niepotrzebne skreślić”) oraz adresat przy niepełnym bloku. Dla adresata rozsądny kierunek to porównanie z blokiem adresata z heurystyk i odrzucenie nazwy, której słów nie ma w nagłówku blankietu.
+
+## Runda 3: pełny `pipeline.process` na formularzach 3, 4, 6 i 7
+
+Data: 2026-11-21, noc. `flexai/Qwen3.5-9B@eu`, `LLM_ENABLED=true`, dokument z `devtools/compare_models.load_document` (tekst PDF), potem `pipeline.process`: heurystyki, `llm.refine`, `assemble`, `build` i `lint.fix`. Narzędzie: `compare_models.py --pipeline 3 4 6 7`.
+
+Zmiany przed tą rundą, wszystkie deterministyczne i pokryte testami w `tests/test_llm.py`:
+
+- `clean_inventory` (czysta funkcja) poprawia odpowiedź modelu, zanim stanie się IR:
+  - usuwa pola, które dublują sekcje predefiniowane: dane osobowe i kontaktowe po kluczu i etykiecie (dokładnie albo z podobieństwem ≥ 0,9), wszystko o pełnomocnictwie oraz części adresu (ulica, miejscowość, kod, numer domu) w sekcji o wnioskodawcy,
+  - usuwa oświadczenia do odhaczenia (CHECKBOX bez opcji z etykietą „Oświadczam/Zapoznałem/Zobowiązuję…”) i zgody,
+  - pole wyboru bez opcji i bez słownika zamienia na TEXT_FIELD (to samo robi też `_field`, więc reguła L025 nie ma czego łapać),
+  - usuwa zduplikowane etykiety w obrębie sekcji,
+  - pola ze stron o tytułach udających strony biblioteki („Dane…”, „Kontakt…”, „Zgody…”, „Strona końcowa”, „Podsumowanie”) przenosi na pierwszą dozwoloną stronę przedmiotu albo na stronę „Szczegóły wniosku”,
+  - `show_if_option` zostawia tylko wtedy, gdy linie źródłowe pola leżą w zakresie linii pola wyboru, czyli pole jest w tekście częścią wariantu.
+- `refine`:
+  - adresata przyjmuje tylko wtedy, gdy każde słowo nazwy występuje nad tytułem wniosku (z tolerancją odmiany); inaczej zostaje adresat z heurystyk,
+  - flagi `entities` i `proxy` bierze od modelu tylko przy śladzie w tekście (NIP, REGON, KRS, osoba prawna, nazwa firmy, siedziba; pełnomocnik, osoba upoważniona); inaczej zostają wartości z heurystyk.
+- Prompt:
+  - flagi `true` tylko przy wyraźnym śladzie, a w przykładzie z referencji 1 `proxy=false`, bo blankiet nie wspomina pełnomocnika,
+  - tytuły stron od przedmiotu sprawy, nigdy „Dane…” ani „Kontakt…”,
+  - warianty „A/B*” z przypisem „niepotrzebne skreślić” dają RADIO,
+  - warunek tylko dla pól wewnątrz wariantu,
+  - pomijanie oświadczeń.
+- Linter: nowa reguła **L025** (`error`): pole SELECT, RADIO albo CHECKBOX bez opcji i bez słownika.
+
+| Formularz | Lint (błędy / ostrzeżenia) | Strony / pola przedmiotu | Trafne | Zbędne lub błędne | Brakujące | Flagi (persons, entities, proxy) | Adresat | Czas modelu [s] | Tokeny | Koszt [USD] |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 3. Zaświadczenie | 0 / 1 | 2 / 5 | 4 | 1: „Liczba egzemplarzy” (blankiet wspomina egzemplarze tylko w pouczeniu o opłacie) | brak | T, N, N (dobrze) | Urząd Miasta i Gminy Młynary, URZAD (dobrze) | 7.1 | 4080/567 | 0.00052 |
+| 4. Świetlica | 0 / 5 | 1 / 8 | 7 | 1: „Zgoda osoby odpowiedzialnej” jako TEXT_FIELD; powinien być FILE_UPLOADER z warunkiem | brak; RADIO „Wynajem / Użyczenie” jest | T, N, N (dobrze) | Wójt Gminy Płoskinia, ORGAN (dobrze) | 6.5 | 4126/968 | 0.00056 |
+| 6. Pas drogowy | 0 / 12 | 3 / 18 | 16 | 2: powierzchnie jako TEXT_FIELD zamiast NUMBER; „Termin realizacji robót” jako jedno pole tekstowe zamiast dwóch dat | data od/do (zastąpiona polem tekstowym) | T, T, T (dobrze: „nazwa firmy”, pełnomocnik) | „Urząd Miasta i Gminy”, URZAD; nazwa z RODO odrzucona, wynik z heurystyk niepełny (bez „Miasteczko”) | 9.7 | 5001/1487 | 0.00072 |
+| 7. Psy | 0 / 8 | 1 / 16 | 11 | 5: „Rodzaj wniosku” jako jedno RADIO z 5 pomieszanymi kombinacjami (powinny być 2 wybory); „Rodzaj psa” dubluje tę informację; oznakowanie rozbite na pole „Mikroprocesor” + RADIO „Tatuaż/Brak” zamiast jednego RADIO z 3 opcjami; „Numer konta” to konto urzędu, nie dana wnioskodawcy; „Imię psa” zamiast imienia poprzedniego właściciela | załącznik: kopia zaświadczenia o szczepieniu | T, N, N (dobrze) | Urząd Miejski Wrocławia, URZAD (dobrze) | 11.4 | 5441/1792 | 0.00073 |
+
+Wszystkie cztery formularze przeszły w trybie `llm` w pierwszej próbie i nie mają błędów lintera; ostrzeżenia to tylko L103 (długie słowa). Koszt rundy 3: 0,0058 USD (dwa pełne przebiegi i jeden pokazowy przebieg formularza 3). Powtórka dała identyczne odpowiedzi.
+
+Porównanie z problemami z próby koordynatora (formularz 3) i z rundy 2:
+
+| Problem | Teraz |
+|---|---|
+| strona „Kontakt i zgody (szczegóły)” z telefonem i e-mailem | brak; pola wycięte jako duplikaty biblioteki, strona nie powstaje |
+| strona przedmiotu „Dane wnioskodawcy” | „Cel zaświadczenia”; pola z zakazanych tytułów trafiłyby na pierwszą dozwoloną stronę |
+| `entities` i `proxy` równe `true` w prostym wniosku | w 3, 4 i 7 `false` (brak śladu w tekście); w 6 `true`, bo tekst ma „nazwa firmy” i pełnomocnika |
+| warunek SHOW na polu „Podmiot…” | brak; warunek zostaje tylko przy „Inny cel”, wewnątrz opcji „Inne” |
+| CHECKBOX bez opcji (formularz 4) | brak; oświadczenia wycięte, a reguła L025 pilnuje reszty |
+| duplikat „Inny cel” | brak |
+| RADIO z „niepotrzebne skreślić” (formularz 4) | jest: „Wynajem / Użyczenie” |
+| adresat z klauzuli RODO (formularz 6) | odrzucony; zostaje adresat z heurystyk |
+| adres wnioskodawcy w przedmiocie (formularz 7, pierwszy przebieg) | wycięty regułą „część adresu w sekcji o wnioskodawcy” |
+
+### Formularz 3 po poprawkach (cały formularz)
+
+```text
+Wniosek o wydanie zaświadczenia                                 tryb: llm, 0 błędów lintera
+Strona „Dane”
+  Urząd, do którego jest składany wniosek: Nazwa urzędu (Urząd Miasta i Gminy Młynary)
+  Twoje dane: Imię, Nazwisko, Numer PESEL
+  Adres zamieszkania: Kraj (słownik Kraje), Miejscowość, Kod pocztowy, Ulica, TERYT, Numer budynku, Numer lokalu
+  (bez sekcji firmy i pełnomocnika: entities=false, proxy=false)
+Strona „Cel zaświadczenia”
+  Rodzaj zaświadczenia
+    CHECKBOX, wymagane: Cel złożenia zaświadczenia
+      opcje: Ilość posiadanych użytków rolnych …; Ilość dzierżawionych użytków rolnych …;
+             Okres posiadania gospodarstwa rolnego; Nieposiadanie użytków rolnych … Gminy Młynary; Inne
+    TEXT_FIELD: Inny cel (proszę wpisać)          widoczne, gdy wybrano „Inne”
+  Cel złożenia: TEXT_FIELD „Instytucja, do której złożone zostanie zaświadczenie”
+  Liczba egzemplarzy: NUMBER „Liczba egzemplarzy”   ← zbędne
+Strona „Opłata”
+  Opłata: FILE_UPLOADER „Plik potwierdzenia wpłaty opłaty skarbowej”
+Strona „Kontakt i zgody” (z biblioteki): Numer telefonu, Adres e-mail, zgoda
+Strona „Strona końcowa” (z biblioteki)
+```
+
+### Co dalej
+
+1. Typy liczbowe i daty nadal zależą od formularza: w 6 powierzchnie są TEXT_FIELD, a termin jest jednym polem tekstowym. Możliwa naprawa kodem: etykieta z „m2”, „powierzchni”, „liczb…”, „ilość” daje NUMBER, a etykieta „termin … od … do” daje dwa pola DATEPICKER.
+2. Formularz 7 ma złożone wybory („hodowanie/utrzymywanie* charta/chartów* lub mieszańca…*”), które model skleja w jedno RADIO z kombinacjami. Lepszy przykład few-shot nie wchodzi w grę (D12), więc zostaje instrukcja: każdy ukośnik z gwiazdką to osobne RADIO.
+3. Dane urzędu (numer konta, opłata 82 zł) powinny trafiać do TEXT_BLOCK, a nie do pola do wypełnienia.
+4. Adresat przy niepełnym bloku (formularz 6): heurystyka obcina nazwę po pierwszej linii („Urząd Miasta i Gminy” bez „Miasteczko”). Poprawka należy do `heuristics.py` (sklejanie kolejnej linii bloku), poza zakresem tego zadania.
