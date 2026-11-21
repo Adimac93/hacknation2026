@@ -1605,92 +1605,6 @@
             "questionOrder": 5,
             "tooltipMessage": ""
           }
-        },
-        {
-          "x": 0,
-          "y": 11,
-          "rows": 2,
-          "cols": 3,
-          "field": {
-            "id": "d39f35dc-e99d-5ea7-88ee-d6b8e6896152",
-            "type": "SECTION",
-            "techName": "zgody",
-            "title": "Zgody",
-            "description": "<html><head></head><body></body></html>",
-            "options": [],
-            "validation": [],
-            "readOnly": false,
-            "repeatingSectionGrid": [
-              {
-                "x": 0,
-                "y": 0,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "c12ece14-56b8-5c4b-9338-17bbaa3fef56",
-                  "type": "TEXT_FIELD",
-                  "techName": "zgoda_rodo",
-                  "title": "Zgoda na przetwarzanie danych osobowych",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 0,
-                  "tooltipMessage": ""
-                }
-              }
-            ],
-            "states": [],
-            "questionOrder": 11,
-            "tooltipMessage": ""
-          }
-        },
-        {
-          "x": 0,
-          "y": 13,
-          "rows": 2,
-          "cols": 3,
-          "field": {
-            "id": "6eed2958-a75f-5405-ad18-8beaf600303f",
-            "type": "SECTION",
-            "techName": "dane_wnioskodawcy",
-            "title": "Dane wnioskodawcy",
-            "description": "<html><head></head><body></body></html>",
-            "options": [],
-            "validation": [],
-            "readOnly": false,
-            "repeatingSectionGrid": [
-              {
-                "x": 0,
-                "y": 0,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "2cdbd1ce-bc85-5c79-9a41-65d0f7362a3b",
-                  "type": "TEXT_FIELD",
-                  "techName": "dane_podmiotu_2",
-                  "title": "Dane podmiotu (osoba fizyczna lub prawna)",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 0,
-                  "tooltipMessage": ""
-                }
-              }
-            ],
-            "states": [],
-            "questionOrder": 13,
-            "tooltipMessage": ""
-          }
         }
       ]
     },
@@ -1796,7 +1710,7 @@
         {
           "x": 0,
           "y": 0,
-          "rows": 4,
+          "rows": 5,
           "cols": 3,
           "field": {
             "id": "5be3858d-af06-54d0-89a8-8eb174a45a4c",
@@ -1871,6 +1785,28 @@
                   "repeatingSectionGrid": [],
                   "states": [],
                   "questionOrder": 2,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 3,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "a8eaf2ff-64ee-5ef6-8a35-76c62ff9741a",
+                  "type": "TEXT_FIELD",
+                  "techName": "telefon",
+                  "title": "Telefon",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 3,
                   "tooltipMessage": ""
                 }
               }

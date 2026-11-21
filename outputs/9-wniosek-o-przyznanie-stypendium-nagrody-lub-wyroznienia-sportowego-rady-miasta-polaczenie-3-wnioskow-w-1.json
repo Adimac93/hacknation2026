@@ -1474,7 +1474,7 @@
         {
           "x": 0,
           "y": 3,
-          "rows": 16,
+          "rows": 14,
           "cols": 3,
           "field": {
             "id": "6eed2958-a75f-5405-ad18-8beaf600303f",
@@ -1835,48 +1835,6 @@
                   "questionOrder": 12,
                   "tooltipMessage": ""
                 }
-              },
-              {
-                "x": 0,
-                "y": 13,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "ed1d9a80-b8f6-5270-ba72-fe4d175cc828",
-                  "type": "DATEPICKER",
-                  "techName": "data_sporzadzenia_wniosku",
-                  "title": "Data sporządzenia wniosku",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 13,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 14,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "ba9ddfe3-a72d-5a7e-bacb-0fb30f691e2d",
-                  "type": "FILE_UPLOADER",
-                  "techName": "plik_potwierdzenia_oplaty_skarbowej",
-                  "title": "Potwierdzenie uiszczenia opłaty skarbowej",
-                  "description": "",
-                  "options": [],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 14,
-                  "tooltipMessage": ""
-                }
               }
             ],
             "states": [],
@@ -1886,7 +1844,7 @@
         },
         {
           "x": 0,
-          "y": 19,
+          "y": 17,
           "rows": 9,
           "cols": 3,
           "field": {
@@ -2196,13 +2154,13 @@
               }
             ],
             "states": [],
-            "questionOrder": 19,
+            "questionOrder": 17,
             "tooltipMessage": ""
           }
         },
         {
           "x": 0,
-          "y": 28,
+          "y": 26,
           "rows": 5,
           "cols": 3,
           "field": {
@@ -2265,7 +2223,7 @@
                   "id": "e26dc6e8-386e-56ba-8f3b-59d71526355a",
                   "type": "TEXT_FIELD",
                   "techName": "imie_i_nazwisko_podopiecznego",
-                  "title": "Imię i nazwisko zawodniczki/zawodnika",
+                  "title": "Imię i nazwisko podopiecznego",
                   "description": "",
                   "options": [],
                   "validation": [],
@@ -2318,7 +2276,152 @@
               }
             ],
             "states": [],
-            "questionOrder": 28,
+            "questionOrder": 26,
+            "tooltipMessage": ""
+          }
+        },
+        {
+          "x": 0,
+          "y": 31,
+          "rows": 6,
+          "cols": 3,
+          "field": {
+            "id": "d39f35dc-e99d-5ea7-88ee-d6b8e6896152",
+            "type": "SECTION",
+            "techName": "zgody",
+            "title": "Zgody",
+            "description": "<html><head></head><body></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "7d98ad18-f503-50c5-8919-1329878a7a49",
+                  "type": "RADIO",
+                  "techName": "wybierz_zgode",
+                  "title": "Wybierz zgodę",
+                  "description": "",
+                  "options": [
+                    {
+                      "id": "Zgoda kandydata pełnoletniego",
+                      "name": "Zgoda kandydata pełnoletniego",
+                      "techName": "zgoda_kandydata_pelnoletniego"
+                    },
+                    {
+                      "id": "Zgoda w imieniu kandydata nieletniego",
+                      "name": "Zgoda w imieniu kandydata nieletniego",
+                      "techName": "zgoda_w_imieniu_kandydata_nieletniego"
+                    }
+                  ],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 1,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "25f943c1-7fff-5074-acd2-fff60918da9e",
+                  "type": "TEXT_FIELD",
+                  "techName": "imie_i_nazwisko_kandydata",
+                  "title": "Imię i nazwisko kandydata",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 1,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 2,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "ca6cd6b9-da2d-52cc-bd43-b7168187e3cf",
+                  "type": "DATEPICKER",
+                  "techName": "data_zgody",
+                  "title": "Data zgody",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 2,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 3,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "44d92b09-d734-5222-9945-a224280e90bf",
+                  "type": "TEXT_FIELD",
+                  "techName": "imie_i_nazwisko_rodzica",
+                  "title": "Imię i nazwisko rodzica/opiekuna prawnego",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Zgoda w imieniu kandydata nieletniego\" in tabs['Rodzaj wniosku' in title].questions['zgody' in field.techName].field.repeatingSectionGrid['wybierz_zgode' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 3,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 4,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "a0fb587f-fb9c-50d9-9c58-e836d4a48ffd",
+                  "type": "FILE_UPLOADER",
+                  "techName": "plik_potwierdzenia_przelewu",
+                  "title": "Potwierdzenie uiszczenia opłaty skarbowej",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 4,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "states": [],
+            "questionOrder": 31,
             "tooltipMessage": ""
           }
         }

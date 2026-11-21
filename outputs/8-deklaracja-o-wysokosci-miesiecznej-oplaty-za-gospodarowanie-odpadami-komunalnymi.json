@@ -1409,7 +1409,7 @@
         {
           "x": 0,
           "y": 2,
-          "rows": 4,
+          "rows": 2,
           "cols": 3,
           "field": {
             "id": "68fa25aa-a13c-54a6-8412-23832ea15bae",
@@ -1427,51 +1427,6 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "cd35435c-4ceb-5a0f-bcc4-358f83d52b13",
-                  "type": "TEXT_FIELD",
-                  "techName": "nazwa_skladajacego",
-                  "title": "Nazwisko, imię / Nazwa pełna",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 0,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 1,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "e62c093d-4df5-5546-a22e-ca5688d63e6b",
-                  "type": "TEXT_FIELD",
-                  "techName": "nip_regon_skladajacego",
-                  "title": "NIP/REGON",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "NIP",
-                    "REGON"
-                  ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 1,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 2,
-                "rows": 1,
-                "cols": 3,
-                "field": {
                   "id": "ad98e847-6d1c-576e-875b-875387283241",
                   "type": "TEXT_FIELD",
                   "techName": "rodzaj_posiadania_nieruchomosci",
@@ -1482,7 +1437,7 @@
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
-                  "questionOrder": 2,
+                  "questionOrder": 0,
                   "tooltipMessage": ""
                 }
               }
@@ -1494,7 +1449,7 @@
         },
         {
           "x": 0,
-          "y": 6,
+          "y": 4,
           "rows": 3,
           "cols": 3,
           "field": {
@@ -1551,189 +1506,13 @@
               }
             ],
             "states": [],
-            "questionOrder": 6,
+            "questionOrder": 4,
             "tooltipMessage": ""
           }
         },
         {
           "x": 0,
-          "y": 9,
-          "rows": 8,
-          "cols": 3,
-          "field": {
-            "id": "470f1ad9-8780-5ac8-87db-089c5011dafd",
-            "type": "SECTION",
-            "techName": "adres_zamieszkania_2",
-            "title": "Adres zamieszkania",
-            "description": "<html><head></head><body></body></html>",
-            "options": [],
-            "validation": [],
-            "readOnly": false,
-            "repeatingSectionGrid": [
-              {
-                "x": 0,
-                "y": 0,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "fb14bf39-9dfc-5011-af69-df95e016a6ac",
-                  "type": "TEXT_FIELD",
-                  "techName": "kraj_zamieszkania",
-                  "title": "Kraj zamieszkania",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 0,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 1,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "3c753958-a707-53fe-9299-052d103d3b46",
-                  "type": "TEXT_FIELD",
-                  "techName": "wojewodztwo_zamieszkania",
-                  "title": "Województwo zamieszkania",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 1,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 2,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "f256048c-79d4-5ec1-abd3-596b57bee4b7",
-                  "type": "TEXT_FIELD",
-                  "techName": "gmina_zamieszkania",
-                  "title": "Gmina zamieszkania",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 2,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 3,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "8fd1b9ad-9961-5220-a78c-8ac02df4a1f9",
-                  "type": "TEXT_FIELD",
-                  "techName": "miejscowosc_zamieszkania",
-                  "title": "Miejscowość zamieszkania",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 3,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 4,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "c5c9cec5-4c1b-5f13-8d25-9a4795b880ab",
-                  "type": "TEXT_FIELD",
-                  "techName": "ulica_zamieszkania",
-                  "title": "Ulica zamieszkania",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 4,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 5,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "6ab5629d-ee6d-59e5-993c-40b9481d7bc6",
-                  "type": "TEXT_FIELD",
-                  "techName": "numer_nieruchomosci_zamieszkania",
-                  "title": "Numer nieruchomości/domu",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 5,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 6,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "8bd85ec0-3e46-5a76-836d-e6dfe8e2bfcf",
-                  "type": "TEXT_FIELD",
-                  "techName": "kod_pocztowy_zamieszkania",
-                  "title": "Kod pocztowy zamieszkania",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "REQUIRED",
-                    "ZIP_CODE"
-                  ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 6,
-                  "tooltipMessage": ""
-                }
-              }
-            ],
-            "states": [],
-            "questionOrder": 9,
-            "tooltipMessage": ""
-          }
-        },
-        {
-          "x": 0,
-          "y": 17,
+          "y": 7,
           "rows": 9,
           "cols": 3,
           "field": {
@@ -1910,13 +1689,13 @@
               }
             ],
             "states": [],
-            "questionOrder": 17,
+            "questionOrder": 7,
             "tooltipMessage": ""
           }
         },
         {
           "x": 0,
-          "y": 26,
+          "y": 16,
           "rows": 6,
           "cols": 3,
           "field": {
@@ -2054,13 +1833,13 @@
               }
             ],
             "states": [],
-            "questionOrder": 26,
+            "questionOrder": 16,
             "tooltipMessage": ""
           }
         },
         {
           "x": 0,
-          "y": 32,
+          "y": 22,
           "rows": 7,
           "cols": 3,
           "field": {
@@ -2204,13 +1983,13 @@
               }
             ],
             "states": [],
-            "questionOrder": 32,
+            "questionOrder": 22,
             "tooltipMessage": ""
           }
         },
         {
           "x": 0,
-          "y": 39,
+          "y": 29,
           "rows": 5,
           "cols": 3,
           "field": {
@@ -2329,13 +2108,13 @@
               }
             ],
             "states": [],
-            "questionOrder": 39,
+            "questionOrder": 29,
             "tooltipMessage": ""
           }
         },
         {
           "x": 0,
-          "y": 44,
+          "y": 34,
           "rows": 2,
           "cols": 3,
           "field": {
@@ -2381,13 +2160,13 @@
               }
             ],
             "states": [],
-            "questionOrder": 44,
+            "questionOrder": 34,
             "tooltipMessage": ""
           }
         },
         {
           "x": 0,
-          "y": 46,
+          "y": 36,
           "rows": 3,
           "cols": 3,
           "field": {
@@ -2442,7 +2221,7 @@
               }
             ],
             "states": [],
-            "questionOrder": 46,
+            "questionOrder": 36,
             "tooltipMessage": ""
           }
         }
