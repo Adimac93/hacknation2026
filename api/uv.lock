@@ -370,6 +370,7 @@ dependencies = [
     { name = "fastapi" },
     { name = "httpx" },
     { name = "olefile" },
+    { name = "pdfplumber" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "pyjwt", extra = ["crypto"] },
@@ -380,7 +381,6 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "mypy" },
-    { name = "pdfplumber" },
     { name = "pytest" },
     { name = "ruff" },
     { name = "types-olefile" },
@@ -391,6 +391,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.165.0" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "olefile", specifier = ">=0.47" },
+    { name = "pdfplumber", specifier = ">=0.11.11" },
     { name = "pydantic", specifier = ">=2.14.4" },
     { name = "pydantic-settings", specifier = ">=2.16.3" },
     { name = "pyjwt", extras = ["crypto"], specifier = ">=2.10" },
@@ -401,7 +402,6 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "mypy", specifier = ">=2.4.1" },
-    { name = "pdfplumber", specifier = ">=0.11.11" },
     { name = "pytest", specifier = ">=9.2.0" },
     { name = "ruff", specifier = ">=0.17.6" },
     { name = "types-olefile", specifier = ">=0.47.0.20260508" },
