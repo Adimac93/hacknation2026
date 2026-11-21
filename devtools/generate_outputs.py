@@ -6,8 +6,9 @@ Development tool only, never part of the image. Start the API first (docker comp
     uv run --project api python devtools/generate_outputs.py [--api URL] [--format pdf]
 
 For every form folder 3, 4, 6, 7, 8 and 9 in Docs/ it POSTs one blank to /api/v1/forms?details=true,
-writes the form JSON to outputs/<number>-<slug>.json and a summary of all runs to
-outputs/README.md (mode, model, lint issues, timings). Files in outputs/ are never edited by hand.
+writes the form JSON to outputs/<number>-<slug of the Docs/ folder name>.json (stable across modes)
+and a summary of all runs to outputs/README.md (mode, model, lint issues,
+timings). Files in outputs/ are never edited by hand.
 """
 
 import argparse
@@ -24,6 +25,7 @@ ROOT = Path(__file__).resolve().parent.parent
 DOCS = ROOT / "Docs"
 OUTPUTS = ROOT / "outputs"
 FORMS = ("3", "4", "6", "7", "8", "9")
+FOLDER_SUFFIX = " - formularze do cyfryzacji"
 
 
 def blank(number: str, fmt: str) -> Path:
@@ -32,6 +34,13 @@ def blank(number: str, fmt: str) -> Path:
         if path.suffix.lower().lstrip(".") == fmt:
             return path
     raise SystemExit(f"form {number}: no .{fmt} file in {folder.name}")
+
+
+def output_name(number: str) -> str:
+    """Stable file name from the Docs/ folder, independent of the title the service derives."""
+    folder = next(DOCS.glob(f"{number}. *")).name
+    title = folder.removeprefix(f"{number}. ").removesuffix(FOLDER_SUFFIX)
+    return f"{number}-{slugify(title).replace('_', '-')}.json"
 
 
 def run(client: httpx.Client, api: str, path: Path, token: str | None) -> dict[str, Any]:
@@ -77,7 +86,7 @@ def main() -> None:
             path = blank(number, args.format.lower())
             body = run(client, args.api, path, args.token)
             form, report = body["form"], body["report"]
-            out = OUTPUTS / f"{number}-{slugify(form['title']).replace('_', '-')}.json"
+            out = OUTPUTS / output_name(number)
             out.write_text(json.dumps(form, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
             rows.append(summary_row(number, out, path, report))
             print(f"{number}: {out.relative_to(ROOT)} ({report.get('mode')})", file=sys.stderr)
