@@ -15,6 +15,7 @@ import difflib
 import itertools
 import logging
 import math
+import os
 import re
 import shutil
 import statistics
@@ -270,8 +271,16 @@ def _rapidocr(model_dir: Path | None) -> RapidOCR | None:
             "Global.log_level": "warning",
             "Det.model_path": str(det),
             "Rec.model_path": str(rec),
+            # Explicit thread count: with the default, onnxruntime pins threads to every host CPU
+            # and logs an affinity error per thread inside a CPU-limited container.
+            "EngineConfig.onnxruntime.intra_op_num_threads": _ocr_threads(),
+            "EngineConfig.onnxruntime.inter_op_num_threads": 1,
         }
     )
+
+
+def _ocr_threads() -> int:
+    return max(1, min(4, len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else 4))
 
 
 def ocr_available(settings: Settings) -> bool:
