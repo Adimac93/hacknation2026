@@ -16,7 +16,7 @@ Stan na 2026-11-21, 14:30. Dokument zbiera ustalenia, których nie ma w raportac
 | D17 | ~~Jedna osoba + agenci AI~~. Korekta: trzy osoby (Adimac93, Stanisław Synowiec, fidok15) plus agenci AI; tory w `PLAN.md` |
 | D18 | Rozszerzenia bez względu na wielkość liter; `.jpe` przyjmowane |
 | D19 | Przyjęta rekomendacja A (tylko `wobbegong-ci`); do zmiany na życzenie |
-| D20 | Model: `Ministral-3-8B-Instruct-2512`, zapas `Qwen3.5-9B`; porównanie przez API na formularzach 1 i 5 |
+| D20 | Model: `Ministral-3-8B-Instruct-2512`, zapas `Qwen3.5-9B`. Porównanie wykonane (`research/06`): różnica w granicach szumu, Ministral zostaje ze względu na potwierdzone `seed` |
 | D21 | Modelu nie uruchamiamy lokalnie w czasie hackathonu, także na obronie. Na obronie EdenAI |
 
 **Przyjęte ryzyko (D21 + obrona przez EdenAI).** Treść zadania (pkt 5) zakazuje zależności od zewnętrznych API i SaaS w rozwiązaniu. Model jest open-weight, więc zakaz „modeli dostępnych wyłącznie przez API” nie jest naruszony, ale samo wołanie EdenAI w działającej usłudze może zostać uznane za zewnętrzne API. Łagodzenie: pytanie do mentorów w pierwszej godzinie; kod bez niczego specyficznego dla EdenAI; tryb reguł włączany jedną zmienną (`LLM_ENABLED=false`); README pokazuje lokalny `llama-server` z tym samym modelem jako konfigurację docelową.
