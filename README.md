@@ -1,4 +1,4 @@
-# Kompilator Formularzy
+# Biurokratka - Kompilator Formularzy
 
 Projekt na HackNation 2026, zadanie Centralnego Ośrodka Informatyki „Cyfryzacja formularzy”.
 
