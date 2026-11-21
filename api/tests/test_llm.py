@@ -6,15 +6,18 @@ import httpx
 import pytest
 
 from formcompiler.config import Settings
-from formcompiler.ir import Addressee, Applicant, FieldType, Validator
+from formcompiler.heuristics import Analysis
+from formcompiler.ir import Addressee, Applicant, Cond, FieldType, PageIR, SectionIR, Validator
 from formcompiler.llm import (
     EXAMPLES,
     SEED,
     InventoryField,
     InventoryIR,
     LLMError,
+    ShowIfOption,
     flat_schema,
     inventory,
+    refine,
     request_json,
     to_subject_pages,
 )
@@ -122,7 +125,11 @@ def test_schema_is_closed_and_keeps_properties_named_like_keywords() -> None:
 
     assert list(schema["properties"]) == ["title", "addressee", "applicant", "fields"]
     objects = [n for n in walk(schema) if n.get("type") == "object"]
-    assert len(objects) == 4
+    assert len(objects) == 5
+    field = schema["properties"]["fields"]["items"]["properties"]
+    show_if = field["show_if_option"]["anyOf"]
+    assert show_if[1] == {"type": "null"}
+    assert show_if[0]["required"] == ["field_key", "value"]
     for node in objects:
         assert node["additionalProperties"] is False
         assert node["required"] == list(node["properties"])
@@ -315,3 +322,124 @@ def test_reference_examples_compile_into_subject_pages() -> None:
 
         assert sum(len(s.fields) for p in pages for s in p.sections) == len(example.answer.fields)
         assemble(example.answer.title, example.answer.addressee, example.answer.applicant, pages)
+
+
+REFUND = ["Zaliczyć na poczet podatku", "Zwrócić przelewem"]
+
+
+def refund_fields(*dependent: InventoryField) -> InventoryIR:
+    choice = field("Nadpłata", "Rozliczenie", "sposob", type="RADIO", options=REFUND)
+    return InventoryIR(title="Wniosek", fields=[choice, *dependent])
+
+
+def test_show_if_option_becomes_an_ir_condition() -> None:
+    inv = refund_fields(
+        field("Nadpłata", "Rozliczenie", "rachunek", show_if_option=ShowIfOption(
+            field_key="sposob", value="zwrócić przelewem ")),
+        field("Nadpłata", "Rozliczenie", "tytul", show_if_option=ShowIfOption(
+            field_key="sposob", value=REFUND[0])),
+    )  # fmt: skip
+
+    [page] = to_subject_pages(inv)
+
+    conditions = {f.key: f.show_if for f in page.sections[0].fields}
+    assert conditions == {
+        "sposob": None,
+        "rachunek": Cond(field="sposob", value="Zwrócić przelewem"),
+        "tytul": Cond(field="sposob", value="Zaliczyć na poczet podatku"),
+    }
+    assemble("Wniosek", None, Applicant(), [page])
+
+
+def test_condition_follows_a_renamed_target_key() -> None:
+    inv = InventoryIR(
+        title="Wniosek",
+        fields=[
+            field("S", "A", "kraj", type="RADIO", options=["Polska", "Inny"]),
+            field(
+                "S", "A", "kraj_obcy", show_if_option=ShowIfOption(field_key="kraj", value="Inny")
+            ),
+        ],
+    )
+
+    [page] = to_subject_pages(inv)
+
+    by_key = {f.key: f for f in page.sections[0].fields}
+    assert by_key["kraj_obcy"].show_if == Cond(field="kraj_2", value="Inny")
+
+
+@pytest.mark.parametrize(
+    "ref",
+    [
+        ShowIfOption(field_key="nie_ma_takiego", value=REFUND[0]),
+        ShowIfOption(field_key="sposob", value="Opcja spoza listy"),
+        ShowIfOption(field_key="opis", value="cokolwiek"),
+        ShowIfOption(field_key="zalezne", value=REFUND[0]),
+    ],
+    ids=["unknown-field", "unknown-value", "not-a-choice", "self"],
+)
+def test_bad_show_if_reference_leaves_field_unconditional(ref: ShowIfOption) -> None:
+    inv = refund_fields(
+        field("Nadpłata", "Rozliczenie", "opis"),
+        field("Nadpłata", "Rozliczenie", "zalezne", show_if_option=ref),
+    )
+
+    [page] = to_subject_pages(inv)
+
+    assert all(f.show_if is None for f in page.sections[0].fields)
+
+
+RULES = Analysis(
+    title="Wniosek z reguł",
+    addressee=Addressee(name="Urząd Gminy Reguły", kind="URZAD"),
+    applicant=Applicant(),
+    pages=[
+        PageIR(
+            title="Z reguł",
+            sections=[SectionIR(key="z_regul", title="Z reguł", fields=[])],
+        )
+    ],
+)
+
+
+def refine_with(answer: InventoryIR) -> Analysis:
+    handler, _ = scripted(completion(answer.model_dump_json()))
+    return refine(make(), "L1 Blankiet", RULES, transport=httpx.MockTransport(handler))
+
+
+def test_refine_returns_model_analysis_ready_for_assembly() -> None:
+    answer = refund_fields(
+        field("Nadpłata", "Rozliczenie", "rachunek", show_if_option=ShowIfOption(
+            field_key="sposob", value=REFUND[1])),
+    ).model_copy(update={
+        "title": "Wniosek o zwrot nadpłaty",
+        "addressee": Addressee(name="Wójt Gminy Testowej", kind="ORGAN"),
+        "applicant": Applicant(persons=True, entities=True, proxy=False),
+    })  # fmt: skip
+
+    result = refine_with(answer)
+
+    assert result.title == "Wniosek o zwrot nadpłaty"
+    assert result.addressee == answer.addressee
+    assert result.applicant == answer.applicant
+    assert result.pages == to_subject_pages(answer)
+    assemble(result.title, result.addressee, result.applicant, result.pages)
+
+
+def test_refine_falls_back_to_rules_for_missing_parts() -> None:
+    answer = InventoryIR(title="Podanie o cokolwiek", addressee=None, fields=[])
+
+    result = refine_with(answer)
+
+    assert (result.title, result.addressee, result.pages) == (
+        RULES.title,
+        RULES.addressee,
+        RULES.pages,
+    )
+
+
+def test_refine_raises_when_the_model_fails() -> None:
+    handler, _ = scripted(httpx.Response(503), httpx.Response(503))
+
+    with pytest.raises(LLMError):
+        refine(make(), "L1 Blankiet", RULES, transport=httpx.MockTransport(handler))
