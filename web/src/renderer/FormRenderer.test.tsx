@@ -180,7 +180,7 @@ describe("field behaviour", () => {
     expect(screen.queryByRole("button", { name: /Usuń/ })).toBeNull();
   });
 
-  it("long dictionary lists get a filter", async () => {
+  it("long dictionary lists are searched in the same input they are picked from", async () => {
     const user = userEvent.setup();
     const country: FormField = {
       id: "k",
@@ -190,10 +190,12 @@ describe("field behaviour", () => {
       dictionaryName: "Kraje",
     };
     render(<FormRenderer config={formWith([country])} />);
-    const select = screen.getByLabelText("Kraj") as HTMLSelectElement;
-    expect(select.options.length).toBeGreaterThan(16);
-    await user.type(screen.getByRole("searchbox"), "niem");
-    expect(Array.from(select.options, (o) => o.text)).toEqual(["Wybierz", "Niemcy"]);
+    const box = screen.getByRole("combobox", { name: "Kraj" }) as HTMLInputElement;
+    expect(screen.queryByRole("searchbox")).toBeNull();
+    await user.type(box, "niem");
+    expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual(["Niemcy"]);
+    await user.keyboard("{Enter}");
+    expect(box.value).toBe("Niemcy");
   });
 
   it("unknown field types show a note instead of crashing", () => {
