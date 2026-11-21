@@ -10,7 +10,9 @@
 }
 
 .logo {
-  display: block;
+  display: flex;
+  align-items: center;
+  min-height: var(--control-height);
   padding: var(--space-1);
 }
 
@@ -24,4 +26,11 @@
   .header {
     padding-inline: var(--space-8);
   }
+}
+
+/* Header links are plain text links; give them a 44 px touch target. */
+.actions > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-height);
 }

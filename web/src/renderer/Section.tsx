@@ -9,7 +9,7 @@ import {
 } from "../form/model";
 import type { FormField, GridItem, SectionField } from "../form/types";
 import buttons from "./buttons.module.css";
-import { useRenderer } from "./context";
+import { useLevel, useRenderer } from "./context";
 import { componentFor } from "./fields";
 import { RichText } from "./RichText";
 import styles from "./Section.module.css";
@@ -79,6 +79,7 @@ function RepeatingRows({ field, t, q }: { field: SectionField; t: number; q: num
   const api = useRenderer();
   const sKey = sectionKey(t, q);
   const rows = api.rowsOf(sKey);
+  const level = useLevel(3);
   const [focusRow, setFocusRow] = useState<number | null>(null);
   const headings = useRef(new Map<number, HTMLHeadingElement>());
   const addButton = useRef<HTMLButtonElement>(null);
@@ -97,6 +98,7 @@ function RepeatingRows({ field, t, q }: { field: SectionField; t: number; q: num
           <div className={styles.rowHeader}>
             <h3
               tabIndex={-1}
+              {...level}
               className={styles.rowTitle}
               ref={(el) => {
                 if (el) headings.current.set(rowId, el);
@@ -141,6 +143,7 @@ function RepeatingRows({ field, t, q }: { field: SectionField; t: number; q: num
 
 export function Section({ item, t, q }: { item: GridItem<SectionField>; t: number; q: number }) {
   const api = useRenderer();
+  const level = useLevel(2);
   const sKey = sectionKey(t, q);
   if (api.isHidden(sKey, sKey)) return null;
   const { field } = item;
@@ -154,7 +157,7 @@ export function Section({ item, t, q }: { item: GridItem<SectionField>; t: numbe
       aria-labelledby={field.title ? headingId : undefined}
     >
       {field.title ? (
-        <h2 id={headingId} className={styles.title}>
+        <h2 id={headingId} className={styles.title} {...level}>
           {field.title}
         </h2>
       ) : null}

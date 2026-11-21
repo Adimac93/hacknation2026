@@ -1,7 +1,7 @@
 import { displayValue, fieldInstances, labelOf, PRESENTATIONAL_TYPES } from "../form/model";
 import type { FormConfig } from "../form/types";
 import buttons from "./buttons.module.css";
-import { useRenderer } from "./context";
+import { useLevel, useRenderer } from "./context";
 import styles from "./FormRenderer.module.css";
 
 interface Props {
@@ -15,6 +15,7 @@ interface Props {
 /** Answers from every visible field, page by page, for the FINISH page. */
 export function Summary({ config, tabs, repeats, onEdit }: Props) {
   const api = useRenderer();
+  const level = useLevel(2);
   return (
     <div className={styles.summary}>
       {tabs.map((t) => {
@@ -28,7 +29,9 @@ export function Summary({ config, tabs, repeats, onEdit }: Props) {
         return (
           <section key={t} className={styles.summaryCard} aria-labelledby={`summary-${t}`}>
             <div className={styles.summaryHeader}>
-              <h2 id={`summary-${t}`}>{tab?.title}</h2>
+              <h2 id={`summary-${t}`} {...level}>
+                {tab?.title}
+              </h2>
               <button
                 type="button"
                 className={`${buttons.link} ${buttons.small}`}

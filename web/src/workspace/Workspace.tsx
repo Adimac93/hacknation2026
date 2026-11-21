@@ -204,7 +204,7 @@ export function Workspace() {
                   {config ? (
                     <div className={styles.preview}>
                       <h2>Podgląd e-formularza</h2>
-                      <FormRenderer key={selected} config={config} />
+                      <FormRenderer key={selected} config={config} headingOffset={2} />
                     </div>
                   ) : (
                     <p role="alert">{configError}</p>
