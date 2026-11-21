@@ -54,6 +54,10 @@
   color: var(--color-success);
 }
 
+.tag[data-status="limited"] {
+  color: var(--color-accent-text);
+}
+
 .tag[data-status="error"] {
   color: var(--color-accent-text);
 }

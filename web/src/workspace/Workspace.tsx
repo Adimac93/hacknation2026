@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { analyzeFile } from "../api/client";
+import { ApiError, analyzeFile } from "../api/client";
 import { demoResult } from "../api/demo";
+import { retryDelay } from "../api/retry";
 import type { AnalysisResult } from "../api/types";
 import { validateUpload } from "../api/validate";
 import { AppHeader } from "../brand/AppHeader";
@@ -34,6 +35,7 @@ export function Workspace() {
   const results = useRef(new Map<number, AnalysisResult>());
   const files = useRef(new Map<number, File>());
   const running = useRef(false);
+  const attempts = useRef(new Map<number, number>());
 
   const patch = (id: number, change: Partial<Job>) =>
     setJobs((all) => all.map((j) => (j.id === id ? { ...j, ...change } : j)));
@@ -74,6 +76,7 @@ export function Workspace() {
   // biome-ignore lint/correctness/useExhaustiveDependencies: patch only calls a stable setter.
   useEffect(() => {
     if (running.current) return;
+    if (jobs.some((j) => j.status === "limited")) return; // wait out the rate limit first
     const job = jobs.find((j) => j.status === "waiting");
     const file = job && files.current.get(job.id);
     if (!job || !file) return;
@@ -82,14 +85,29 @@ export function Workspace() {
     analyzeFile(file, token || undefined)
       .then((result) => {
         results.current.set(job.id, result);
+        files.current.delete(job.id);
         patch(job.id, { status: "done" });
         setSelected((cur) => cur ?? job.id);
       })
-      .catch((e: unknown) =>
-        patch(job.id, { status: "error", error: e instanceof Error ? e.message : "Błąd analizy." }),
-      )
+      .catch((e: unknown) => {
+        const tries = attempts.current.get(job.id) ?? 0;
+        const delay = e instanceof ApiError ? retryDelay(e.status, e.retryAfter, tries) : null;
+        if (delay === null) {
+          files.current.delete(job.id);
+          patch(job.id, {
+            status: "error",
+            error: e instanceof Error ? e.message : "Błąd analizy.",
+          });
+          return;
+        }
+        attempts.current.set(job.id, tries + 1);
+        patch(job.id, { status: "limited", retryAt: Date.now() + delay * 1000 });
+        setTimeout(() => {
+          // A removed job has no file any more; nothing to wake then.
+          if (files.current.has(job.id)) patch(job.id, { status: "waiting", retryAt: undefined });
+        }, delay * 1000);
+      })
       .finally(() => {
-        files.current.delete(job.id);
         running.current = false;
         setJobs((all) => [...all]); // wake the effect for the next waiting file
       });
@@ -105,6 +123,7 @@ export function Workspace() {
   const remove = (id: number) => {
     results.current.delete(id);
     files.current.delete(id);
+    attempts.current.delete(id);
     setJobs((all) => all.filter((j) => j.id !== id));
     setSelected((cur) => (cur === id ? null : cur));
   };

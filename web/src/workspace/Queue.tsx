@@ -3,7 +3,7 @@ import { formatSize } from "../api/validate";
 import buttons from "../renderer/buttons.module.css";
 import styles from "./Queue.module.css";
 
-export type JobStatus = "waiting" | "running" | "done" | "error";
+export type JobStatus = "waiting" | "limited" | "running" | "done" | "error";
 
 export interface Job {
   id: number;
@@ -11,10 +11,13 @@ export interface Job {
   size: number;
   status: JobStatus;
   error?: string;
+  /** Epoch ms when a rate-limited job is retried (status "limited"). */
+  retryAt?: number;
 }
 
 const LABEL: Record<JobStatus, string> = {
   waiting: "Czeka",
+  limited: "Czeka na limit",
   running: "Analiza",
   done: "Gotowe",
   error: "Błąd",
@@ -32,6 +35,18 @@ function useElapsed(active: boolean): number {
   return seconds;
 }
 
+/** Whole seconds left until `at`, ticking every second. */
+function useCountdown(at: number | undefined): number {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    if (at === undefined) return;
+    setNow(Date.now());
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, [at]);
+  return at === undefined ? 0 : Math.max(0, Math.ceil((at - now) / 1000));
+}
+
 interface Props {
   jobs: Job[];
   selected: number | null;
@@ -44,6 +59,8 @@ export function Queue({ jobs, selected, onSelect, onRemove }: Props) {
   const done = jobs.filter((j) => j.status === "done" || j.status === "error").length;
   const running = jobs.find((j) => j.status === "running");
   const elapsed = useElapsed(Boolean(running));
+  const limited = jobs.find((j) => j.status === "limited");
+  const left = useCountdown(limited?.retryAt);
   return (
     <section aria-labelledby="queue-title" className={styles.queue}>
       <h2 id="queue-title">Kolejka plików</h2>
@@ -65,14 +82,23 @@ export function Queue({ jobs, selected, onSelect, onRemove }: Props) {
       </div>
       {running ? (
         <p className={styles.status}>
-          Analizuję plik {done + 1} z {jobs.length}: {running.name}. Trwa to {elapsed} s. Duże pliki
-          i skany mogą potrzebować nawet kilku minut, nie zamykaj tej strony.
+          Analizuję plik {done + 1} z {jobs.length}: {running.name}. Trwa to {elapsed} s. Zdjęcia,
+          skany i analiza z udziałem modelu zwykle zajmują 15-60 sekund, większe pliki nawet kilka
+          minut. Nie zamykaj tej strony.
+        </p>
+      ) : null}
+      {limited ? (
+        <p className={styles.status}>
+          Czeka na limit, ponowienie za {left} s: {limited.name}. Usługa przyjmuje do 10 plików na
+          minutę, ponowię automatycznie.
         </p>
       ) : null}
       <p className="visually-hidden" aria-live="polite">
-        {running
-          ? `Analizuję plik ${done + 1} z ${jobs.length}`
-          : `Zakończono ${done} z ${jobs.length}`}
+        {limited
+          ? `${limited.name}: czeka na limit zapytań, ponowienie za około ${Math.ceil(left / 10) * 10} s`
+          : running
+            ? `Analizuję plik ${done + 1} z ${jobs.length}`
+            : `Zakończono ${done} z ${jobs.length}`}
       </p>
       <table>
         <caption className="visually-hidden">Pliki w kolejce i ich stan</caption>
@@ -104,6 +130,7 @@ export function Queue({ jobs, selected, onSelect, onRemove }: Props) {
                   {LABEL[job.status]}
                 </span>
                 {job.status === "running" ? <span className="mono"> {elapsed} s</span> : null}
+                {job.status === "limited" ? <span className="mono"> za {left} s</span> : null}
                 {job.error ? <p className={styles.error}>{job.error}</p> : null}
               </td>
               <td>
