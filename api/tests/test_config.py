@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -123,3 +124,26 @@ def test_blank_optional_jwt_values_from_env_file_are_unset(monkeypatch: pytest.M
     settings = make()
 
     assert (settings.jwt_secret_file, settings.jwt_issuer, settings.jwt_audience) == (None,) * 3
+
+
+def test_ocr_paths_blank_means_bundled_defaults() -> None:
+    settings = make(ocr_model_dir="", tessdata_dir="")
+
+    assert settings.ocr_model_dir is None
+    assert settings.tessdata_dir is None
+
+
+def test_ocr_paths_from_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("OCR_MODEL_DIR", "/opt/ocr/rapidocr")
+    monkeypatch.setenv("OCR_MIN_CONFIDENCE", "0.9")
+
+    settings = make()
+
+    assert settings.ocr_model_dir == Path("/opt/ocr/rapidocr")
+    assert settings.ocr_min_confidence == 0.9
+
+
+@pytest.mark.parametrize("value", [-0.1, 1.5])
+def test_ocr_confidence_threshold_is_a_probability(value: float) -> None:
+    with pytest.raises(ValidationError):
+        make(ocr_min_confidence=value)

@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 from formcompiler import heuristics, ingest, main, pipeline
 from formcompiler.config import Settings
 from formcompiler.document import Document, LineKind
-from formcompiler.ingest import pdf
+from formcompiler.ingest import pdf, raster
 from formcompiler.lint import lint
 from formcompiler.upload import FileKind, UploadError
 
@@ -134,8 +134,22 @@ def test_pipeline_builds_lint_clean_form_3() -> None:
     assert report.mode == "rules"
 
 
-def test_pdf_reader_is_registered() -> None:
-    assert ingest.READERS[FileKind.PDF] is pdf.read
+def test_pdf_with_text_layer_skips_ocr(monkeypatch: pytest.MonkeyPatch) -> None:
+    def no_ocr(data: bytes, settings: Settings) -> Document:
+        raise AssertionError("OCR must not run on a PDF with a text layer")
+
+    monkeypatch.setattr(raster, "ocr_pdf", no_ocr)
+    doc = ingest.read(form("3").read_bytes(), FileKind.PDF, SETTINGS)
+
+    assert any(page.lines for page in doc.pages)
+
+
+def test_scanned_pdf_goes_through_ocr(monkeypatch: pytest.MonkeyPatch) -> None:
+    scanned = Document(pages=[])
+    monkeypatch.setattr(raster, "ocr_available", lambda settings: True)
+    monkeypatch.setattr(raster, "ocr_pdf", lambda data, settings: scanned)
+
+    assert ingest.read(blank_pdf(), FileKind.PDF, SETTINGS) is scanned
 
 
 def test_upload_of_form_3_end_to_end() -> None:

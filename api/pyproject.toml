@@ -9,12 +9,17 @@ requires-python = ">=3.14"
 dependencies = [
     "fastapi>=0.165.0",
     "httpx>=0.28.1",
+    "numpy>=2.5.5",
     "olefile>=0.47",
+    "onnxruntime>=1.32",
+    "opencv-python-headless>=5.1.0.95",
     "pdfplumber>=0.11.11",
     "pydantic>=2.14.4",
     "pydantic-settings>=2.16.3",
     "pyjwt[crypto]>=2.10",
+    "pypdfium2>=5.15",
     "python-multipart>=0.0.34",
+    "rapidocr>=3.10",
     "uvicorn[standard]>=0.54.0",
 ]
 

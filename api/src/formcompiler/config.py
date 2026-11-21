@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Annotated, Self
 from urllib.parse import urlsplit
 
-from pydantic import SecretStr, field_validator, model_validator
+from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 REPO_ENV_FILE = Path(__file__).resolve().parents[3] / ".env"
@@ -45,6 +45,14 @@ class Settings(BaseSettings):
 
     tika_url: str = "http://tika:9998"
 
+    # OCR of raster pages (D5). Unset model dir = the PP-OCRv6 small weights bundled in the
+    # rapidocr wheel; Docker points it at weights verified by SHA-256 at build time.
+    ocr_model_dir: Path | None = None
+    # Mean RapidOCR confidence of a page below which the page is read again by Tesseract.
+    ocr_min_confidence: float = Field(default=0.8, ge=0.0, le=1.0)
+    # Unset = Tesseract's built-in tessdata location (the Debian package in Docker).
+    tessdata_dir: Path | None = None
+
     llm_enabled: bool = False
     llm_base_url: str = "http://localhost:8080/v1"
     llm_model: str = "Qwen/Qwen3.5-9B"
@@ -52,7 +60,14 @@ class Settings(BaseSettings):
     llm_timeout_s: float = 120.0
     llm_allow_remote: bool = False
 
-    @field_validator("jwt_secret_file", "jwt_issuer", "jwt_audience", mode="before")
+    @field_validator(
+        "jwt_secret_file",
+        "jwt_issuer",
+        "jwt_audience",
+        "ocr_model_dir",
+        "tessdata_dir",
+        mode="before",
+    )
     @classmethod
     def _blank_is_unset(cls, value: object) -> object:
         return None if value == "" else value
