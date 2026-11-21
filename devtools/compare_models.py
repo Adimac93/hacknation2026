@@ -1,7 +1,9 @@
 """Compare candidate models on step A (inventory) for reference forms 1 and 5 (decision D20).
 
 Development tool only, never part of the image. Needs LLM_* in the repo .env (EdenAI key).
-Run from api/: uv run python ../devtools/compare_models.py [--out DIR]
+Run from api/: uv run python ../devtools/compare_models.py [--out DIR] [--models M ...]
+Forms without a gold standard (round 2): --unlabeled 3 4 6 runs the production path
+(heuristics, refine, assemble, build, lint.fix) and stores the fields for manual review.
 
 Gold standard: subject pages of the decompiled reference JSON, plus addressee and applicant
 flags read by hand from the references. Each call is written to --out as soon as it returns:
@@ -19,6 +21,7 @@ from typing import Any, NamedTuple
 import httpx
 import pdfplumber
 
+from formcompiler import compiler, heuristics, lint
 from formcompiler.compiler import slugify
 from formcompiler.config import Settings
 from formcompiler.decompile import decompile
@@ -30,10 +33,11 @@ from formcompiler.llm import (
     InventoryIR,
     LLMError,
     inventory_messages,
+    refine,
     request_json,
 )
 from formcompiler.schema import Form
-from formcompiler.sections import LIBRARY, RESERVED_KEYS
+from formcompiler.sections import LIBRARY, RESERVED_KEYS, assemble
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "Docs"
@@ -81,6 +85,7 @@ class Recorder(httpx.BaseTransport):
         self.directory = directory
         self.stem = stem
         self.count = 0
+        self.usage: dict[str, int] = {}
 
     def handle_request(self, request: httpx.Request) -> httpx.Response:
         response = self.inner.handle_request(request)
@@ -88,6 +93,10 @@ class Recorder(httpx.BaseTransport):
         self.count += 1
         path = self.directory / f"{self.stem}-attempt{self.count}.json"
         path.write_bytes(content)
+        try:
+            self.usage = json.loads(content).get("usage") or {}
+        except ValueError:
+            self.usage = {}
         headers = {
             k: v
             for k, v in response.headers.items()
@@ -100,6 +109,10 @@ class Recorder(httpx.BaseTransport):
 
 
 def document_text(pdf_path: Path) -> str:
+    return load_document(pdf_path).linearize()
+
+
+def load_document(pdf_path: Path) -> Document:
     pages = []
     n = 0
     with pdfplumber.open(pdf_path) as pdf:
@@ -110,7 +123,7 @@ def document_text(pdf_path: Path) -> str:
                     n += 1
                     lines.append(Line(id=f"L{n}", text=text.strip()))
             pages.append(Page(number=number, lines=lines))
-    return Document(pages=pages).linearize()
+    return Document(pages=pages)
 
 
 def gold_fields(reference: Path) -> list[FieldIR]:
@@ -222,6 +235,57 @@ def run_one(settings: Settings, model: str, gold: Gold, variant: str, out: Path)
     return row
 
 
+def run_unlabeled(settings: Settings, model: str, form: str, out: Path) -> dict[str, Any]:
+    """Production path on a form without a gold standard; fields are kept for manual review."""
+    doc = load_document(next(DOCS.glob(f"{form}. */*.[pP][dD][fF]")))
+    recorder = Recorder(out / "raw", f"{slugify(model)}-form{form}")
+    config = settings.model_copy(update={"llm_model": model, "llm_timeout_s": 120.0})
+    row: dict[str, Any] = {"model": model, "form": form, "variant": "unlabeled"}
+    started = time.perf_counter()
+    try:
+        refined = refine(config, doc.linearize(), heuristics.analyze(doc), transport=recorder)
+    except LLMError as exc:
+        elapsed = time.perf_counter() - started
+        return row | {"error": str(exc), "elapsed_s": elapsed, "attempts": recorder.count}
+    finally:
+        recorder.close()
+    elapsed = time.perf_counter() - started
+    ir = assemble(refined.title, refined.addressee, refined.applicant, refined.pages)
+    built, issues = lint.fix(compiler.build(ir))
+    prompt = int(recorder.usage.get("prompt_tokens", 0))
+    completion = int(recorder.usage.get("completion_tokens", 0))
+    price_in, price_out = MODELS[model]
+    return row | {
+        "elapsed_s": elapsed,
+        "attempts": recorder.count,
+        "prompt_tokens": prompt,
+        "completion_tokens": completion,
+        "cost_usd": (prompt * price_in + completion * price_out) / 1e6,
+        "title": refined.title,
+        "addressee": refined.addressee.model_dump() if refined.addressee else None,
+        "applicant": refined.applicant.model_dump(),
+        "lint_errors": [i.code for i in issues if i.severity == "error" and not i.fixed],
+        "lint_warnings": [i.code for i in issues if i.severity == "warning" and not i.fixed],
+        "lint_fixed": [i.code for i in issues if i.fixed],
+        "tabs": len(built.tabs),
+        "fields": [
+            {
+                "page": page.title,
+                "section": section.title,
+                "key": f.key,
+                "label": f.label,
+                "type": f.type,
+                "required": f.required,
+                "options": f.options,
+                "show_if": f.show_if.model_dump() if f.show_if else None,
+            }
+            for page in refined.pages
+            for section in page.sections
+            for f in section.fields
+        ],
+    }
+
+
 def table(rows: list[dict[str, Any]]) -> str:
     head = (
         "| Model | Formularz | Wariant | Pokrycie | Zgodność typów | Nadmiarowe (z biblioteki) "
@@ -251,6 +315,8 @@ def main() -> None:
     default_out = Path(tempfile.gettempdir()) / "formcompiler-compare"
     parser.add_argument("--out", type=Path, default=default_out)
     parser.add_argument("--variants", nargs="+", default=["loo", "full"])
+    parser.add_argument("--models", nargs="+", default=list(MODELS), choices=list(MODELS))
+    parser.add_argument("--unlabeled", nargs="+", default=[], metavar="FORM")
     args = parser.parse_args()
     out: Path = args.out
     (out / "raw").mkdir(parents=True, exist_ok=True)
@@ -258,9 +324,22 @@ def main() -> None:
     rows: list[dict[str, Any]] = []
     spent = 0.0
     with (out / "results.jsonl").open("a", encoding="utf-8") as log:
+        for form in args.unlabeled:
+            for model in args.models:
+                row = run_unlabeled(settings, model, form, out)
+                spent += row.get("cost_usd", 0.0)
+                log.write(json.dumps(row, ensure_ascii=False) + "\n")
+                log.flush()
+                status = (
+                    row.get("error") or f"{len(row['fields'])} fields, lint {row['lint_errors']}"
+                )
+                print(f"{model} form {form}: {status}", flush=True)
+        if args.unlabeled:
+            print(f"\nkoszt łączny: {spent:.5f} USD; wyniki: {out}")
+            return
         for variant in args.variants:
             for gold in GOLD:
-                for model in MODELS:
+                for model in args.models:
                     if spent >= BUDGET_USD:
                         raise SystemExit(f"budget {BUDGET_USD} USD reached")
                     row = run_one(settings, model, gold, variant, out)
