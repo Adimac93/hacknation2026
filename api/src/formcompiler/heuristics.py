@@ -29,7 +29,18 @@ BLANK = re.compile(r"[._…]{3,}")
 CAPTION = re.compile(r"^/\s*(.*?)\s*/$")
 NUMBERING = re.compile(r"^(\d+|[a-z]|[IVX]+)[.)]\s+")
 TITLE = re.compile(r"^(wniosek|deklaracja|zgłoszenie|oświadczenie|podanie)\b", re.I)
+# A mixed-case title line: "Wniosek o …", "Deklaracja w sprawie …".
+TITLE_PHRASE = re.compile(
+    r"^(wniosek|deklaracja|zgłoszenie|oświadczenie|podanie) (o|w sprawie|dotycząc)\b", re.I
+)
+SECTION_MARK = re.compile(r"^([A-Z]|[IVX]+|\d+)[.)]?\s")
+TITLE_MAX_LINES = 4
 ADDRESSEE = re.compile(r"\b(Urząd|Wójt|Burmistrz|Prezydent|Starosta|Zarząd|Rada|Marszałek)\b[^,;]*")
+# Lines that end the name in an addressee block: street, number, postcode, department, caption.
+ADDRESS_LINE = re.compile(
+    r"\d|^(ul|al|pl|os)\b\.?|^(wydział|referat|biuro|departament)\b|^[(/]", re.I
+)
+LOWER_WORDS = frozenset({"i", "w", "we", "na", "z", "ze", "do", "o"})
 ORGANS = ("Wójt", "Burmistrz", "Prezydent", "Starosta", "Zarząd", "Rada", "Marszałek")
 SKIP = re.compile(
     r"podpis|pieczęć|pieczątk|\bdnia\b|data wpływu|wypełnia (urząd|organ|pracownik)|adnotacj",
@@ -93,9 +104,11 @@ def clean(text: str) -> str:
 def analyze(doc: Document) -> Analysis:
     lines = [line for page in doc.pages for line in page.lines]
     title_at = next((i for i, line in enumerate(lines) if _is_title(line)), None)
+    if title_at is None:
+        title_at = next((i for i, line in enumerate(lines) if _is_title_phrase(line)), None)
     header = lines[:title_at] if title_at is not None else []
-    body = lines[title_at + 1 :] if title_at is not None else lines
-    title = _sentence_case(clean(lines[title_at].text)) if title_at is not None else "Wniosek"
+    title, title_end = ("Wniosek", 0) if title_at is None else _title(lines, title_at)
+    body = lines[title_end:] if title_at is not None else lines
 
     everything = " ".join(line.text for line in lines)
     applicant = Applicant(
@@ -117,15 +130,63 @@ def _is_title(line: Line) -> bool:
     return bool(TITLE.match(text)) and (line.kind is LineKind.HEADING or text.isupper())
 
 
+def _is_title_phrase(line: Line) -> bool:
+    text = clean(line.text)
+    return bool(TITLE_PHRASE.match(text)) and not BLANK.search(line.text) and len(text) < 150
+
+
+def _title(lines: list[Line], at: int) -> tuple[str, int]:
+    """Join a title split over lines ("WNIOSEK" / "o wynajęcie …"); return it and the next index."""
+    first = clean(lines[at].text)
+    parts = [_sentence_case(first) if first.isupper() else first]
+    upper = first.isupper()
+    end = at + 1
+    while end < len(lines) and end - at < TITLE_MAX_LINES:
+        raw = lines[end].text.strip()
+        text = clean(raw)
+        if not text or BLANK.search(raw) or SECTION_MARK.match(raw):
+            break
+        lower_start = raw[:1].islower()
+        opens = text.lower().startswith(("o ", "w sprawie", "dotycząc")) or text.lower() == "o"
+        if not (lower_start or (upper and (text.isupper() or opens))):
+            break
+        parts.append(text.lower() if text.isupper() or lower_start else text)
+        upper = upper and text.isupper()
+        end += 1
+    title = re.sub(r"\s*\*+", "", " ".join(parts))
+    return title[:1].upper() + title[1:], end
+
+
 def _sentence_case(text: str) -> str:
     return text[:1] + text[1:].lower() if text.isupper() else text
 
 
+def _name_case(text: str) -> str:
+    """ "WÓJT GMINY PŁOSKINIA" -> "Wójt Gminy Płoskinia"; mixed case is kept."""
+    if not text.isupper():
+        return text
+    words = text.title().split()
+    return " ".join(w.lower() if i and w.lower() in LOWER_WORDS else w for i, w in enumerate(words))
+
+
 def _addressee(lines: list[Line]) -> Addressee | None:
-    for line in lines:
-        if match := ADDRESSEE.search(line.text):
-            name = match.group(0).strip(" .")
-            return Addressee(name=name, kind="ORGAN" if name.startswith(ORGANS) else "URZAD")
+    """The addressee block: the line naming the office or organ, plus following name lines up to
+    the street, postcode, department or an empty line."""
+    for i, line in enumerate(lines):
+        text = _name_case(line.text.strip())
+        match = ADDRESSEE.search(text)
+        if match is None:
+            continue
+        name = [match.group(0).strip(" .")]
+        for following in lines[i + 1 : i + 3]:
+            extra = _name_case(following.text.strip())
+            if not extra or BLANK.search(extra) or ADDRESS_LINE.search(extra):
+                break
+            if _is_title(following) or _is_title_phrase(following):
+                break
+            name.append(extra.strip(" ."))
+        full = " ".join(name)
+        return Addressee(name=full, kind="ORGAN" if full.startswith(ORGANS) else "URZAD")
     return None
 
 
