@@ -11,6 +11,9 @@ export function SourcePanel({ report }: { report: Report }) {
   return (
     <section aria-labelledby="source-title" className={styles.panel}>
       <h2 id="source-title">Tekst dokumentu</h2>
+      {report.document.pages.length === 0 ? (
+        <p>Usługa nie zwróciła tekstu dokumentu, więc nie ma czego podświetlać.</p>
+      ) : null}
       <div className={styles.picker}>
         <label htmlFor="origin-field">Pokaż źródło pola</label>
         <select
