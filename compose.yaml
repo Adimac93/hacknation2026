@@ -1,0 +1,78 @@
+# Whole stack in containers (CPU): docker compose up --build
+# No model service (D14): LLM_BASE_URL in .env points to the model; without it the API runs in
+# rules mode.
+
+name: biurokratka
+
+x-hardening: &hardening
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+  restart: unless-stopped
+
+services:
+  # web: added by the frontend track (nginxinc/nginx-unprivileged, alpine-slim). It will then be
+  # the only service with a published port (8080), and api drops its `ports`.
+
+  api:
+    <<: *hardening
+    build: ./api
+    image: biurokratka-api:dev
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # Overrides TIKA_URL from .env (localhost there, for running without containers).
+      TIKA_URL: http://tika:9998
+    ports:
+      - "127.0.0.1:8000:8000"
+    networks:
+      - backend
+      - egress # only for LLM_BASE_URL
+    depends_on:
+      tika:
+        condition: service_healthy
+    # The uploaded file lives only in RAM (hard rule 3).
+    tmpfs:
+      - /tmp:size=256m,mode=1777
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+          pids: 256
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=4)
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
+  tika:
+    <<: *hardening
+    build: ./tika
+    image: biurokratka-tika:3.3.2
+    networks:
+      - backend
+    tmpfs:
+      - /tmp:size=512m,mode=1777
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+          pids: 256
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:9998/version || exit 1"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+
+networks:
+  # No route out: tika has no network access.
+  backend:
+    internal: true
+  egress: {}
