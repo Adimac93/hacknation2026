@@ -65,9 +65,9 @@ export function isExternal(field: FormField): boolean {
 }
 
 /** Value a field starts with: register sample, configured default or empty. */
-export function initialValue(field: FormField): Answer {
+export function initialValue(field: FormField, registers = true): Answer {
   const dv = field.defaultValue;
-  if (isExternal(field)) return sampleRegisterValue(dv as string);
+  if (isExternal(field)) return registers ? sampleRegisterValue(dv as string) : "";
   switch (field.type) {
     case "CHECKBOX":
       return Array.isArray(dv) ? dv.filter((v) => typeof v === "string") : [];
