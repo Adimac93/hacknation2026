@@ -379,7 +379,7 @@ Wyniki trafiają na slajd i do README.
 7. Przykład `REPEATING_SECTION`, `CHECKBOX`, `DATEPICKER`, `INFO_SECTION` w JSON-ie.
 8. Kryteria oceny wymieniają „Punkt V (Walidacje pól)”, a w treści zadania walidacje to punkt VI. Co liczy się do progów?
 9. Czy mentor może zaimportować nasz JSON do Generatora Formularzy i powiedzieć, co nie przeszło?
-10. Czy na obronie model open-weight (Qwen3.5-9B, Apache-2.0) może być wołany przez EdenAI, skoro kod działa bez zmian z lokalnym `llama-server`? Jeśli nie: czy wystarczy tryb reguł?
+10. ~~Czy na obronie model open-weight może być wołany przez EdenAI?~~ Rozstrzygnięte przez mentora COI: modele „w chmurze” przez API są dozwolone, o ile model jest otwarty i możliwy do postawienia na własnej infrastrukturze. Warunek dla nas: w `LLM_MODEL` tylko modele open-weight (Qwen3.5-9B, Ministral-3-8B, Apache-2.0), udokumentowane w README razem ze sposobem postawienia lokalnego `llama-server`.
 11. Czy `python:3.14-slim` zamiast Alpine jest akceptowalny dla usługi z bibliotekami ML? Czy sidecar Tika na Javie jest w porządku?
 12. Sprzęt i limit czasu na obronie; czy nowe pliki będą skanami lub zdjęciami?
 13. Próbki `5. …/*.DOC` i `7. …/*.DOC` mają w środku format DOCX. Czy walidacja ma taki plik przyjąć (traktujemy `.doc` i `.docx` jako jedną rodzinę), czy odrzucić?

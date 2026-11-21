@@ -99,7 +99,7 @@ Zasada: jeśli kamień spóźnia się ponad godzinę, tniemy zakres z dołu list
 | Ryzyko | Zabezpieczenie |
 |---|---|
 | Model za wolny na żywo | krótki IR, budżet czasu na żądanie, tryb reguł |
-| Jury uzna wołanie EdenAI na obronie za zewnętrzne API | pytanie do mentorów w pierwszej godzinie; tryb reguł (`LLM_ENABLED=false`) gotowy do przełączenia jedną zmienną; model open-weight i kod bez zależności od EdenAI |
+| Jury uzna wołanie EdenAI na obronie za zewnętrzne API | **rozstrzygnięte przez mentora:** dozwolone, jeśli model jest otwarty i da się go postawić u siebie; pilnujemy, by `LLM_MODEL` wskazywał tylko modele open-weight, a README opisywał lokalne hostowanie; tryb reguł (`LLM_ENABLED=false`) gotowy do przełączenia jedną zmienną; model open-weight i kod bez zależności od EdenAI |
 | Brak sieci na sali obrony | tryb reguł; hotspot jako zapas |
 | Nowy plik na obronie to skan albo zdjęcie | OCR przetestowany na próbkach zdegradowanych; prostowanie obrazu; tryb reguł działa także na tekście z OCR |
 | JSON nie importuje się w Generatorze | linter, test odwracalności, wczesny próbny import u mentora |
