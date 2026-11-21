@@ -140,3 +140,21 @@ W formularzu 5 zniknęły „Liczba załączników” i „Dodatkowe załącznik
 3. Typy liczbowe: dopisać do promptu „powierzchnia, liczba osób, kwota to NUMBER”.
 4. Duplikaty pól zależnych („Inny cel” dwa razy): w `to_subject_pages` scalać pola o tej samej etykiecie w jednej sekcji.
 5. Brak RADIO „wynajęcie albo użyczenie” (formularz 4): wybór zapisany w tytule z gwiazdką „niepotrzebne skreślić” model pomija. Kandydat na heurystykę: ukośnik plus przypis „niepotrzebne skreślić” w tytule daje RADIO.
+
+### Runda 2b: poprawki po rundzie 2 (formularze 4 i 6)
+
+Zmiany:
+
+- prompt: adresat „tylko z bloku adresata, nigdy z klauzuli informacyjnej”; NUMBER także dla liczby osób i powierzchni,
+- `refine`: rodzaj adresata wynika z początku nazwy (Wójt, Burmistrz, Prezydent, Starosta, Marszałek, Zarząd to ORGAN; Urząd, Starostwo to URZAD), a pusty adresat wraca do wyniku heurystyk.
+
+Koszt: 0,0013 USD.
+
+- **Formularz 4: wyraźna poprawa.** Bez oświadczeń jako CHECKBOX, „Przewidywana ilość uczestników” jako NUMBER, „Zgoda osoby odpowiedzialnej” jako FILE_UPLOADER. Pól jest 8. Nowe zbędne pole: „Zgoda na korzystanie ze świetlicy” (FILE_UPLOADER). Nadal brakuje RADIO „wynajęcie albo użyczenie”.
+- **Formularz 6: wynik mieszany.**
+  - Adresat nadal z klauzuli RODO („Burmistrz Miasta i Gminy w Daleszycach”). Teraz ma przynajmniej spójny rodzaj ORGAN, ale nazwa nie pochodzi z blankietu. Blok adresata jest tu niepełny („Urząd Miasta i Gminy / Miasteczko”), więc model szuka pełnej nazwy gdzie indziej.
+  - Powierzchnie spadły z TEXT_FIELD do TEXTAREA.
+  - Doszły „Liczba dni realizacji” (NUMBER, sensowne) i błędne „Zaświadczenie (zam.)”.
+  - Odpowiedzi tego samego modelu przy niewielkiej zmianie promptu potrafią się wyraźnie zmienić, więc pojedynczy przebieg jest słabą miarą.
+
+Otwarte: punkty 2, 4 i 5 z listy wyżej (CHECKBOX bez opcji w linterze, scalanie duplikatów, RADIO z „niepotrzebne skreślić”) oraz adresat przy niepełnym bloku. Dla adresata rozsądny kierunek to porównanie z blokiem adresata z heurystyk i odrzucenie nazwy, której słów nie ma w nagłówku blankietu.
