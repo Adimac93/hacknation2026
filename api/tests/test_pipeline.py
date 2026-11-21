@@ -4,6 +4,7 @@ from test_heuristics import FORM_3, document
 from formcompiler import ingest, pipeline
 from formcompiler.config import Settings
 from formcompiler.document import Document
+from formcompiler.heuristics import Analysis
 from formcompiler.lint import lint
 from formcompiler.upload import FileKind, UploadError
 
@@ -52,3 +53,46 @@ def test_format_without_reader_is_rejected_with_422() -> None:
         ingest.read(b"x", FileKind.ODS, SETTINGS, readers={})
 
     assert error.value.status == 422
+
+
+LLM_SETTINGS = Settings(
+    _env_file=None,
+    llm_enabled=True,
+    llm_allow_remote=True,
+    llm_base_url="https://api.eu.edenai.run/v3",
+    llm_model="flexai/Qwen3.5-9B@eu",
+)
+
+
+def test_model_refinement_is_used_when_enabled() -> None:
+    def refine(settings: Settings, text: str, analysis: Analysis) -> Analysis:
+        assert "L15 [ ]" in text
+        return analysis.model_copy(update={"title": "Wniosek o zaświadczenie"})
+
+    form, report = pipeline.process(
+        b"%PDF-", FileKind.PDF, LLM_SETTINGS, read=read_form_3, refine=refine
+    )
+
+    assert form.title == "Wniosek o zaświadczenie"
+    assert (report.mode, report.model) == ("llm", "flexai/Qwen3.5-9B@eu")
+
+
+def test_model_failure_falls_back_to_rules() -> None:
+    def broken(settings: Settings, text: str, analysis: Analysis) -> Analysis:
+        raise RuntimeError("model down")
+
+    form, report = pipeline.process(
+        b"%PDF-", FileKind.PDF, LLM_SETTINGS, read=read_form_3, refine=broken
+    )
+
+    assert form.title == "Wniosek o wydanie zaświadczenia"
+    assert report.mode == "rules"
+
+
+def test_model_is_not_called_when_disabled() -> None:
+    def never(settings: Settings, text: str, analysis: Analysis) -> Analysis:
+        raise AssertionError("model called in rules mode")
+
+    _, report = pipeline.process(b"%PDF-", FileKind.PDF, SETTINGS, read=read_form_3, refine=never)
+
+    assert report.mode == "rules"
