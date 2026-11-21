@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Biurokratka: prezentacja projektu</title>
+<meta name="viewport" content="width=1920">
+<style>
+/* Fonts: local fontsource packages (SIL OFL-1.1), no network. Paths are relative to this file. */
+@font-face{font-family:"Archivo";font-weight:400;src:url("../../web/node_modules/@fontsource/archivo/files/archivo-latin-400-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Archivo";font-weight:600;src:url("../../web/node_modules/@fontsource/archivo/files/archivo-latin-600-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Archivo";font-weight:800;src:url("../../web/node_modules/@fontsource/archivo/files/archivo-latin-800-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Archivo";font-weight:400;src:url("../../web/node_modules/@fontsource/archivo/files/archivo-latin-ext-400-normal.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Archivo";font-weight:600;src:url("../../web/node_modules/@fontsource/archivo/files/archivo-latin-ext-600-normal.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Archivo";font-weight:800;src:url("../../web/node_modules/@fontsource/archivo/files/archivo-latin-ext-800-normal.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"IBM Plex Mono";font-weight:400;src:url("../../web/node_modules/@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-400-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"IBM Plex Mono";font-weight:600;src:url("../../web/node_modules/@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-600-normal.woff2") format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"IBM Plex Mono";font-weight:400;src:url("../../web/node_modules/@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-ext-400-normal.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"IBM Plex Mono";font-weight:600;src:url("../../web/node_modules/@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-ext-600-normal.woff2") format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+
+:root{
+  --color-bg:#f3f2f2; --color-surface:#eae9e9; --color-white:#fff;
+  --color-text:#201e1d; --color-accent:#ec3013; --color-accent-text:#ae1800;
+  --color-text-muted:#605d5d; --color-divider:color-mix(in srgb,#201e1d 40%,transparent);
+  --color-accent-tint:#ffe0d9;
+  --font-body:"Archivo",system-ui,sans-serif; --font-mono:"IBM Plex Mono",ui-monospace,monospace;
+  --rule:2px;
+}
+@page{size:1920px 1080px;margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);font-size:30px;line-height:1.45}
+body{width:1920px}
+.slide{position:relative;width:1920px;height:1080px;overflow:hidden;padding:72px 120px 96px;background:var(--color-bg);
+  break-after:page;page-break-after:always;border-top:var(--rule) solid var(--color-text)}
+.slide:last-of-type{break-after:auto;page-break-after:auto}
+.kicker{font-weight:600;font-size:24px;text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-muted);margin-bottom:20px}
+h1,h2{font-weight:800;letter-spacing:-.015em;line-height:1.1}
+h1{font-size:96px}
+h2{font-size:60px;max-width:1600px;margin-bottom:36px}
+h3{font-weight:800;font-size:34px;line-height:1.2;margin-bottom:12px}
+p,li{max-width:62ch;text-wrap:pretty}
+p+p{margin-top:16px}
+ul{list-style:none}
+li{padding-left:34px;position:relative;margin-bottom:14px}
+li::before{content:"";position:absolute;left:0;top:.55em;width:16px;height:16px;background:var(--color-accent)}
+.muted{color:var(--color-text-muted)}
+.mono,code,td.num,th.num{font-family:var(--font-mono)}
+code{font-size:.85em}
+.pageno{position:absolute;right:120px;bottom:40px;font-family:var(--font-mono);font-size:22px;color:var(--color-text-muted)}
+.brand{position:absolute;left:120px;bottom:36px;width:260px}
+.brand svg{display:block;width:100%;height:auto}
+.cols{display:grid;gap:64px}
+.cols.two{grid-template-columns:1fr 1fr}
+.cols.wide-left{grid-template-columns:1.1fr 1fr}
+.card{background:var(--color-surface);padding:28px 32px;border:var(--rule) solid var(--color-text)}
+.big{font-weight:800;font-size:60px;line-height:1;letter-spacing:-.02em}
+.stat{border-top:var(--rule) solid var(--color-text);padding-top:12px;margin-bottom:20px}
+.stat .lbl{font-size:25px;line-height:1.3;color:var(--color-text-muted)}
+table{border-collapse:collapse;width:100%;font-size:26px}
+th{font-weight:600;text-align:left;border-bottom:var(--rule) solid var(--color-text);padding:8px 14px 8px 0}
+td{border-bottom:var(--rule) solid var(--color-divider);padding:8px 14px 8px 0;vertical-align:top}
+th.num,td.num{text-align:right}
+.todo{font-family:var(--font-mono);font-size:22px;background:var(--color-accent-tint);border:var(--rule) solid var(--color-accent-text);color:var(--color-text);padding:2px 10px;white-space:nowrap}
+.flow{display:flex;align-items:stretch;gap:0;margin:20px 0 32px}
+.cell{flex:1;border:var(--rule) solid var(--color-text);padding:18px 18px 16px;background:var(--color-white);margin-left:-2px}
+.cell:first-child{margin-left:0}
+.cell b{display:block;font-weight:800;font-size:30px;margin-bottom:6px}
+.cell span{font-size:23px;line-height:1.3;display:block}
+.cell.hot{background:var(--color-accent)}
+.cell.hot b,.cell.hot span{font-weight:800;color:var(--color-text)}
+figure.shot{position:relative;border:var(--rule) solid var(--color-text);background:var(--color-white);overflow:hidden}
+figure.shot img{display:block;width:100%;height:100%;object-fit:contain;object-position:top left}
+figure.shot.empty{border-style:dashed;border-color:var(--color-text-muted);display:flex;align-items:flex-end;background:var(--color-surface)}
+figure.shot figcaption{font-family:var(--font-mono);font-size:21px;padding:12px 16px;color:var(--color-text);line-height:1.35}
+figure.shot.empty figcaption b{display:block;font-weight:600}
+.notes{display:none}
+</style>
+</head>
+<body>
+
+<!-- 1 -->
+<section class="slide" aria-labelledby="s1">
+  <p class="kicker">HackNation 2026 · zadanie COI „Cyfryzacja formularzy”</p>
+  <div id="logo-title" style="width:1180px;margin:110px 0 64px" role="img" aria-label="Biurokratka"></div>
+  <h1 id="s1" style="font-size:76px;max-width:1500px">Blankiet na wejściu, gotowy do importu formularz elektroniczny na wyjściu.</h1>
+  <p style="margin-top:36px;font-size:34px;max-width:1400px">Usługa REST i stanowisko pracy urzędnika. Działa bez zewnętrznych usług, w trybie reguł także bez modelu.</p>
+  <p class="pageno" aria-hidden="true">1 / 10</p>
+  <aside class="notes">Źródła: README.md (opis usługi), ARCHITECTURE.md sekcja 1 (teza). Hasło: jeden formularz at a time (treść zadania).</aside>
+</section>
+
+<!-- 2 -->
+<section class="slide" aria-labelledby="s2">
+  <p class="kicker">Problem i użytkownik</p>
+  <h2 id="s2">Każdy papierowy wzór to osobna, ręczna analiza.</h2>
+  <div class="cols two">
+    <div>
+      <h3>Dziś</h3>
+      <ul>
+        <li>Urzędy publikują blankiety jako PDF, DOC, DOCX, ODS, XLSX oraz skany JPG, JPEG i PNG.</li>
+        <li>Obywatel drukuje, wypełnia ręcznie i niesie do urzędu.</li>
+        <li>Cyfryzacja jednego formularza to wieloetapowa analiza: proces, dane, zależności, walidacje, integracje. COI nazywa ją „czasochłonną i kosztowną”.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Dla kogo</h3>
+      <div class="card">
+        <p><strong>Urzędnik cyfryzujący e-usługi.</strong> Nie chce transkrypcji blankietu. Chce formularza zaprojektowanego według standardów COI, który może sprawdzić i zaimportować do Generatora Formularzy.</p>
+      </div>
+      <div class="stat" style="margin-top:40px"><div class="lbl">Czas ręcznej analizy jednego wzoru</div><span class="todo">TODO: brak danych w repozytorium</span></div>
+    </div>
+  </div>
+  <p class="pageno" aria-hidden="true">2 / 10</p>
+  <aside class="notes">Źródła: Docs/[COI] Pełna treść zadania, sekcje 1 i 3 (formaty, cytat „czasochłonny i kosztowny”, użytkownik docelowy). Liczby czasu analizy nie ma w repozytorium: uzupełnić tylko ze źródła podanego przez COI.</aside>
+</section>
+
+<!-- 3 -->
+<section class="slide" aria-labelledby="s3">
+  <p class="kicker">Rozwiązanie</p>
+  <h2 id="s3">Kompilator, nie OCR: model rozumie, kod składa, linter pilnuje.</h2>
+  <div class="flow" role="list" aria-label="Potok przetwarzania">
+    <div class="cell" role="listitem"><b>Plik</b><span>8 formatów, walidacja po sygnaturze, tylko w pamięci</span></div>
+    <div class="cell" role="listitem"><b>Ingest</b><span>pdfplumber, Tika, OCR rastrów</span></div>
+    <div class="cell" role="listitem"><b>Reguły / model</b><span>heurystyki, potem model w 3 krokach</span></div>
+    <div class="cell" role="listitem"><b>IR</b><span>krótka reprezentacja pośrednia</span></div>
+    <div class="cell" role="listitem"><b>Kompilator</b><span>IR i sekcje predefiniowane do JSON</span></div>
+    <div class="cell hot" role="listitem"><b>Lint</b><span>reguły COI i auto-naprawa</span></div>
+  </div>
+  <div class="cols two">
+    <ul>
+      <li>Model zwraca tylko IR. Końcowy JSON składa deterministyczny kod z biblioteki sekcji COI.</li>
+      <li>Wynik jest przeprojektowany: strony tematyczne, sekcje predefiniowane, słowniki, dane z rejestrów, warunki widoczności.</li>
+    </ul>
+    <ul>
+      <li>Awaria modelu nie daje błędu 500. Usługa przechodzi na wynik z heurystyk.</li>
+      <li>Jedno wywołanie: <code>POST /api/v1/forms</code>, odpowiedź to JSON gotowy do importu.</li>
+    </ul>
+  </div>
+  <p class="pageno" aria-hidden="true">3 / 10</p>
+  <aside class="notes">Źródła: ARCHITECTURE.md sekcje 1, 5 (potok), 5.3 (trzy kroki), 8.1 (endpointy); README.md. Odrzucone podejście A (model pisze cały JSON): ok. 15 tys. tokenów wyjścia, ponad 16 min na M4 (ARCHITECTURE.md sekcja 2).</aside>
+</section>
+
+<!-- 4 -->
+<section class="slide" aria-labelledby="s4">
+  <p class="kicker">Co nas wyróżnia</p>
+  <h2 id="s4">Urzędnik jest audytorem, a plik zawsze przechodzi reguły.</h2>
+  <div class="cols wide-left">
+    <div>
+      <h3>1. Widok audytora</h3>
+      <p>Tekst dokumentu obok podglądu e-formularza. Wybierasz pole i widzisz linie blankietu, z których powstało, oraz pewność rozpoznania. Pola poniżej 70% są oznaczone do sprawdzenia.</p>
+      <h3 style="margin-top:28px">2. Linter z auto-naprawą</h3>
+      <p>Każda reguła techniczna COI ma kod i naprawę. Raport pokazuje, co poprawiono. Błędy lintera na naszych wynikach: 0.</p>
+      <h3 style="margin-top:28px">3. Tryb reguł jako siatka bezpieczeństwa</h3>
+      <p>Bez modelu usługa działa w całości i jest powtarzalna. Model tylko poprawia etykiety i zależności.</p>
+    </div>
+    <figure class="shot" data-img="ekran-weryfikacja" data-desc="Zakładka „Dokument i formularz”: wybrane pole, podświetlone linie źródła, pewność" style="height:700px"></figure>
+  </div>
+  <p class="pageno" aria-hidden="true">4 / 10</p>
+  <aside class="notes">Źródła: web/src/workspace/SourcePanel.tsx (pole „Pokaż źródło pola”, próg 70%), ARCHITECTURE.md sekcja 5.7 (linter), outputs/README.md (0 błędów lintera we wszystkich 6 plikach), README.md (tryb reguł, fallback bez 500).</aside>
+</section>
+
+<!-- 5 -->
+<section class="slide" aria-labelledby="s5">
+  <p class="kicker">Narzędzie urzędnika</p>
+  <h2 id="s5">Wgraj, sprawdź, pobierz. Także wsadowo.</h2>
+  <div class="cols" style="grid-template-columns:repeat(3,1fr);gap:36px">
+    <div>
+      <figure class="shot" data-img="ekran-kolejka" data-desc="Kolejka plików z postępem i statusami" style="height:430px"></figure>
+      <h3 style="margin-top:20px">Wsad</h3>
+      <p style="font-size:26px">Wiele plików naraz, pasek postępu i status tekstem.</p>
+    </div>
+    <div>
+      <figure class="shot" data-img="ekran-podglad" data-desc="Podgląd e-formularza z odsłoniętą sekcją po wyborze opcji" style="height:430px"></figure>
+      <h3 style="margin-top:20px">Podgląd e-formularza</h3>
+      <p style="font-size:26px">Warunki liczone na żywo, walidatory PESEL, NIP, REGON.</p>
+    </div>
+    <div>
+      <figure class="shot" data-img="ekran-raport" data-desc="Zakładka „Raport”: tryb, kontrola zgodności, czasy" style="height:430px"></figure>
+      <h3 style="margin-top:20px">Raport</h3>
+      <p style="font-size:26px">Tryb, wynik lintera, propozycje słowników, czasy etapów.</p>
+    </div>
+  </div>
+  <p class="muted" style="margin-top:28px;font-size:26px">Interfejs zgodny z WCAG 2.1 AA: etykiety, fokus, obsługa klawiaturą. Plik nie jest zapisywany na serwerze.</p>
+  <p class="pageno" aria-hidden="true">5 / 10</p>
+  <aside class="notes">Źródła: web/src/workspace (Upload, Queue, ReportPanel, JsonPanel), web/src/preview, DESIGN.md. Raport axe-core: TODO, jeśli lead go wykona; w repozytorium nie ma wyniku.</aside>
+</section>
+
+<!-- 6 -->
+<section class="slide" aria-labelledby="s6">
+  <p class="kicker">Wyniki</p>
+  <h2 id="s6">Sześć formularzy do oceny: 0 błędów lintera, do 0,8 s.</h2>
+  <div class="cols wide-left">
+    <div>
+      <table>
+        <caption class="muted" style="text-align:left;font-size:22px;padding-bottom:8px;caption-side:top">Tryb reguł, wejście PDF, formularze 3–9 z Docs/</caption>
+        <thead><tr><th scope="col">Formularz</th><th scope="col" class="num">Pola</th><th scope="col" class="num">Błędy</th><th scope="col" class="num">Uwagi</th><th scope="col" class="num">Czas [ms]</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">3 Zaświadczenie</th><td class="num">22</td><td class="num">0</td><td class="num">1</td><td class="num">40</td></tr>
+          <tr><th scope="row">4 Świetlica</th><td class="num">21</td><td class="num">0</td><td class="num">3</td><td class="num">60</td></tr>
+          <tr><th scope="row">6 Pas drogowy</th><td class="num">69</td><td class="num">0</td><td class="num">8</td><td class="num">149</td></tr>
+          <tr><th scope="row">7 Psy agresywne</th><td class="num">25</td><td class="num">0</td><td class="num">2</td><td class="num">228</td></tr>
+          <tr><th scope="row">8 Opłata za odpady</th><td class="num">55</td><td class="num">0</td><td class="num">14</td><td class="num">783</td></tr>
+          <tr><th scope="row">9 Stypendium</th><td class="num">72</td><td class="num">0</td><td class="num">12</td><td class="num">604</td></tr>
+        </tbody>
+      </table>
+      <p class="muted" style="margin-top:20px;font-size:24px">Macierz formatów 9 × 8 (zgodność JSON-ów między formatami): <span class="todo">TODO: research/08-macierz-formatow.md</span></p>
+    </div>
+    <div>
+      <div class="stat"><div class="big">ok. 0,001 USD</div><div class="lbl">model za formularz (Qwen3.5-9B przez EdenAI); formularz 8: 10,6 tys. tokenów wejścia i 6,3 tys. wyjścia = 0,0012 USD</div></div>
+      <div class="stat"><div class="big">6,5–45 s</div><div class="lbl">z modelem: formularz 4 w 6,5 s, formularz 6 w 11 s, formularz 8 w 45 s</div></div>
+      <div class="stat"><div class="big">15 s</div><div class="lbl">OCR zdjęcia 16 stron na M1 Pro (21 s na serwerze 8-rdzeniowym)</div></div>
+      <div class="stat"><div class="big">82%</div><div class="lbl">precyzja pól modelu na 2 formularzach referencyjnych (9 z 11), próba mała</div></div>
+    </div>
+  </div>
+  <p class="pageno" aria-hidden="true">6 / 10</p>
+  <aside class="notes">Źródła: tabela: outputs/README.md (generowana usługą, devtools/generate_outputs.py). Koszt i czasy modelu, OCR: README.md sekcja „Koszt i czas”. Precyzja 82% wobec 62% Ministral: research/06-porownanie-modeli.md (wariant loo, 2 formularze, ocena ręczna), to nie metryka na formularzach 3–9. Macierz formatów: pliku research/08 nie ma w tej gałęzi, liczby TODO. Liczba testów i pokrycie: TODO (nie zmierzone w tym dokumencie).</aside>
+</section>
+
+<!-- 7 -->
+<section class="slide" aria-labelledby="s7">
+  <p class="kicker">Zakres zadania</p>
+  <h2 id="s7">Minimum i rozszerzenia I–VI.</h2>
+  <table>
+    <thead><tr><th scope="col" style="width:150px">Punkt</th><th scope="col">Realizacja</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">3.2 I</th><td>REST <code>POST /api/v1/forms</code>, 8 formatów, JSON zgodny ze strukturą i regułami COI</td></tr>
+      <tr><th scope="row">3.2 II</th><td>Dokumentacja architektury: <code>ARCHITECTURE.md</code>, decyzje D1–D26</td></tr>
+      <tr><th scope="row">I</th><td>Słowniki (Kraje, Województwo, Powiat, Gmina, numery kierunkowe) i dane z rejestrów (<code>EXTERNAL_SYSTEM</code>) przez sekcje predefiniowane</td></tr>
+      <tr><th scope="row">II</th><td>Propozycje nowych słowników z zamkniętych list opcji, w raporcie (<code>dictionary_proposals</code>)</td></tr>
+      <tr><th scope="row">III</th><td>Zależności: warunki <code>SHOW</code> i <code>flow</code> między polami, sekcjami i stronami, każdy sprawdzony linterem</td></tr>
+      <tr><th scope="row">IV</th><td>Frontend: wgrywanie plików, przeglądanie JSON-a, raport</td></tr>
+      <tr><th scope="row">V</th><td>Podgląd e-formularza na żywo, trasa <code>/podglad</code> otwiera dowolny plik JSON</td></tr>
+      <tr><th scope="row">VI</th><td>Walidatory PESEL, NIP, REGON, kod pocztowy, e-mail; tryb wsadowy; WCAG 2.1 AA; linter prostego języka</td></tr>
+    </tbody>
+  </table>
+  <p class="pageno" aria-hidden="true">7 / 10</p>
+  <aside class="notes">Źródła: treść zadania sekcja 3.2 i 3.3; ARCHITECTURE.md sekcje 5.7, 7, 8.1, 11, 13; web/src/form (validators, conditions); web/src/workspace (kolejka wsadowa po stronie klienta). Liczba warunków SHOW na naszych wynikach per formularz: TODO, nie ma jej w outputs/README.md.</aside>
+</section>
+
+<!-- 8 -->
+<section class="slide" aria-labelledby="s8">
+  <p class="kicker">Architektura, bezpieczeństwo, koszt</p>
+  <h2 id="s8">Trzy kontenery, jeden otwarty port, plik tylko w pamięci.</h2>
+  <div class="flow" role="list" aria-label="Kontenery">
+    <div class="cell" role="listitem"><b>web</b><span>nginx, SPA, proxy /api, 127.0.0.1:8080</span></div>
+    <div class="cell" role="listitem"><b>api</b><span>FastAPI, Python 3.14, bez opublikowanego portu</span></div>
+    <div class="cell" role="listitem"><b>tika</b><span>Apache Tika, sieć wewnętrzna, bez wyjścia na zewnątrz</span></div>
+    <div class="cell" role="listitem" style="border-style:dashed"><b>Model</b><span>endpoint open-weight za LLM_BASE_URL (opcjonalny)</span></div>
+  </div>
+  <div class="cols two">
+    <ul>
+      <li>Użytkownik bez uprawnień, system plików tylko do odczytu, <code>/tmp</code> w tmpfs, <code>cap_drop: ALL</code>.</li>
+      <li>Plik nie trafia na dysk. W logach tylko SHA-256 i rozmiar.</li>
+      <li>Walidacja: rozmiar, nazwa, rozszerzenie, treść po sygnaturze, odrzucanie makr. Błędy jako <code>application/problem+json</code>.</li>
+      <li>Limit 10 plików na minutę na adres IP.</li>
+    </ul>
+    <div>
+      <ul>
+        <li>Bez modelu: zero ruchu zewnętrznego, usługa może działać z <code>--network none</code>.</li>
+        <li>Jedyna usługa zewnętrzna to endpoint modelu open-weight (Qwen3.5-9B, Apache-2.0), dopuszczony przez mentora. Docelowo lokalny <code>llama-server</code>, zmiana tylko <code>LLM_BASE_URL</code>.</li>
+        <li>Koszt: ok. 0,001 USD za formularz przez EdenAI, 0 za wywołanie lokalnie. Demo na laptopie 16 GB, bez GPU.</li>
+      </ul>
+      <figure class="shot" data-img="terminal-docker" data-desc="docker compose ps (3 × healthy) i docker inspect: user, read-only" style="height:150px;margin-top:8px"></figure>
+    </div>
+  </div>
+  <p class="pageno" aria-hidden="true">8 / 10</p>
+  <aside class="notes">Źródła: README.md (uruchomienie, limity, koszt), ARCHITECTURE.md sekcje 4, 9, 10, 6. Wyjątek mentora na endpoint modelu: podany w poleceniu zespołu; w repozytorium opisany jako D11 i D21 (świadomie przyjęte ryzyko), cytować ostrożnie. Lokalny llama-server nie był testowany w czasie hackathonu (README.md). Kolejki zadań i bazy nie ma (CLAUDE.md).</aside>
+</section>
+
+<!-- 9 -->
+<section class="slide" aria-labelledby="s9">
+  <p class="kicker">Licencje</p>
+  <h2 id="s9">Tylko open source bez copyleftu, sprawdzane bramką.</h2>
+  <div class="cols two">
+    <div>
+      <ul>
+        <li>Dozwolone: MIT, BSD, Apache-2.0, ISC, 0BSD, PSF. SIL OFL-1.1 wyłącznie dla fontów Archivo i IBM Plex Mono, hostowanych lokalnie.</li>
+        <li>Bramka <code>devtools/check_licenses.py</code> sprawdza 50 zależności uruchomieniowych Pythona i pakiety z <code>web/package-lock.json</code>, a także licencje wag modeli. Kod wyjścia 1 przy niedozwolonej licencji.</li>
+        <li>Wykluczone z założenia: PyMuPDF, Ultralytics, Surya, Marker, LibreOffice, poppler, <code>unidecode</code>, LayoutLMv3, modele Llama.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="card">
+        <h3>Uczciwie o wyjątkach</h3>
+        <p style="font-size:27px">Dwie zależności przechodnie na MPL-2.0 (<code>certifi</code>, <code>tqdm</code>): copyleft na poziomie pliku, używane bez zmian, bramka przepuszcza je z ostrzeżeniem. Do potwierdzenia z mentorem (decyzja D26).</p>
+        <p style="font-size:27px">Obraz bazowy JRE w Tice (GPL-2.0 z Classpath Exception) leży poza zakresem bramki i jest opisany w decyzji D26.</p>
+      </div>
+      <p class="muted" style="margin-top:24px;font-size:24px">Pełny raport: <code>research/09-licencje.md</code></p>
+    </div>
+  </div>
+  <p class="pageno" aria-hidden="true">9 / 10</p>
+  <aside class="notes">Źródła: CLAUDE.md zasada 1, research/09-licencje.md (50 zależności Pythona, wyjątki MPL-2.0), README.md sekcja Licencje, ARCHITECTURE.md D25 i D26. Liczba pakietów npm w raporcie: TODO (nie odczytana tutaj).</aside>
+</section>
+
+<!-- 10 -->
+<section class="slide" aria-labelledby="s10">
+  <p class="kicker">Ograniczenia, dalsze kroki, zespół</p>
+  <h2 id="s10">Co już działa, czego jeszcze nie obiecujemy.</h2>
+  <div class="cols" style="grid-template-columns:1fr 1fr 0.8fr">
+    <div>
+      <h3>Ograniczenia</h3>
+      <ul>
+        <li>Skany i zdjęcia: OCR gubi wykropkowania i większość kratek, pola z rastrów są mniej pewne.</li>
+        <li>Lokalny <code>llama-server</code> opisany, ale nietestowany w czasie hackathonu.</li>
+        <li>Import do prawdziwego Generatora Formularzy COI niezweryfikowany.</li>
+        <li>Metryki względem referencji: tylko 2 formularze.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Dalsze kroki z COI</h3>
+      <ul>
+        <li>Import wyników do Generatora i poprawki wg uwag analityków.</li>
+        <li>Lokalny model, także polski (Bielik, PLLuM), pomiar jakości i czasu.</li>
+        <li>Więcej słowników i rejestrów, wspólna biblioteka sekcji.</li>
+        <li>Model wizyjny dla zdjęć.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Zespół</h3>
+      <p style="font-size:26px"><span class="todo">TODO: imiona i role</span></p>
+      <p style="font-size:26px;margin-top:16px">Repozytorium: <span class="todo">TODO: adres</span></p>
+      <p style="font-size:26px;margin-top:8px">Film: <span class="todo">TODO: link</span></p>
+    </div>
+  </div>
+  <p class="pageno" aria-hidden="true">10 / 10</p>
+  <aside class="notes">Źródła: CLAUDE.md (pułapki wejścia), README.md (nietestowany llama-server), ARCHITECTURE.md sekcje 12, 14, research/06 (Bielik i PLLuM jako modele do podmiany, nietestowane). Zespół, adresy repozytorium i filmu: uzupełnić ręcznie.</aside>
+</section>
+
+<script>
+/* Linear mark, same construction as web/src/brand/Logo.tsx. */
+function logo(el){
+  const L="BIUROKRATKA", S=95, w=S*L.length+5;
+  let g="";
+  [...L].forEach((c,i)=>{const x=i*S;
+    if(i>=5) g+=`<rect x="${x}" y="0" width="100" height="120" fill="#ec3013"/>`;
+    g+=`<rect x="${x+2.5}" y="2.5" width="95" height="115" fill="none" stroke="#201e1d" stroke-width="5"/>`+
+       `<text x="${x+50}" y="60" text-anchor="middle" dominant-baseline="central" font-family="Archivo, sans-serif" font-weight="600" font-size="75" fill="#201e1d">${c}</text>`;});
+  el.innerHTML=`<svg viewBox="0 0 ${w} 120" width="100%" style="display:block;height:auto" aria-hidden="true">${g}</svg>`;
+}
+logo(document.getElementById("logo-title"));
+document.querySelectorAll("section.slide:not(:first-of-type)").forEach(s=>{
+  const b=document.createElement("div");b.className="brand";b.setAttribute("role","img");b.setAttribute("aria-label","Biurokratka");logo(b);s.appendChild(b);});
+
+/* Screenshot slots: img/<name>.png if present, otherwise a labelled empty frame. */
+document.querySelectorAll("figure.shot").forEach(f=>{
+  const name=f.dataset.img, desc=f.dataset.desc;
+  const empty=()=>{f.classList.add("empty");f.innerHTML=`<figcaption><b>ZRZUT EKRANU: img/${name}.png</b>${desc}</figcaption>`;};
+  const im=new Image(); im.alt=desc;
+  im.onload=()=>{f.classList.remove("empty");f.innerHTML="";f.appendChild(im);}; im.onerror=empty;
+  empty(); im.src=`img/${name}.png`;
+});
+</script>
+</body>
+</html>
