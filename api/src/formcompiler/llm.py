@@ -4,6 +4,7 @@ The client sends only the part of the OpenAI chat API that EdenAI and llama-serv
 messages, temperature, seed, max_tokens and response_format with a JSON schema.
 """
 
+import difflib
 import logging
 import re
 import time
@@ -251,7 +252,8 @@ L16 1. Administratorem Państwa danych osobowych jest Gmina Elbląg.""",
     answer=InventoryIR(
         title="Wniosek o ustalenie numeru porządkowego nieruchomości",
         addressee=Addressee(name="Wójt Gminy Elbląg", kind="ORGAN"),
-        applicant=Applicant(persons=True, entities=True, proxy=True),
+        # Flags follow the blank: "nazwa wnioskodawcy" admits entities, no word of a proxy.
+        applicant=Applicant(persons=True, entities=True, proxy=False),
         fields=[
             InventoryField(
                 page="Informacje o budynku",
@@ -407,13 +409,13 @@ to pełna nazwa ze wszystkich linii bloku, np. „Urząd Gminy Ulan-Majorat”, 
 Gminy”; tylko z bloku adresata, nigdy z klauzuli informacyjnej ani z danych administratora; \
 null, gdy blankiet go nie podaje,
 - applicant.persons: wniosek może złożyć osoba fizyczna,
-- applicant.entities: wniosek może złożyć firma, osoba prawna lub jednostka (np. „nazwa \
-firmy”, „siedziba”, „nazwa wnioskodawcy”, NIP),
-- applicant.proxy: wniosek może złożyć pełnomocnik; false tylko wtedy, gdy blankiet wprost \
-to wyklucza.
+- applicant.entities: true tylko wtedy, gdy blankiet wprost dopuszcza firmę, osobę prawną lub \
+jednostkę („nazwa firmy”, „siedziba”, „nazwa wnioskodawcy”, NIP, REGON, KRS); inaczej false,
+- applicant.proxy: true tylko wtedy, gdy blankiet wspomina pełnomocnika albo osobę upoważnioną; \
+inaczej false.
 
 2. Pomijasz: podpis, pieczęć, „miejscowość i data”, datę wniosku, pola „wypełnia urząd”, \
-przypisy, pouczenia, podstawy prawne, klauzule.
+przypisy, pouczenia, podstawy prawne, klauzule, oświadczenia do odhaczenia.
 
 3. Wypisujesz każdą daną, którą wnioskodawca podaje w samej sprawie. Dla każdego pola:
 - label: krótko i prostym językiem, bez dwukropka, wielka litera tylko na początku,
@@ -431,17 +433,22 @@ ją jako nieobowiązkową albo potrzebną tylko w jednym wariancie,
 nie wpisuj, od tego jest required,
 - options: warianty wyboru pełnymi zdaniami, tylko dla RADIO, CHECKBOX i SELECT; puste dla \
 innych typów i dla pól ze słownikiem,
-- show_if_option: gdy pole jest potrzebne tylko przy jednym wariancie wyboru (np. numer \
-rachunku tylko przy zwrocie przelewem), wypisz je zaraz po polu RADIO i ustaw field_key na \
-klucz tego pola RADIO, a value na dokładny tekst opcji; dla pozostałych pól null,
+- show_if_option: tylko dla pola, które blankiet umieszcza wewnątrz jednego wariantu wyboru \
+(np. numer rachunku w wariancie „zwrócić przelewem”, pole „inne……” przy opcji „inne”); wypisz \
+je zaraz po polu wyboru, ustaw field_key na klucz tego pola, a value na dokładny tekst opcji; \
+dla wszystkich innych pól null,
 - dictionary: słownik dla pola wyboru (Kraje dla kraju, Województwo, Powiat, Gmina, \
 Miejscowość dla jednostek adresowych, Numery kierunkowe dla prefiksu telefonu), inaczej null,
-- page i section: tytuły strony i sekcji tematycznej, krótko; zwykle jedna strona, a na niej \
-kilka sekcji po kilka pól,
+- page i section: tytuły strony i sekcji tematycznej, krótko i od przedmiotu sprawy (np. \
+„Informacje o budynku”); zwykle jedna strona, a na niej kilka sekcji po kilka pól; tytuł \
+strony nigdy nie zaczyna się od „Dane” ani „Kontakt”,
 - src: identyfikatory linii, z których pochodzi pole.
 
 Załączniki: jedno pole FILE_UPLOADER na każdy załącznik nazwany na blankiecie. Nie twórz pól \
 dla pustych, wykropkowanych pozycji listy załączników ani dla liczby załączników.
+
+Warianty do skreślenia: gdy blankiet zapisuje wybór jako „A/B*” z przypisem „niepotrzebne \
+skreślić” (także w tytule), dodaj pole RADIO z opcjami A i B, np. „Wynajęcie” i „Użyczenie”.
 
 4. title zaczyna się od „Wniosek”, „Zgłoszenie”, „Deklaracja” albo „Oświadczenie”, pisany \
 zwykłą wielkością liter, bez skrótów.
@@ -472,6 +479,161 @@ def inventory(
     system, user = inventory_messages(document_text)
     return complete_json(
         settings, system, user, InventoryIR, INVENTORY_MAX_TOKENS, transport=transport
+    )
+
+
+def norm(text: str) -> str:
+    return slugify(text).replace("_", " ")
+
+
+# Library fields that describe the applicant or contact; address parts (street, town) are left
+# out because subject pages legitimately ask for them, e.g. the location of a building.
+ADDRESS_LABELS = frozenset(
+    norm(label)
+    for label in ["Ulica", "Miejscowość", "Kod pocztowy", "Numer budynku", "Numer lokalu", "Kraj"]
+)
+LIBRARY_FIELDS = [
+    f
+    for s in [*LIBRARY.addressee.values(), *LIBRARY.applicant, *LIBRARY.contact.sections]
+    for f in s.fields
+    if f.label.strip() and norm(f.label) not in ADDRESS_LABELS and f.dictionary is None
+]
+PERSONAL_LABELS = frozenset(norm(f.label) for f in LIBRARY_FIELDS) | frozenset(
+    norm(label)
+    for label in [
+        "Imię i nazwisko",
+        "Nazwisko i imię",
+        "Imię i nazwisko wnioskodawcy",
+        "PESEL",
+        "Telefon",
+        "Nr telefonu",
+        "Numer telefonu wnioskodawcy",
+        "E-mail",
+        "Adres",
+        "Adres zamieszkania",
+        "Adres siedziby",
+        "Adres do korespondencji",
+        "Nazwa firmy",
+        "Nazwa wnioskodawcy",
+        "REGON",
+    ]
+)
+PERSONAL_KEYS = frozenset(f.key for f in LIBRARY_FIELDS)
+PROXY_LABEL = re.compile(r"pełnomocni", re.IGNORECASE)
+# Address parts are the applicant's own when their section is about the applicant.
+APPLICANT_SECTION = re.compile(r"wnioskodaw|identyfikac|zamieszka|siedzib", re.IGNORECASE)
+ADDRESS_PARTS = ADDRESS_LABELS | frozenset(
+    norm(label) for label in ["Nr domu", "Numer domu", "Nr lokalu", "Adres"]
+)
+STATEMENT = re.compile(
+    r"^(oświadcz|zapozna|zobowiąz|wyrażam|odpowiadam|ponosz|przyjmuj)", re.IGNORECASE
+)
+LIBRARY_PAGE = re.compile(r"^(dane|kontakt|zgod|strona końcowa|podsumowanie)", re.IGNORECASE)
+SUBJECT_PAGE = "Szczegóły wniosku"
+LINE_NUMBER = re.compile(r"^L(\d+)$")
+PROXY_TRACE = re.compile(r"pełnomocni|upoważnion", re.IGNORECASE)
+ENTITY_TRACE = re.compile(
+    r"\b(NIP|REGON|KRS)\b|osob\w* prawn|nazwa (firmy|podmiotu|przedsiębiorcy|wnioskodawcy)"
+    r"|przedsiębiorc|siedzib",
+    re.IGNORECASE,
+)
+TITLE_LINE = re.compile(
+    r"^(L\d+ )?(# )?(wniosek|deklaracja|zgłoszenie|oświadczenie)\b", re.IGNORECASE
+)
+NAME_WORD = re.compile(r"[^\W\d_]{3,}")
+
+
+def is_library_duplicate(f: InventoryField) -> bool:
+    """The field repeats what the predefined applicant or contact sections already ask."""
+    label = norm(f.label)
+    return (
+        (label in ADDRESS_PARTS and bool(APPLICANT_SECTION.search(f.section)))
+        or f.key in PERSONAL_KEYS
+        or label in PERSONAL_LABELS
+        or any(difflib.SequenceMatcher(None, label, p).ratio() >= 0.9 for p in PERSONAL_LABELS)
+        or bool(PROXY_LABEL.search(f.label))
+    )
+
+
+def clean_inventory(inv: InventoryIR) -> InventoryIR:
+    """Deterministic cleanup of the model answer before it becomes IR.
+
+    Drops consents, ticked statements and fields the predefined sections cover, turns choices
+    without options into text fields, removes duplicate labels within a section, moves fields
+    from pages titled like the predefined pages onto one subject page, and keeps `show_if_option`
+    only when the field comes from the lines of the choice it depends on.
+    """
+    allowed_pages = [f.page.strip() for f in inv.fields if _subject_page(f.page)]
+    subject_page = allowed_pages[0] if allowed_pages else SUBJECT_PAGE
+    kept: list[InventoryField] = []
+    seen: set[tuple[str, str, str]] = set()
+    for f in inv.fields:
+        if f.type is FieldType.CONSENT_SECTION or is_library_duplicate(f):
+            continue
+        no_options = not f.options and f.dictionary is None
+        if f.type in CHOICE_TYPES and no_options:
+            if f.type is FieldType.CHECKBOX and STATEMENT.match(f.label.strip()):
+                continue
+            f = f.model_copy(update={"type": FieldType.TEXT_FIELD})
+        page = f.page.strip() if _subject_page(f.page) else subject_page
+        identity = (page, f.section.strip(), norm(f.label))
+        if identity in seen:
+            continue
+        seen.add(identity)
+        kept.append(f.model_copy(update={"page": page}))
+    by_key = {f.key: f for f in kept}
+    return inv.model_copy(update={"fields": [_checked_condition(f, by_key) for f in kept]})
+
+
+def _subject_page(title: str) -> bool:
+    library = {LIBRARY.data_page_title, LIBRARY.contact.title, LIBRARY.finish.title}
+    return (
+        bool(title.strip())
+        and title.strip() not in library
+        and not LIBRARY_PAGE.match(title.strip())
+    )
+
+
+def _lines(src: list[str]) -> list[int]:
+    return [int(m.group(1)) for s in src if (m := LINE_NUMBER.match(s))]
+
+
+def _checked_condition(f: InventoryField, by_key: dict[str, InventoryField]) -> InventoryField:
+    """Keep a condition only if the field's lines lie within the lines of its choice field."""
+    ref = f.show_if_option
+    if ref is None:
+        return f
+    target = by_key.get(ref.field_key)
+    own, choice = _lines(f.src), _lines(target.src) if target else []
+    if own and choice and any(min(choice) <= n <= max(choice) for n in own):
+        return f
+    return f.model_copy(update={"show_if_option": None})
+
+
+def header_text(document_text: str) -> str | None:
+    """Lines above the form title, where the addressee block sits; None without a title."""
+    lines = document_text.splitlines()
+    at = next((i for i, line in enumerate(lines) if TITLE_LINE.match(line.strip())), None)
+    return None if at is None else "\n".join(lines[:at])
+
+
+def addressee_in_header(addressee: Addressee | None, document_text: str) -> bool:
+    """Every word of the name appears above the title (prefix match tolerates inflection)."""
+    if addressee is None:
+        return False
+    header = header_text(document_text)
+    if header is None:
+        return True
+    words = {norm(w) for w in NAME_WORD.findall(header)}
+    return all(any(h[:5] == norm(w)[:5] for h in words) for w in NAME_WORD.findall(addressee.name))
+
+
+def applicant_flags(model: Applicant, rules: Applicant, document_text: str) -> Applicant:
+    """Model flags for entities and proxy only where the blank shows a trace of them."""
+    return Applicant(
+        persons=model.persons,
+        entities=model.entities if ENTITY_TRACE.search(document_text) else rules.entities,
+        proxy=model.proxy if PROXY_TRACE.search(document_text) else rules.proxy,
     )
 
 
@@ -579,11 +741,14 @@ def refine(
     title = inv.title.strip()
     if not title.startswith(TITLE_WORDS) or len(title) > MAX_TITLE_LENGTH:
         title = analysis.title
+    addressee = _consistent(inv.addressee)
+    if not addressee_in_header(addressee, document_text):
+        addressee = analysis.addressee
     refined = Analysis(
         title=title,
-        addressee=_consistent(inv.addressee) or analysis.addressee,
-        applicant=inv.applicant,
-        pages=to_subject_pages(inv) or analysis.pages,
+        addressee=addressee,
+        applicant=applicant_flags(inv.applicant, analysis.applicant, document_text),
+        pages=to_subject_pages(clean_inventory(inv)) or analysis.pages,
     )
     try:
         assemble(refined.title, refined.addressee, refined.applicant, refined.pages)
@@ -612,7 +777,9 @@ def _field(f: InventoryField, taken: set[str]) -> FieldIR:
     options = [] if dictionary else list(dict.fromkeys(o.strip() for o in f.options if o.strip()))
     if kind not in CHOICE_TYPES:
         options = []
-    elif kind in {FieldType.RADIO, FieldType.SELECT} and not dictionary and len(options) < 2:
+    elif not dictionary and (
+        not options or (kind in {FieldType.RADIO, FieldType.SELECT} and len(options) < 2)
+    ):
         kind, options = FieldType.TEXT_FIELD, []
     validators = [v for v in dict.fromkeys(f.validators) if v is not Validator.REQUIRED]
     return FieldIR(

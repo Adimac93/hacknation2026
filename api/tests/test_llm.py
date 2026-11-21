@@ -11,11 +11,16 @@ from formcompiler.ir import Addressee, Applicant, Cond, FieldType, PageIR, Secti
 from formcompiler.llm import (
     EXAMPLES,
     SEED,
+    SUBJECT_PAGE,
     InventoryField,
     InventoryIR,
     LLMError,
     ShowIfOption,
+    addressee_in_header,
+    applicant_flags,
+    clean_inventory,
     flat_schema,
+    header_text,
     inventory,
     refine,
     request_json,
@@ -402,27 +407,51 @@ RULES = Analysis(
 )
 
 
-def refine_with(answer: InventoryIR) -> Analysis:
+def refine_with(answer: InventoryIR, document: str = "L1 Blankiet") -> Analysis:
     handler, _ = scripted(completion(answer.model_dump_json()))
-    return refine(make(), "L1 Blankiet", RULES, transport=httpx.MockTransport(handler))
+    return refine(make(), document, RULES, transport=httpx.MockTransport(handler))
+
+
+BLANK = """\
+L1 Wnioskodawca: imię i nazwisko / nazwa firmy
+L2 Wójt Gminy Testowej
+L3 # WNIOSEK o zwrot nadpłaty
+L4 Proszę: 1) zaliczyć na poczet podatku
+L5 2) zwrócić przelewem na rachunek nr ......
+L6 podpis"""
 
 
 def test_refine_returns_model_analysis_ready_for_assembly() -> None:
-    answer = refund_fields(
-        field("Nadpłata", "Rozliczenie", "rachunek", show_if_option=ShowIfOption(
-            field_key="sposob", value=REFUND[1])),
-    ).model_copy(update={
+    choice = field(
+        "Nadpłata",
+        "Rozliczenie",
+        "sposob",
+        "Sposób",
+        type="RADIO",
+        options=REFUND,
+        src=["L4", "L5"],
+    )
+    account = field(
+        "Nadpłata",
+        "Rozliczenie",
+        "rachunek",
+        "Rachunek",
+        src=["L5"],
+        show_if_option=ShowIfOption(field_key="sposob", value=REFUND[1]),
+    )
+    answer = InventoryIR(title="x", fields=[choice, account]).model_copy(update={
         "title": "Wniosek o zwrot nadpłaty",
         "addressee": Addressee(name="Wójt Gminy Testowej", kind="ORGAN"),
         "applicant": Applicant(persons=True, entities=True, proxy=False),
     })  # fmt: skip
 
-    result = refine_with(answer)
+    result = refine_with(answer, BLANK)
 
     assert result.title == "Wniosek o zwrot nadpłaty"
     assert result.addressee == answer.addressee
     assert result.applicant == answer.applicant
     assert result.pages == to_subject_pages(answer)
+    assert result.pages[0].sections[0].fields[1].show_if == Cond(field="sposob", value=REFUND[1])
     assemble(result.title, result.addressee, result.applicant, result.pages)
 
 
@@ -465,3 +494,176 @@ def test_refine_drops_a_blank_addressee() -> None:
     assert refine_with(InventoryIR(title="Wniosek o test", addressee=blank)).addressee == (
         RULES.addressee
     )
+
+
+def labels(inv: InventoryIR) -> list[tuple[str, str, str]]:
+    return [(f.page, f.label, f.type) for f in inv.fields]
+
+
+def test_clean_drops_fields_the_predefined_sections_cover() -> None:
+    inv = InventoryIR(
+        title="Wniosek",
+        fields=[
+            field("Budynek", "Lokalizacja", "ulica", "Ulica"),
+            field("Budynek", "Lokalizacja", "miejscowosc", "Miejscowość"),
+            field("Budynek", "Wnioskodawca", "imie_nazwisko", "Imię i nazwisko"),
+            field("Budynek", "Kontakt", "numer_telefonu", "Telefon kontaktowy"),
+            field("Budynek", "Kontakt", "mail", "Adres e-mail"),
+            field("Budynek", "Kontakt", "nr_tel", "Nr telefonu"),
+            field("Budynek", "Załączniki", "pelnomocnictwo", "Plik pełnomocnictwa"),
+            field("Budynek", "Wykonawca", "telefon_wykonawcy", "Telefon wykonawcy"),
+            field("Budynek", "Dane wnioskodawcy", "ulica_wn", "Ulica"),
+            field("Budynek", "Adres zamieszkania", "nr_domu", "Nr domu"),
+        ],
+    )
+
+    cleaned = clean_inventory(inv)
+
+    assert [f.label for f in cleaned.fields] == ["Ulica", "Miejscowość", "Telefon wykonawcy"]
+
+
+def test_clean_moves_fields_off_pages_titled_like_the_library() -> None:
+    inv = InventoryIR(
+        title="Wniosek",
+        fields=[
+            field("Dane wnioskodawcy", "Cel", "cel", "Cel zaświadczenia"),
+            field("Informacje o budynku", "Budynek", "dzialka", "Numer działki"),
+            field("Kontakt i zgody", "Inne", "uwagi", "Uwagi"),
+        ],
+    )
+
+    pages = {f.page for f in clean_inventory(inv).fields}
+
+    assert pages == {"Informacje o budynku"}
+
+
+def test_clean_uses_a_neutral_page_when_every_page_is_forbidden() -> None:
+    inv = InventoryIR(
+        title="Wniosek",
+        fields=[field("Dane", "Cel", "cel", "Cel"), field("Strona końcowa", "X", "x", "Uwagi")],
+    )
+
+    assert {f.page for f in clean_inventory(inv).fields} == {SUBJECT_PAGE}
+
+
+def test_clean_fixes_choices_without_options_and_drops_statements() -> None:
+    inv = InventoryIR(
+        title="Wniosek",
+        fields=[
+            field("S", "A", "o1", "Zapoznałem się z regulaminem", type="CHECKBOX"),
+            field("S", "A", "o2", "Oświadczam, że dane są prawdziwe", type="CHECKBOX"),
+            field("S", "A", "rodzaj", "Rodzaj imprezy", type="CHECKBOX"),
+            field("S", "A", "tryb", "Tryb", type="RADIO"),
+            field(
+                "S", "A", "kraj_pochodzenia", "Kraj pochodzenia", type="SELECT", dictionary="Kraje"
+            ),
+            field("S", "A", "zgoda", "Zgoda", type="CONSENT_SECTION"),
+        ],
+    )
+
+    cleaned = clean_inventory(inv)
+
+    assert [(f.label, f.type) for f in cleaned.fields] == [
+        ("Rodzaj imprezy", FieldType.TEXT_FIELD),
+        ("Tryb", FieldType.TEXT_FIELD),
+        ("Kraj pochodzenia", FieldType.SELECT),
+    ]
+
+
+def test_clean_removes_duplicate_labels_within_a_section() -> None:
+    inv = InventoryIR(
+        title="Wniosek",
+        fields=[
+            field("S", "Cel", "inny", "Inny cel"),
+            field("S", "Cel", "inny_2", "Inny cel:", type="TEXTAREA"),
+            field("S", "Inne", "inny_3", "Inny cel"),
+        ],
+    )
+
+    assert [(f.section, f.key) for f in clean_inventory(inv).fields] == [
+        ("Cel", "inny"),
+        ("Inne", "inny_3"),
+    ]
+
+
+def test_clean_keeps_conditions_only_for_fields_inside_the_choice() -> None:
+    purpose = field(
+        "S", "Cel", "cel", "Cel", type="CHECKBOX", options=["Rolny", "Inne"], src=["L13", "L18"]
+    )
+    other = ShowIfOption(field_key="cel", value="Inne")
+    inv = InventoryIR(
+        title="Wniosek",
+        fields=[
+            purpose,
+            field("S", "Cel", "inny", "Inny cel", src=["L18"], show_if_option=other),
+            field("S", "Cel", "podmiot", "Podmiot", src=["L20"], show_if_option=other),
+            field("S", "Cel", "bez_src", "Bez źródła", show_if_option=other),
+        ],
+    )
+
+    cleaned = {f.key: f.show_if_option for f in clean_inventory(inv).fields}
+
+    assert cleaned == {"cel": None, "inny": other, "podmiot": None, "bez_src": None}
+
+
+def test_choice_without_options_never_reaches_ir() -> None:
+    inv = InventoryIR(title="Wniosek", fields=[field("S", "A", "x", "X", type="CHECKBOX")])
+
+    [page] = to_subject_pages(inv)
+
+    assert page.sections[0].fields[0].type is FieldType.TEXT_FIELD
+
+
+HEADER_BLANK = """\
+L1 Wnioskodawca
+L2 Urząd Miasta i Gminy
+L3 Miasteczko
+L4 WNIOSEK
+L5 Administratorem danych jest Burmistrz Miasta i Gminy w Daleszycach"""
+
+
+@pytest.mark.parametrize(
+    ("name", "expected"),
+    [
+        ("Urząd Miasta i Gminy Miasteczko", True),
+        ("Urząd Miasta i Gminy", True),
+        ("Burmistrz Miasta i Gminy w Daleszycach", False),
+    ],
+)
+def test_addressee_must_come_from_the_header(name: str, expected: bool) -> None:
+    addressee = Addressee(name=name, kind="URZAD")
+
+    assert addressee_in_header(addressee, HEADER_BLANK) is expected
+
+
+def test_addressee_inflection_and_missing_title_are_tolerated() -> None:
+    elblag = Addressee(name="Wójt Gminy Elbląg", kind="ORGAN")
+
+    assert addressee_in_header(elblag, "L1 WÓJT GMINY ELBLĄGU\nL2 WNIOSEK o numer")
+    assert addressee_in_header(elblag, "L1 tekst bez tytułu")
+    assert header_text("L1 tekst bez tytułu") is None
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("L1 imię i nazwisko, PESEL", Applicant(persons=True, entities=False, proxy=False)),
+        ("L1 Nazwa firmy, NIP", Applicant(persons=True, entities=True, proxy=False)),
+        ("L1 podpis osoby upoważnionej", Applicant(persons=True, entities=False, proxy=True)),
+    ],
+)
+def test_model_flags_need_a_trace_in_the_text(text: str, expected: Applicant) -> None:
+    model = Applicant(persons=True, entities=True, proxy=True)
+    rules = Applicant(persons=True, entities=False, proxy=False)
+
+    assert applicant_flags(model, rules, text) == expected
+
+
+def test_refine_replaces_an_addressee_taken_from_the_clause() -> None:
+    clause = Addressee(name="Burmistrz Miasta i Gminy w Daleszycach", kind="ORGAN")
+    answer = InventoryIR(title="Wniosek o zajęcie pasa", addressee=clause)
+
+    result = refine_with(answer, HEADER_BLANK)
+
+    assert result.addressee == RULES.addressee
+    assert result.applicant == RULES.applicant
