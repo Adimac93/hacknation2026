@@ -1,3 +1,4 @@
+import { TriangleAlert } from "lucide-react";
 import type { ReactNode } from "react";
 import { sanitizeHtml } from "../../form/html";
 import { RichText } from "../RichText";
@@ -35,6 +36,13 @@ export function ErrorText({ id, error }: { id: string; error?: string }) {
   if (!error) return null;
   return (
     <p id={`${id}-error`} className={styles.error}>
+      <TriangleAlert
+        aria-hidden="true"
+        size={20}
+        strokeWidth={2}
+        strokeLinecap="square"
+        strokeLinejoin="miter"
+      />
       <span className="visually-hidden">Błąd: </span>
       {error}
     </p>

@@ -1,0 +1,35 @@
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.message {
+  margin-bottom: var(--space-2);
+  font-size: 0.875rem;
+}
+
+.code {
+  margin: 0;
+  padding: var(--space-4);
+  max-height: 70vh;
+  overflow: auto;
+  background: var(--color-text);
+  color: var(--color-bg);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.code pre {
+  margin: 0;
+}
