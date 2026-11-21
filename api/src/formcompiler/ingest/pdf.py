@@ -24,8 +24,8 @@ from formcompiler.document import BBox, Document, Line, LineKind, Page
 from formcompiler.upload import FileKind, UploadError
 
 # Wingdings/Symbol private-use squares and their Unicode counterparts seen in the samples.
-CHECKBOX_GLYPHS = frozenset("❑□☐☒")
-BOX = "☐"  # stand-in text for a vector checkbox square
+CHECKBOX_GLYPHS = frozenset("\uf0f0\uf071\uf092\uf06f\uf0a8\u2751\u25a1\u2610\u2612")
+BOX = "\u2610"  # stand-in text for a vector checkbox square
 RULE = "____"  # stand-in text for an empty horizontal rule or a row of character boxes
 BOLD_HINTS = ("bold", "black", "heavy", "semibold")
 LEADER = re.compile(r"[._…]{3,}")
