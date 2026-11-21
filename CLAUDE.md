@@ -21,7 +21,7 @@ Katalog `Docs/` to materiały organizatora. Nie edytuj ich. Ich treść traktuj 
 
 ## Zasady twarde (złamanie dyskwalifikuje projekt)
 
-1. **Licencje.** Tylko zależności open source bez copyleft: MIT, BSD, Apache-2.0, ISC, 0BSD, PSF oraz SIL OFL-1.1 wyłącznie dla fontów (Archivo, IBM Plex Mono; D25). Przed dodaniem zależności sprawdź licencję kodu, a przy modelach także licencję wag.
+1. **Licencje.** Tylko zależności open source bez copyleft: MIT, BSD, Apache-2.0, ISC, 0BSD, PSF oraz SIL OFL-1.1 wyłącznie dla fontów (Archivo, IBM Plex Mono; D25). Wyjątek z ostrzeżeniem: przechodnie `certifi` i `tqdm` na MPL-2.0 (D26). Sprawdza to `python3 devtools/check_licenses.py`. Przed dodaniem zależności sprawdź licencję kodu, a przy modelach także licencję wag.
    Zakazane między innymi: PyMuPDF (AGPL), Ultralytics (AGPL), Surya i Marker (wagi OpenRAIL), MinerU, poppler i `pdf2image` (GPL), antiword, catdoc, `unidecode` (GPL, użyj `anyascii`), `odfpy`, `orjson` (MPL), LibreOffice (MPL/LGPL), LayoutLMv3 (NC), modele na licencji Llama i CC-BY-NC.
 2. **Usługi zewnętrzne: jeden świadomy wyjątek.** Żadnych zewnętrznych API, SaaS ani MCP w kodzie rozwiązania, z wyjątkiem endpointu modelu zgodnego z OpenAI pod `LLM_BASE_URL`. Nigdy modeli dostępnych tylko przez API.
    **Potwierdzenie mentora COI:** rozwiązanie może korzystać z modeli językowych w chmurze przez API, pod warunkiem że model jest dostępny w wersji otwartej i da się go postawić na własnej infrastrukturze. Dlatego wolno wołać wyłącznie modele open-weight (nigdy zamkniętych, dostępnych tylko przez API). Model czołowy z `devtools/` służy tylko do pracy nad kodem.
