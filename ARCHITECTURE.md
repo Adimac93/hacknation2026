@@ -274,6 +274,8 @@ Kontrakt `?details=true` (ustalony 17:45 dla frontendu; pola mogą dochodzić, i
 
 `mode` to `llm` albo `rules`; `severity` to `error` albo `warning`; `kind` linii to `TEXT`, `HEADING`, `CHECKBOX` albo `TABLE_ROW` (model `Document`).
 
+`dictionary_proposals` (rozszerzenie II, `dictionaries.py`) liczy kod bez modelu, na gotowym formularzu po linterze. Propozycją jest pole `SELECT`, `RADIO` albo `CHECKBOX` z opcjami wpisanymi w pole (bez słownika), które ma co najmniej 3 różne opcje, każdą najwyżej 6-wyrazową (nazwy, nie zdania), nie jest pytaniem tak/nie, nie należy do sekcji predefiniowanych COI i nie pokrywa go istniejący słownik (Kraje, Województwo, Powiat, Gmina, Miejscowość, Numery kierunkowe; rozpoznawane po etykiecie, a województwa i „Polska” także po opcjach). Pola z identyczną listą opcji łączymy w jedną propozycję (`fields` to ich `techName`). `name` to etykieta pola bez nawiasów i końcowej interpunkcji, a gdy etykieta jest poleceniem („Wybierz…”, „Proszę…”), tytuł sekcji. `items` zachowują kolejność z formularza. Sam formularz się nie zmienia: pola zostają z opcjami wpisanymi w pole.
+
 Przetwarzanie jest synchroniczne i bezstanowe. Tryb wsadowy realizuje frontend, wysyłając pliki po kolei.
 
 ### 8.2 Błędy
