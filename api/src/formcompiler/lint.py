@@ -141,7 +141,7 @@ def check_finish_count(form: schema.Form) -> list[Issue]:
         return [_error("L003", "tabs", "Brak strony końcowej (FINISH)")]
     return [
         _error("L003", f"tabs[{t}]", "Formularz może mieć tylko jedną stronę końcową (FINISH)")
-        for t in finishes[1:]
+        for t in finishes[:-1]
     ]
 
 
