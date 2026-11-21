@@ -28,7 +28,7 @@ export function CompareView({ report, config }: { report: Report; config: FormCo
         <SourcePanel report={report} active={focus?.techName ?? null} onSelect={select} />
         <div className={styles.preview}>
           <h2>Podgląd e-formularza</h2>
-          <FormRenderer config={config} focusField={focus} />
+          <FormRenderer config={config} focusField={focus} headingOffset={2} />
         </div>
       </div>
     </>
