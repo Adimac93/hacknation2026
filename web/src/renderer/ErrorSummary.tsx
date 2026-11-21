@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useLevel } from "./context";
 import styles from "./FormRenderer.module.css";
 
 export interface ErrorItem {
@@ -10,6 +11,7 @@ export interface ErrorItem {
 /** Error list shown after a failed "Dalej"; takes focus on every failed attempt. */
 export function ErrorSummary({ items, attempt }: { items: ErrorItem[]; attempt: number }) {
   const ref = useRef<HTMLDivElement>(null);
+  const level = useLevel(2);
   // biome-ignore lint/correctness/useExhaustiveDependencies: refocus on each failed attempt.
   useEffect(() => {
     ref.current?.focus();
@@ -23,7 +25,9 @@ export function ErrorSummary({ items, attempt }: { items: ErrorItem[]; attempt: 
       role="alert"
       aria-labelledby="error-summary-title"
     >
-      <h2 id="error-summary-title">Popraw błędy w formularzu</h2>
+      <h2 id="error-summary-title" {...level}>
+        Popraw błędy w formularzu
+      </h2>
       <ul>
         {items.map((item) => (
           <li key={item.id}>

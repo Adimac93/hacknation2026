@@ -14,6 +14,8 @@ export interface RendererApi {
   rowsOf: (sectionKey: string) => number[];
   addRow: (sectionKey: string) => void;
   removeRow: (sectionKey: string, rowId: number) => void;
+  /** Added to every heading level when the form is embedded below other headings. */
+  headingOffset: number;
 }
 
 export const RendererContext = createContext<RendererApi | null>(null);
@@ -22,4 +24,10 @@ export function useRenderer(): RendererApi {
   const api = useContext(RendererContext);
   if (!api) throw new Error("useRenderer outside FormRenderer");
   return api;
+}
+
+/** aria-level override for a heading whose natural level is `base`; empty when standalone. */
+export function useLevel(base: number): { "aria-level"?: number } {
+  const { headingOffset } = useRenderer();
+  return headingOffset > 0 ? { "aria-level": base + headingOffset } : {};
 }

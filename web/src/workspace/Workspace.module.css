@@ -13,6 +13,7 @@
 
 .intake {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-6);
   align-items: start;
 }
@@ -107,6 +108,7 @@
 
 .compare {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-8);
   align-items: start;
 }

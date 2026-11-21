@@ -40,6 +40,8 @@ interface Props {
   config: FormConfig;
   /** Marks a field and, when `seq` changes, moves to its step and focuses it. */
   focusField?: FocusRequest | null;
+  /** Shifts all heading levels (aria-level) when the form sits under other headings. */
+  headingOffset?: number;
 }
 
 const domId = (key: string) => `pole-${key.replace(/\W/g, "_")}`;
@@ -48,7 +50,7 @@ const domId = (key: string) => `pole-${key.replace(/\W/g, "_")}`;
  * Renders a COI form configuration as a step-by-step e-form. Independent of the API: it
  * takes a parsed config and keeps all answers in memory.
  */
-export function FormRenderer({ config, focusField }: Props) {
+export function FormRenderer({ config, focusField, headingOffset = 0 }: Props) {
   const order = useMemo(() => orderTabs(config), [config]);
   const compiled = useMemo(() => compileConditions(config), [config]);
   const [state, dispatch] = useReducer(formReducer, initialFormState);
@@ -128,6 +130,7 @@ export function FormRenderer({ config, focusField }: Props) {
     rowsOf: (key) => rowsOf(state.repeats, key),
     addRow: (section) => dispatch({ type: "addRow", section }),
     removeRow: (section, rowId) => dispatch({ type: "removeRow", section, rowId }),
+    headingOffset,
   };
 
   const step = Math.min(state.step, order.length - 1);
@@ -221,7 +224,12 @@ export function FormRenderer({ config, focusField }: Props) {
           </ol>
         </nav>
 
-        <h1 ref={pageTitle} tabIndex={-1} className={styles.pageTitle}>
+        <h1
+          ref={pageTitle}
+          tabIndex={-1}
+          className={styles.pageTitle}
+          aria-level={headingOffset > 0 ? 1 + headingOffset : undefined}
+        >
           {tab?.title || `Strona ${step + 1}`}
         </h1>
 

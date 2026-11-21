@@ -21,6 +21,7 @@
   padding: var(--space-2) var(--space-3);
   border-bottom: var(--rule) solid var(--color-divider);
   vertical-align: top;
+  overflow-wrap: anywhere;
 }
 
 .panel thead th {
@@ -56,4 +57,11 @@
 .list {
   margin: 0;
   padding-left: var(--space-6);
+}
+
+@media (max-width: 639px) {
+  .panel th,
+  .panel td {
+    padding-inline: var(--space-1);
+  }
 }
