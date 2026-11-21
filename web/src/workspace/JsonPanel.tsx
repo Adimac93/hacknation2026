@@ -2,6 +2,7 @@ import { Download } from "lucide-react";
 import { useMemo, useState } from "react";
 import buttons from "../renderer/buttons.module.css";
 import styles from "./JsonPanel.module.css";
+import { JsonTree } from "./JsonTree";
 
 const ICON = {
   size: 20,
@@ -14,6 +15,7 @@ const ICON = {
 export function JsonPanel({ form, fileName }: { form: unknown; fileName: string }) {
   const text = useMemo(() => JSON.stringify(form, null, 2), [form]);
   const [message, setMessage] = useState("");
+  const [mode, setMode] = useState<"tree" | "text">("tree");
 
   const copy = async () => {
     try {
@@ -52,10 +54,28 @@ export function JsonPanel({ form, fileName }: { form: unknown; fileName: string 
         {message}
       </p>
       {message ? <p className={styles.message}>{message}</p> : null}
-      {/* biome-ignore lint/a11y/noNoninteractiveTabindex: scrollable region must be keyboard reachable. */}
-      <section className={styles.code} tabIndex={0} aria-label="Treść pliku JSON">
-        <pre>{text}</pre>
-      </section>
+      <fieldset className={styles.switch}>
+        <legend className="visually-hidden">Widok JSON</legend>
+        {(["tree", "text"] as const).map((m) => (
+          <button
+            key={m}
+            type="button"
+            className={styles.switchButton}
+            aria-pressed={mode === m}
+            onClick={() => setMode(m)}
+          >
+            {m === "tree" ? "Drzewo" : "Tekst"}
+          </button>
+        ))}
+      </fieldset>
+      {mode === "tree" ? (
+        <JsonTree key={text} value={form} />
+      ) : (
+        // biome-ignore lint/a11y/noNoninteractiveTabindex: scrollable region must be keyboard reachable.
+        <section className={styles.code} tabIndex={0} aria-label="Treść pliku JSON">
+          <pre>{text}</pre>
+        </section>
+      )}
     </section>
   );
 }

@@ -1,0 +1,98 @@
+.wrap {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+
+.search {
+  display: grid;
+  gap: var(--space-1);
+  font-weight: 800;
+  font-size: 0.875rem;
+}
+
+.search input {
+  min-height: var(--control-height);
+  padding: var(--space-2) var(--space-3);
+  border: var(--rule) solid var(--color-border-input);
+  background: var(--color-white);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 400;
+}
+
+.status {
+  margin: 0;
+  min-height: 1.5em;
+  font-size: 0.875rem;
+}
+
+.tree {
+  max-height: 70vh;
+  overflow: auto;
+  padding: var(--space-2) 0;
+  background: var(--color-text);
+  color: var(--color-bg);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--space-1);
+  padding-block: 2px;
+  padding-inline-end: var(--space-3);
+  cursor: default;
+  overflow-wrap: anywhere;
+}
+
+.row:focus-visible {
+  outline: 2px solid var(--color-accent-400);
+  outline-offset: -2px;
+}
+
+.row:hover {
+  background: color-mix(in srgb, var(--color-bg) 14%, transparent);
+}
+
+.twisty {
+  display: inline-block;
+  width: 1.25em;
+  flex: none;
+}
+
+.key {
+  color: var(--color-accent-400);
+  font-weight: 700;
+}
+
+.value {
+  color: var(--color-accent-400);
+}
+
+.more {
+  text-decoration: underline;
+}
+
+/* Text label next to key values that matter; a border keeps it visible without relying on colour. */
+.tag {
+  padding: 0 var(--space-1);
+  border: 1px solid var(--color-bg);
+  font-size: 0.75rem;
+}
+
+.row mark {
+  background: var(--color-accent-400);
+  color: var(--color-text);
+  outline: 1px solid var(--color-bg);
+  text-decoration: underline;
+}
