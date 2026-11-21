@@ -1,0 +1,580 @@
+{
+ "source": "Docs/5 (data, contact, finish pages; URZAD addressee), Docs/1 (ORGAN addressee)",
+ "data_page_title": "Dane",
+ "addressee": {
+  "URZAD": {
+   "key": "urzad_do_ktorego_jest_skladany_wniosek",
+   "title": "Urząd, do którego jest składany wniosek",
+   "fields": [
+    {
+     "key": "nazwa_urzedu",
+     "label": "Nazwa urzędu",
+     "type": "TEXT_FIELD",
+     "default": "Urząd Gminy Ulan-Majorat",
+     "read_only": true
+    }
+   ]
+  },
+  "ORGAN": {
+   "key": "organ_do_ktorego_jest_skladany_wniosek",
+   "title": "Organ, do którego jest składany wniosek",
+   "fields": [
+    {
+     "key": "nazwa_organu",
+     "label": "Nazwa organu",
+     "type": "TEXT_FIELD",
+     "default": "Wójt Gminy Elbląg",
+     "read_only": true
+    }
+   ]
+  }
+ },
+ "applicant": [
+  {
+   "key": "podmiot_wniosku",
+   "title": "Podmiot wniosku",
+   "fields": [
+    {
+     "key": "wybierz_w_czyim_imieniu_wnioskujesz",
+     "label": "Wybierz, w czyim imieniu wnioskujesz",
+     "type": "RADIO",
+     "options": [
+      "Swoim",
+      "Innej osoby",
+      "Osoby prawnej lub jednostki organizacyjnej"
+     ]
+    },
+    {
+     "key": "wybierz_jako_kto_wnioskujesz",
+     "label": "Wybierz, jako kto wnioskujesz",
+     "type": "RADIO",
+     "options": [
+      "Pełnomocnik",
+      "Reprezentant"
+     ],
+     "show_if": {
+      "field": "wybierz_w_czyim_imieniu_wnioskujesz",
+      "value": "Osoby prawnej lub jednostki organizacyjnej"
+     }
+    }
+   ]
+  },
+  {
+   "key": "twoje_dane",
+   "title": "Twoje dane",
+   "fields": [
+    {
+     "key": "imie",
+     "label": "Imię",
+     "type": "TEXT_FIELD",
+     "initial": "PESEL.name",
+     "read_only": true
+    },
+    {
+     "key": "nazwisko",
+     "label": "Nazwisko",
+     "type": "TEXT_FIELD",
+     "initial": "PESEL.surname",
+     "read_only": true
+    },
+    {
+     "key": "numer_pesel",
+     "label": "Numer PESEL",
+     "type": "TEXT_FIELD",
+     "initial": "PESEL.pesel",
+     "read_only": true
+    }
+   ]
+  },
+  {
+   "key": "adres_zamieszkania",
+   "title": "Adres zamieszkania",
+   "fields": [
+    {
+     "key": "kraj",
+     "label": "Kraj",
+     "type": "SELECT",
+     "dictionary": "Kraje",
+     "default": "Polska"
+    },
+    {
+     "key": "miejscowosc_zagranica",
+     "label": "Miejscowość",
+     "type": "TEXT_FIELD",
+     "show_if": {
+      "field": "kraj",
+      "op": "NOT_IN",
+      "value": "Polska"
+     }
+    },
+    {
+     "key": "kod_pocztowy_zagranica",
+     "label": "Kod pocztowy",
+     "type": "TEXT_FIELD",
+     "show_if": {
+      "field": "kraj",
+      "op": "NOT_IN",
+      "value": "Polska"
+     }
+    },
+    {
+     "key": "ulica_zagranica",
+     "label": "Ulica",
+     "type": "TEXT_FIELD",
+     "show_if": {
+      "field": "kraj",
+      "op": "NOT_IN",
+      "value": "Polska"
+     }
+    },
+    {
+     "key": "wojewodztwo",
+     "label": "TERYT_4G_DOWODOWY",
+     "type": "SELECT",
+     "dictionary": "TERYT_4G_DOWODOWY",
+     "show_if": {
+      "field": "kraj",
+      "value": "Polska"
+     }
+    },
+    {
+     "key": "kod_pocztowy",
+     "label": "Kod pocztowy",
+     "type": "TEXT_FIELD",
+     "initial": "MLPZ.postCode",
+     "show_if": {
+      "field": "kraj",
+      "value": "Polska"
+     }
+    },
+    {
+     "key": "ulica",
+     "label": "Ulica",
+     "type": "TEXT_FIELD",
+     "initial": "MLPZ.street",
+     "show_if": {
+      "field": "kraj",
+      "value": "Polska"
+     }
+    },
+    {
+     "key": "numer_budynku",
+     "label": "Numer budynku",
+     "type": "TEXT_FIELD",
+     "initial": "MLPZ.building"
+    },
+    {
+     "key": "numer_lokalu",
+     "label": "Numer lokalu",
+     "type": "TEXT_FIELD",
+     "initial": "MLPZ.apartment"
+    }
+   ]
+  },
+  {
+   "key": "dane_podmiotu",
+   "title": "Dane podmiotu",
+   "show_if": {
+    "field": "wybierz_w_czyim_imieniu_wnioskujesz",
+    "value": "Osoby prawnej lub jednostki organizacyjnej"
+   },
+   "fields": [
+    {
+     "key": "nazwa",
+     "label": "Nazwa",
+     "type": "TEXT_FIELD"
+    },
+    {
+     "key": "nip",
+     "label": "NIP",
+     "type": "TEXT_FIELD"
+    }
+   ]
+  },
+  {
+   "key": "adres_siedziby",
+   "title": "Adres siedziby",
+   "show_if": {
+    "field": "wybierz_w_czyim_imieniu_wnioskujesz",
+    "value": "Osoby prawnej lub jednostki organizacyjnej"
+   },
+   "fields": [
+    {
+     "key": "kraj_siedziba",
+     "label": "Kraj",
+     "type": "SELECT",
+     "dictionary": "Kraje",
+     "default": "Polska"
+    },
+    {
+     "key": "miejscowosc_siedziba_zagranica",
+     "label": "Miejscowość",
+     "type": "TEXT_FIELD",
+     "show_if": {
+      "field": "kraj_siedziba",
+      "op": "NOT_IN",
+      "value": "Polska"
+     }
+    },
+    {
+     "key": "kod_pocztowy_siedziba_zagranica",
+     "label": "Kod pocztowy",
+     "type": "TEXT_FIELD",
+     "show_if": {
+      "field": "kraj_siedziba",
+      "op": "NOT_IN",
+      "value": "Polska"
+     }
+    },
+    {
+     "key": "ulica_siedziba_zagranica",
+     "label": "Ulica",
+     "type": "TEXT_FIELD",
+     "show_if": {
+      "field": "kraj_siedziba",
+      "op": "NOT_IN",
+      "value": "Polska"
+     }
+    },
+    {
+     "key": "wojewodztwo_siedziba",
+     "label": "TERYT_4G_DOWODOWY",
+     "type": "SELECT",
+     "dictionary": "TERYT_4G_DOWODOWY",
+     "show_if": {
+      "field": "kraj_siedziba",
+      "value": "Polska"
+     }
+    },
+    {
+     "key": "kod_pocztowy_siedziba",
+     "label": "Kod pocztowy",
+     "type": "TEXT_FIELD",
+     "show_if": {
+      "field": "kraj_siedziba",
+      "value": "Polska"
+     }
+    },
+    {
+     "key": "ulica_siedziba",
+     "label": "Ulica",
+     "type": "TEXT_FIELD",
+     "default": "",
+     "show_if": {
+      "field": "kraj_siedziba",
+      "value": "Polska"
+     }
+    },
+    {
+     "key": "numer_budynku_siedziba",
+     "label": "Numer budynku",
+     "type": "TEXT_FIELD"
+    },
+    {
+     "key": "numer_lokalu_siedziba",
+     "label": "Numer lokalu",
+     "type": "TEXT_FIELD"
+    }
+   ]
+  },
+  {
+   "key": "potwierdzenie_ze_jestes_reprezentantem",
+   "title": "Potwierdzenie, że jesteś reprezentantem",
+   "description": "Dołącz aktualny odpis danych z Krajowego Rejestru Sądowego lub innego rejestru. Odpis powinien potwierdzać, że jesteś reprezentantem podmiotu lub instytucji.",
+   "description_html": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(31, 35, 40);\">Dołącz aktualny odpis danych z Krajowego Rejestru Sądowego lub innego rejestru. Odpis powinien potwierdzać, że jesteś reprezentantem podmiotu lub instytucji.</span></p></body></html>",
+   "show_if": {
+    "match": "all",
+    "conds": [
+     {
+      "field": "wybierz_w_czyim_imieniu_wnioskujesz",
+      "value": "Osoby prawnej lub jednostki organizacyjnej"
+     },
+     {
+      "field": "wybierz_jako_kto_wnioskujesz",
+      "value": "Reprezentant"
+     }
+    ]
+   },
+   "fields": [
+    {
+     "key": "plik_z_odpisem_danych",
+     "label": "Plik z odpisem danych",
+     "type": "FILE_UPLOADER"
+    }
+   ]
+  },
+  {
+   "key": "dane_innej_osoby",
+   "title": "Dane innej osoby",
+   "show_if": {
+    "field": "wybierz_w_czyim_imieniu_wnioskujesz",
+    "value": "Innej osoby"
+   },
+   "fields": [
+    {
+     "key": "imie_inna_osoba",
+     "label": "Imię",
+     "type": "TEXT_FIELD"
+    },
+    {
+     "key": "nazwisko_inna_osoba",
+     "label": "Nazwisko",
+     "type": "TEXT_FIELD"
+    }
+   ]
+  },
+  {
+   "key": "adres_zamieszkania_osoby_ktorej_jestes_pelnomocnikiem",
+   "title": "Adres zamieszkania innej osoby",
+   "show_if": {
+    "field": "wybierz_w_czyim_imieniu_wnioskujesz",
+    "value": "Innej osoby"
+   },
+   "fields": [
+    {
+     "key": "kraj_inna_osoba",
+     "label": "Kraj",
+     "type": "SELECT",
+     "dictionary": "Kraje",
+     "default": "Polska"
+    },
+    {
+     "key": "miejscowosc_inna_osoba_zagranica",
+     "label": "Miejscowość",
+     "type": "TEXT_FIELD",
+     "show_if": {
+      "field": "kraj_inna_osoba",
+      "op": "NOT_IN",
+      "value": "Polska"
+     }
+    },
+    {
+     "key": "kod_pocztowy_inna_osoba_zagranica",
+     "label": "Kod pocztowy",
+     "type": "TEXT_FIELD",
+     "show_if": {
+      "field": "kraj_inna_osoba",
+      "op": "NOT_IN",
+      "value": "Polska"
+     }
+    },
+    {
+     "key": "ulica_inna_osoba_zagranica",
+     "label": "Ulica",
+     "type": "TEXT_FIELD",
+     "show_if": {
+      "field": "kraj_inna_osoba",
+      "op": "NOT_IN",
+      "value": "Polska"
+     }
+    },
+    {
+     "key": "wojewodztwo_inna_osoba",
+     "label": "TERYT_DOWODOWY",
+     "type": "SELECT",
+     "dictionary": "TERYT_DOWODOWY",
+     "show_if": {
+      "field": "kraj_inna_osoba",
+      "value": "Polska"
+     }
+    },
+    {
+     "key": "kod_pocztowy_inna_osoba",
+     "label": "Kod pocztowy",
+     "type": "TEXT_FIELD",
+     "show_if": {
+      "field": "kraj_inna_osoba",
+      "value": "Polska"
+     }
+    },
+    {
+     "key": "ulica_inna_osoba",
+     "label": "Ulica",
+     "type": "TEXT_FIELD",
+     "show_if": {
+      "field": "kraj_inna_osoba",
+      "value": "Polska"
+     }
+    },
+    {
+     "key": "numer_budynku_inna_osoba",
+     "label": "Numer budynku",
+     "type": "TEXT_FIELD"
+    },
+    {
+     "key": "numer_lokalu_inna_osoba",
+     "label": "Numer lokalu",
+     "type": "TEXT_FIELD"
+    }
+   ]
+  },
+  {
+   "key": "pelnomocnictwo",
+   "title": "Pełnomocnictwo",
+   "description": "Dodaj dokument potwierdzający, że jesteś pełnomocnikiem.",
+   "description_html": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(31, 35, 40);\">Dodaj dokument potwierdzający, że jesteś pełnomocnikiem.</span></p></body></html>",
+   "show_if": {
+    "match": "any",
+    "conds": [
+     {
+      "field": "wybierz_w_czyim_imieniu_wnioskujesz",
+      "value": "Innej osoby"
+     },
+     {
+      "match": "all",
+      "conds": [
+       {
+        "field": "wybierz_w_czyim_imieniu_wnioskujesz",
+        "value": "Osoby prawnej lub jednostki organizacyjnej"
+       },
+       {
+        "field": "wybierz_jako_kto_wnioskujesz",
+        "value": "Pełnomocnik"
+       }
+      ]
+     }
+    ]
+   },
+   "fields": [
+    {
+     "key": "plik_dokumentu_z_pelnomocnictwem",
+     "label": "Plik dokumentu z pełnomocnictwem",
+     "type": "FILE_UPLOADER"
+    }
+   ]
+  },
+  {
+   "key": "oplata_skarbowa_pelnomocnictwo_1",
+   "title": "Opłata skarbowa",
+   "description": "Nie musisz płacić za złożenie pełnomocnictwa wystawionego przez najbliższą rodzinę: małżonka, dzieci, rodziców, dziadków, wnuków, rodzeństwo. Więcej informacji na stronie biznes.gov.pl",
+   "description_html": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(31, 35, 40);\">Nie musisz płacić za złożenie pełnomocnictwa wystawionego przez najbliższą rodzinę: małżonka, dzieci, rodziców, dziadków, wnuków, rodzeństwo. Więcej informacji na stronie </span><strong style=\"background-color: rgb(255, 255, 255); color: rgb(0, 82, 165);\"><a href=\"https://www.biznes.gov.pl/pl/portal/0089#8\" rel=\"noopener noreferrer\" target=\"_blank\" title=\"biznes.gov.pl \" aria-label=\"Link otwiera się w nowej karcie\">biznes.gov.pl <img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAQCAMAAAD+iNU2AAAAYFBMVEUAAAAAVaoATaYAT6cAUagAVaQAUKUAUqQAU6cAUqQAU6YAU6UAUaUAU6YAU6YAUqUAUqQAUqUAUaYAUqUAUqUAU6UAUqUAUqUAUqYAU6UAUqUAUqUAUqUAUqUAUqX///9oA8deAAAAHnRSTlMAAxQdKSozNTc4WWZ0e35/mJudn6Wq4OLk7u/29/nu1D+OAAAAAWJLR0QfBQ0QvQAAAFtJREFUCNedzEcSgCAQRNE2iznroHD/Y0pU3Pp3r6ZrAF9DRIIQxnaBcl5NY6TIOI6uNlWa4JB+nG8MgfVVPfW2jOBsWQ3OmSHqxTlO8bHrj6/kdT8B7Smf9gI3hccHElQhuGIAAAAASUVORK5CYII=\"></a></strong></p></body></html>",
+   "show_if": {
+    "field": "wybierz_w_czyim_imieniu_wnioskujesz",
+    "value": "Innej osoby"
+   },
+   "fields": [
+    {
+     "key": "czy_zlozenie_pelnomocnictwa_wymaga_oplaty_skarbowej",
+     "label": "Czy złożenie pełnomocnictwa wymaga opłaty skarbowej?",
+     "type": "RADIO",
+     "options": [
+      "Tak",
+      "Nie"
+     ]
+    },
+    {
+     "key": "oplata_info_1",
+     "label": "",
+     "description": "Opłata skarbowa za pełnomocnictwo wynosi 17 zł.\n\nPrzelej ją na konto urzędu miasta lub gminy właściwego dla adresu zamieszkania osoby, która udzieliła pełnomocnictwa. Jeśli adres nie jest w Polsce, opłatę przelej na konto Urzędu Miasta Stołecznego Warszawy – Centrum Obsługi Podatnika\n\nW tytule przelewu wpisz „Wniosek o stwierdzenie nadpłaty podatku – opłata skarbowa za pełnomocnictwo”.",
+     "description_html": "<html><head></head><body><p>Opłata skarbowa za pełnomocnictwo wynosi <strong>17 zł</strong>.</p><p>Przelej ją na konto urzędu miasta lub gminy właściwego dla adresu zamieszkania osoby, która udzieliła pełnomocnictwa. Jeśli adres nie jest w Polsce, opłatę przelej na konto <a href=\"https://warszawa19115.pl/-/oplata-skarbowa\" rel=\"noopener noreferrer\" target=\"_blank\" title=\"Urzędu Miasta Stołecznego Warszawy – Centrum Obsługi Podatnika \" aria-label=\"Link otwiera się w nowej karcie\">Urzędu Miasta Stołecznego Warszawy – Centrum Obsługi Podatnika </a><a href=\"https://warszawa19115.pl/-/oplata-skarbowa\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: windowtext;\" title=\"\" aria-label=\"Link otwiera się w nowej karcie\"><img src=\"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAQAA8DASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD1awbVLvw/a6xc+IPssc9qlzIBbR7IwyhiMkZwM96wfEPhY+JtKlnS2tYL6UL9j8yNIZrhgRvlkIGclQ2E7A5POAuxoWt+HV8KaRZahqumLLBawCSCe4jDRyIq8FSeCGHfoRVqTVtN1XxHo66dqFreNE0zyC3mWTYPLIydpOBkgV2qU4TbSta/TscjUJwSbvfzP//Z\" alt=\"undefined\" height=\"16\" width=\"15\"></a></p><p>W tytule przelewu wpisz „Wniosek o stwierdzenie nadpłaty podatku – opłata skarbowa za pełnomocnictwo”.</p></body></html>",
+     "type": "TEXT_BLOCK",
+     "show_if": {
+      "field": "czy_zlozenie_pelnomocnictwa_wymaga_oplaty_skarbowej",
+      "value": "Tak"
+     }
+    },
+    {
+     "key": "plik_z_potwierdzeniem_przelewu",
+     "label": "Plik z potwierdzeniem przelewu",
+     "type": "FILE_UPLOADER",
+     "show_if": {
+      "field": "czy_zlozenie_pelnomocnictwa_wymaga_oplaty_skarbowej",
+      "value": "Tak"
+     }
+    }
+   ]
+  },
+  {
+   "key": "oplata_skarbowa_pelnomocnictwo_2",
+   "title": "Opłata skarbowa za pełnomonictwo",
+   "show_if": {
+    "match": "all",
+    "conds": [
+     {
+      "field": "wybierz_w_czyim_imieniu_wnioskujesz",
+      "value": "Osoby prawnej lub jednostki organizacyjnej"
+     },
+     {
+      "field": "wybierz_jako_kto_wnioskujesz",
+      "value": "Pełnomocnik"
+     }
+    ]
+   },
+   "fields": [
+    {
+     "key": "oplata_info",
+     "label": "",
+     "description": "Opłata skarbowa za pełnomocnictwo wynosi 17 zł.\n\nPrzelej ją na konto urzędu miasta lub gminy właściwego dla adresu siedziby podmiotu, który udzielił pełnomocnictwa. Jeśli adres nie jest w Polsce, opłatę przelej na konto Urzędu Miasta Stołecznego Warszawy – Centrum Obsługi Podatnika\n\nW tytule przelewu wpisz „Wniosek o stwierdzenie nadpłaty podatku – opłata skarbowa za pełnomocnictwo”.\n\nWięcej informacji o opłacie skarbowej za pełnomocnictwo znajdziesz na stronie biznes.gov.pl",
+     "description_html": "<html><head></head><body><p>Opłata skarbowa za pełnomocnictwo wynosi <strong>17 zł</strong>.</p><p>Przelej ją na konto urzędu miasta lub gminy właściwego dla adresu siedziby podmiotu, który udzielił pełnomocnictwa. Jeśli adres nie jest w Polsce, opłatę przelej na konto <a href=\"https://warszawa19115.pl/-/oplata-skarbowa\" rel=\"noopener noreferrer\" target=\"_blank\" title=\"Urzędu Miasta Stołecznego Warszawy – Centrum Obsługi Podatnika \" aria-label=\"Link otwiera się w nowej karcie\">Urzędu Miasta Stołecznego Warszawy – Centrum Obsługi Podatnika </a><a href=\"https://warszawa19115.pl/-/oplata-skarbowa\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: windowtext;\" title=\"\" aria-label=\"Link otwiera się w nowej karcie\"><img src=\"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAQAA8DASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD1awbVLvw/a6xc+IPssc9qlzIBbR7IwyhiMkZwM96wfEPhY+JtKlnS2tYL6UL9j8yNIZrhgRvlkIGclQ2E7A5POAuxoWt+HV8KaRZahqumLLBawCSCe4jDRyIq8FSeCGHfoRVqTVtN1XxHo66dqFreNE0zyC3mWTYPLIydpOBkgV2qU4TbSta/TscjUJwSbvfzP//Z\" alt=\"undefined\" height=\"16\" width=\"15\"></a></p><p>W tytule przelewu wpisz „Wniosek o stwierdzenie nadpłaty podatku – opłata skarbowa za pełnomocnictwo”.</p><p>Więcej informacji o opłacie skarbowej za pełnomocnictwo znajdziesz na stronie <a href=\"https://www.biznes.gov.pl/pl/portal/0089#9\" rel=\"noopener noreferrer\" target=\"_blank\" title=\"biznes.gov.pl \" aria-label=\"Link otwiera się w nowej karcie\">biznes.gov.pl <img src=\"data:image/png;base64,R0lGODlhFgAYAHcAMSH+GlNvZnR3YXJlOiBNaWNyb3NvZnQgT2ZmaWNlACH5BAEAAAAALAAAAAAWABgAhQAAAAAAqgAzqgBEmQBMmQBVmQBIkQBRnQBVpABSpQBTpQBUqgBTpABRpQBSpABVogBRpABTowBTpwBdogBRpgBVqgBSpgBRqgBTpgBTogBVqABEogBUqQBYsQBQpABMogBRogBRowBVpgBTqABYsgBXsABOogBMqgBXsQBZswBVrABUpwBSpwBWrgBZsgBYsABZsQBYrwBukQBmmQCqqgD//wECAwECAwECAwECAwECAwECAwECAwECAwECAwECAwalQIBwSCQmFAsFo+FQFJ9EBkDqkCSgWKIjYZkCHICuGOAkYgCZMETSTbgBbgp8yEhAABiLRK7B+88IQ3dSQhwdWUUJIXQjJCCIfoRDFiWQDAxlRSV3WGmSmogJYFibUFJyTxJClVAKnEVnq69mWaiskIl3pbhGq7xRVwC7v3PCxEN2AChpx8Epx15CKg3EcqgjZHNX29oAK9nILS4v5OXmLx0wMdFBADs=\" height=\"16\" width=\"15\"></a></p></body></html>",
+     "type": "TEXT_BLOCK"
+    },
+    {
+     "key": "plik_z_potwierdzeniem_przelewu_2",
+     "label": "Plik z potwierdzeniem przelewu",
+     "type": "FILE_UPLOADER"
+    }
+   ]
+  }
+ ],
+ "contact": {
+  "title": "Kontakt i zgody",
+  "sections": [
+   {
+    "key": "dane_do_kontaktu",
+    "title": "Dane do kontaktu",
+    "description": "Wpisanie danych do kontaktu może przyspieszyć załatwienie sprawy. Urzędnik będzie mógł skontaktować się z Tobą w przypadku pytań lub wątpliwości.\n\nJeśli widzisz uzupełnione dane, sprawdź, czy są poprawne. Możesz je zmienić lub usunąć.",
+    "description_html": "<html><head></head><body><p><span style=\"background-color: rgba(0, 0, 0, 0); color: rgb(57, 57, 57);\">Wpisanie danych do kontaktu może przyspieszyć załatwienie sprawy. Urzędnik będzie mógł skontaktować się z Tobą w przypadku pytań lub wątpliwości.</span></p><pre data-language=\"plain\"></pre><p><span style=\"color: rgb(57, 57, 57); background-color: rgb(255, 255, 255);\">Jeśli widzisz uzupełnione dane, sprawdź, czy są poprawne. Możesz je zmienić lub usunąć.</span></p></body></html>",
+    "fields": [
+     {
+      "key": "numer_telefonu",
+      "label": "Numer telefonu",
+      "type": "TEXT_FIELD",
+      "initial": "MLPZ.phoneNumber"
+     },
+     {
+      "key": "adres_e_mail",
+      "label": "Adres e-mail",
+      "type": "TEXT_FIELD",
+      "initial": "MLPZ.email"
+     }
+    ]
+   },
+   {
+    "key": "zgoda_wyrazenie",
+    "title": "Zgoda",
+    "fields": [
+     {
+      "key": "zgoda",
+      "label": "",
+      "type": "CONSENT_SECTION",
+      "consents": [
+       {
+        "text": "Wyrażam zgodę na przetwarzanie moich danych osobowych zgodnie z klauzulą informacyjną",
+        "html": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(52, 56, 63);\">Wyrażam zgodę na przetwarzanie moich danych osobowych zgodnie z </span><a href=\"klauzulą informacyjną \" rel=\"noopener noreferrer\" target=\"_blank\" style=\"background-color: rgb(255, 255, 255); color: rgb(0, 82, 165);\" title=\"klauzulą informacyjną\" aria-label=\"Link otwiera się w nowej karcie\">klauzulą informacyjną</a><a href=\"klauzulą informacyjną \" rel=\"noopener noreferrer\" target=\"_blank\" style=\"background-color: rgb(255, 255, 255); color: rgb(52, 56, 63);\" title=\" \" aria-label=\"Link otwiera się w nowej karcie\"> </a><a href=\"klauzulą informacyjną \" rel=\"noopener noreferrer\" target=\"_blank\" style=\"background-color: rgb(255, 255, 255); color: rgb(0, 82, 165);\" title=\"\" aria-label=\"Link otwiera się w nowej karcie\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAQCAMAAAD+iNU2AAAAYFBMVEUAAAAAVaoATaYAT6cAUagAVaQAUKUAUqQAU6cAUqQAU6YAU6UAUaUAU6YAU6YAUqUAUqQAUqUAUaYAUqUAUqUAU6UAUqUAUqUAUqYAU6UAUqUAUqUAUqUAUqUAUqX///9oA8deAAAAHnRSTlMAAxQdKSozNTc4WWZ0e35/mJudn6Wq4OLk7u/29/nu1D+OAAAAAWJLR0QfBQ0QvQAAAFtJREFUCNedzEcSgCAQRNE2iznroHD/Y0pU3Pp3r6ZrAF9DRIIQxnaBcl5NY6TIOI6uNlWa4JB+nG8MgfVVPfW2jOBsWQ3OmSHqxTlO8bHrj6/kdT8B7Smf9gI3hccHElQhuGIAAAAASUVORK5CYII=\"></a></p></body></html>"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "finish": {
+  "title": "Strona końcowa",
+  "kind": "FINISH",
+  "sections": [
+   {
+    "key": "podglad_uzupelnionego_wniosku",
+    "title": "Podgląd uzupełnionego wniosku",
+    "fields": [
+     {
+      "key": "podglad_1",
+      "label": "",
+      "description": "Zanim przejdziesz do wyboru sposobu podpisu, sprawdź dane na podglądzie. Jeśli zobaczysz błędy, wróć do edycji.",
+      "description_html": "<html><head></head><body><p><span style=\"color: rgb(31, 35, 40); background-color: rgb(255, 255, 255);\">Zanim przejdziesz do wyboru sposobu podpisu, sprawdź dane na podglądzie. Jeśli zobaczysz błędy, wróć do edycji.</span></p></body></html>",
+      "type": "TEXT_BLOCK"
+     }
+    ]
+   }
+  ]
+ }
+}
