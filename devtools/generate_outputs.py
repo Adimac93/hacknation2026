@@ -70,6 +70,15 @@ def summary_row(number: str, out: Path, path: Path, report: dict[str, Any]) -> s
     )
 
 
+def _merged_rows(new_rows: list[str]) -> list[str]:
+    """New rows replace the same form's old row; forms not run this time keep their last row."""
+    readme = OUTPUTS / "README.md"
+    old = readme.read_text(encoding="utf-8").splitlines() if readme.exists() else []
+    by_form = {r.split("|")[1].strip(): r for r in old if r.startswith("| ") and r[2:3].isdigit()}
+    by_form.update({r.split("|")[1].strip(): r for r in new_rows})
+    return [by_form[k] for k in sorted(by_form, key=int)]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--api", default="http://127.0.0.1:8000")
@@ -101,7 +110,7 @@ def main() -> None:
         "| Formularz | Plik | Wejście | Tryb | Model | Pola | Błędy lintera | Uwagi lintera "
         "| Czas [ms] |",
         "|---|---|---|---|---|---|---|---|---|",
-        *rows,
+        *_merged_rows(rows),
         "",
     ]
     (OUTPUTS / "README.md").write_text("\n".join(lines), encoding="utf-8")

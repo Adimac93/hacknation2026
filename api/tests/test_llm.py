@@ -851,3 +851,35 @@ def test_salvage_takes_a_wrong_header_from_rules_and_stops_at_a_broken_field() -
         rules.applicant,
     )
     assert [f.key for f in inv.fields] == ["cel"]
+
+
+@pytest.mark.parametrize(
+    "label",
+    [
+        "Podpis składającego deklarację",
+        "Podpis rodzica/opiekuna prawnego",
+        "Czytelny podpis wnioskodawcy",
+        "Pieczęć firmy",
+        "Miejscowość i data",
+        "Data wypełnienia",
+        "Data złożenia wniosku",
+        "Data wpływu",
+        "Wypełnia urząd",
+    ],
+)
+def test_fields_kept_off_the_form_are_dropped(label: str) -> None:
+    inv = InventoryIR(
+        title="Wniosek",
+        fields=[field("Pies", "Pies", "rasa", "Rasa psa"), field("Podpis", "Podpis", "x", label)],
+    )
+
+    assert [f.key for f in clean_inventory(inv).fields] == ["rasa"]
+
+
+@pytest.mark.parametrize("label", ["Data urodzenia", "Data zdarzenia", "Decyzja z dnia"])
+def test_other_dates_stay(label: str) -> None:
+    inv = InventoryIR(
+        title="Wniosek", fields=[field("Pies", "Pies", "d", label, type="DATEPICKER")]
+    )
+
+    assert len(clean_inventory(inv).fields) == 1

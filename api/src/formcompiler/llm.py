@@ -679,6 +679,13 @@ ADDRESS_PARTS = ADDRESS_LABELS | frozenset(
 STATEMENT = re.compile(
     r"^(oświadcz|zapozna|zobowiąz|wyrażam|odpowiadam|ponosz|przyjmuj)", re.IGNORECASE
 )
+# Never on the e-form (CLAUDE.md, output contract): signatures, stamps, place and date of filling,
+# office-only fields. The prompt says so too, but the model does not always listen.
+OFF_FORM = re.compile(
+    r"podpis|pieczęć|pieczęci|pieczątk|miejscowość i data|data (wypełnienia|złożenia|wpływu)"
+    r"|wypełnia (urząd|organ|pracownik)",
+    re.IGNORECASE,
+)
 LIBRARY_PAGE = re.compile(r"^(dane|kontakt|zgod|strona końcowa|podsumowanie)", re.IGNORECASE)
 SUBJECT_PAGE = "Szczegóły wniosku"
 LINE_NUMBER = re.compile(r"^L(\d+)$")
@@ -709,7 +716,8 @@ def is_library_duplicate(f: InventoryField) -> bool:
 def clean_inventory(inv: InventoryIR) -> InventoryIR:
     """Deterministic cleanup of the model answer before it becomes IR.
 
-    Drops consents, ticked statements and fields the predefined sections cover, turns choices
+    Drops consents, ticked statements, signatures and other off-form fields, and fields the
+    predefined sections cover, turns choices
     without options into text fields, removes duplicate labels within a section, moves fields
     from pages titled like the predefined pages onto one subject page, and keeps `show_if_option`
     only when the field comes from the lines of the choice it depends on.
@@ -720,6 +728,8 @@ def clean_inventory(inv: InventoryIR) -> InventoryIR:
     seen: set[tuple[str, str, str]] = set()
     for f in inv.fields:
         if f.type is FieldType.CONSENT_SECTION or is_library_duplicate(f):
+            continue
+        if OFF_FORM.search(f.label):
             continue
         no_options = not f.options and f.dictionary is None
         if f.type in CHOICE_TYPES and no_options:
