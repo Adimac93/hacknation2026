@@ -13,5 +13,6 @@ Usługa przyjmuje blankiet formularza urzędowego (PDF, DOC, DOCX, ODS, XLSX, JP
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | architektura rozwiązania, potok przetwarzania, kontrakt wyjścia, decyzje |
 | [`PLAN.md`](PLAN.md) | plan realizacji, podział pracy, kamienie milowe, ryzyka |
 | [`CLAUDE.md`](CLAUDE.md) | zasady pracy dla agentów AI w repozytorium |
-| [`research/`](research/) | raporty: OCR i parsowanie, model LLM, konkurencja i wyróżniki, stos i licencje |
+| [`research/`](research/) | raporty: OCR i parsowanie, model LLM, konkurencja i wyróżniki, stos i licencje, korpus formularzy |
+| [`tools/corpus/`](tools/corpus/) | narzędzia do zbierania korpusu testowego (API ELI, Common Crawl); nie są częścią usługi |
 | `Docs/` | materiały organizatora |
