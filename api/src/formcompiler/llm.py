@@ -31,7 +31,8 @@ from formcompiler.ir import (
 from formcompiler.sections import LIBRARY, RESERVED_KEYS, assemble
 
 SEED = 7
-INVENTORY_MAX_TOKENS = 4096
+# Form 8 (waste declaration, ~55 fields) needs ~5k tokens; 4096 cut its answer off.
+INVENTORY_MAX_TOKENS = 8192
 MAX_KEY_LENGTH = 60
 MAX_TITLE_LENGTH = 255
 TITLE_WORDS = ("Wniosek", "Zgłoszenie", "Deklaracja", "Oświadczenie")
@@ -132,6 +133,9 @@ def request_json[T: BaseModel](
                 continue
             if response.is_error:
                 raise LLMError(f"HTTP {response.status_code}")
+            if _truncated(response):
+                # Deterministic request (temperature 0, fixed seed): a retry ends the same way.
+                raise LLMError(f"answer cut off at max_tokens={max_tokens}")
             try:
                 parsed, usage = _parse(response, schema)
             except (ValueError, KeyError, IndexError, TypeError) as exc:
@@ -149,6 +153,13 @@ def request_json[T: BaseModel](
             )
             return Completion(parsed, usage, elapsed, attempt)
     raise LLMError(f"no usable answer after 2 attempts ({last_error})")
+
+
+def _truncated(response: httpx.Response) -> bool:
+    try:
+        return bool(response.json()["choices"][0].get("finish_reason") == "length")
+    except ValueError, KeyError, IndexError, TypeError, AttributeError:
+        return False
 
 
 def _parse[T: BaseModel](response: httpx.Response, schema: type[T]) -> tuple[T, Usage]:

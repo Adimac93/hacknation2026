@@ -192,6 +192,18 @@ def test_second_failure_raises_llm_error(failures: tuple[Any, Any]) -> None:
     assert len(seen) == 2
 
 
+def test_truncated_answer_is_not_retried() -> None:
+    # Same prompt, temperature 0 and seed: a retry would be cut off at the same place.
+    body = completion(ANSWER.model_dump_json()[:40]).json()
+    body["choices"][0]["finish_reason"] = "length"
+    handler, seen = scripted(httpx.Response(200, json=body), completion(ANSWER.model_dump_json()))
+
+    with pytest.raises(LLMError, match="max_tokens"):
+        call(handler)
+
+    assert len(seen) == 1
+
+
 def test_client_error_is_not_retried() -> None:
     handler, seen = scripted(httpx.Response(401, json={"error": "bad key"}))
 
