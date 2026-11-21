@@ -1,5 +1,5 @@
 {
-  "title": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawan ych za agresywne",
+  "title": "Wniosek o wynajęcie/użyczenie świetlicy wiejskiej",
   "tabs": [
     {
       "id": "842469a4-97f9-5241-b252-036214778853",
@@ -12,10 +12,10 @@
           "rows": 2,
           "cols": 3,
           "field": {
-            "id": "065ab19c-d31f-5394-935b-8b79f28d2445",
+            "id": "9a94e505-6a9a-5fc2-a34a-7d3c672a185e",
             "type": "SECTION",
-            "techName": "urzad_do_ktorego_jest_skladany_wniosek",
-            "title": "Urząd, do którego jest składany wniosek",
+            "techName": "organ_do_ktorego_jest_skladany_wniosek",
+            "title": "Organ, do którego jest składany wniosek",
             "description": "<html><head></head><body></body></html>",
             "options": [],
             "validation": [],
@@ -27,10 +27,10 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "b04e8496-658f-57bd-885e-0b15ab37101f",
+                  "id": "27759d34-e92a-58dc-aec7-f3769fbd18d0",
                   "type": "TEXT_FIELD",
-                  "techName": "nazwa_urzedu",
-                  "title": "Nazwa urzędu",
+                  "techName": "nazwa_organu",
+                  "title": "Nazwa organu",
                   "description": "",
                   "options": [],
                   "validation": [],
@@ -39,7 +39,7 @@
                   "states": [],
                   "questionOrder": 0,
                   "tooltipMessage": "",
-                  "defaultValue": "Urząd Miejski Wrocławia"
+                  "defaultValue": "Wójt Gminy Płoskinia"
                 }
               }
             ],
@@ -394,13 +394,13 @@
         {
           "x": 0,
           "y": 0,
-          "rows": 6,
+          "rows": 9,
           "cols": 3,
           "field": {
-            "id": "38329912-bb59-54c8-adaa-038e981c4491",
+            "id": "cf5875d7-4a8b-5966-a7e3-40b0b30651ef",
             "type": "SECTION",
-            "techName": "b",
-            "title": "B",
+            "techName": "dane_dotyczace_swietlicy",
+            "title": "Dane dotyczące świetlicy",
             "description": "<html><head></head><body></body></html>",
             "options": [],
             "validation": [],
@@ -412,13 +412,15 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "b3e5cf22-ccb0-5104-b027-d8e8a603bf4e",
+                  "id": "b1bcb7c1-7bb6-5c1c-8e78-418e4dec3d5b",
                   "type": "TEXT_FIELD",
-                  "techName": "rasa_psa",
-                  "title": "Rasa psa",
+                  "techName": "miejscowosc_swietlicy",
+                  "title": "Miejscowość świetlicy",
                   "description": "",
                   "options": [],
-                  "validation": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
@@ -432,13 +434,15 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "aa3aec9d-60db-52ce-bdba-d5bf8a57b90b",
+                  "id": "865a00ac-25dd-5c47-a330-64971600678e",
                   "type": "DATEPICKER",
-                  "techName": "data_urodzenia_psa",
-                  "title": "Data urodzenia psa",
+                  "techName": "data_od",
+                  "title": "Data rozpoczęcia najmu",
                   "description": "",
                   "options": [],
-                  "validation": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
@@ -452,13 +456,15 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "75efe4d8-9a48-5607-b4a0-e4f70371ba31",
+                  "id": "d6a2c2a2-2a6e-5d97-bc87-737dc2fa8586",
                   "type": "DATEPICKER",
-                  "techName": "data_szczepienia_w_przypadku_jego_braku",
-                  "title": "Data szczepienia (w przypadku jego braku)",
+                  "techName": "data_do",
+                  "title": "Data zakończenia najmu",
                   "description": "",
                   "options": [],
-                  "validation": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
@@ -472,29 +478,15 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "1496c9b0-d7bd-55fc-abbe-0b8fed54394d",
-                  "type": "RADIO",
-                  "techName": "plec",
-                  "title": "Płeć",
+                  "id": "89411cf7-31f1-5027-8163-229c3f4cb208",
+                  "type": "TEXT_FIELD",
+                  "techName": "cel_najmu",
+                  "title": "Cel wynajęcia świetlicy",
                   "description": "",
-                  "options": [
-                    {
-                      "id": "Pies",
-                      "name": "Pies",
-                      "techName": "pies"
-                    },
-                    {
-                      "id": "Suka",
-                      "name": "Suka",
-                      "techName": "suka"
-                    },
-                    {
-                      "id": "Mikroprocesor",
-                      "name": "Mikroprocesor",
-                      "techName": "mikroprocesor"
-                    }
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
                   ],
-                  "validation": [],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
@@ -508,174 +500,105 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "004e9bba-49d3-59ed-87d5-246592524aff",
-                  "type": "RADIO",
-                  "techName": "sposob_oznakowania_psa_nr_ident",
-                  "title": "Sposób oznakowania psa / nr ident.",
+                  "id": "1e0227ca-1c14-514e-893c-c411a6b3727e",
+                  "type": "NUMBER",
+                  "techName": "liczba_uczestnikow",
+                  "title": "Przewidywana ilość uczestników",
                   "description": "",
-                  "options": [
-                    {
-                      "id": "T atuaż",
-                      "name": "T atuaż",
-                      "techName": "t_atuaz"
-                    },
-                    {
-                      "id": "Brak",
-                      "name": "Brak",
-                      "techName": "brak"
-                    }
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
                   ],
-                  "validation": [],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
                   "questionOrder": 4,
                   "tooltipMessage": ""
                 }
+              },
+              {
+                "x": 0,
+                "y": 5,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "91f6b2d0-5083-5eda-a950-cb8405222cc3",
+                  "type": "TEXT_FIELD",
+                  "techName": "osoba_odpowiedzialna",
+                  "title": "Osoba odpowiedzialna za porządek i bezpieczeństwo",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 5,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 6,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "618702c1-9ae3-5f56-8241-fb83afc5deb7",
+                  "type": "RADIO",
+                  "techName": "wybierz_typ_najmu",
+                  "title": "Rodzaj korzystania ze świetlicy",
+                  "description": "",
+                  "options": [
+                    {
+                      "id": "Wynajęcie",
+                      "name": "Wynajęcie",
+                      "techName": "wynajecie"
+                    },
+                    {
+                      "id": "Użyczenie",
+                      "name": "Użyczenie",
+                      "techName": "uzyczenie"
+                    }
+                  ],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 6,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 7,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "bd3e5804-853f-57f5-9ba3-4c55f563587d",
+                  "type": "FILE_UPLOADER",
+                  "techName": "plik_zgody_osoby_odpowiedzialnej",
+                  "title": "Zgoda osoby odpowiedzialnej (jeśli inna niż wnioskodawca)",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Użyczenie\" in tabs['Szczegóły wniosku' in title].questions['dane_dotyczace_swietlicy' in field.techName].field.repeatingSectionGrid['wybierz_typ_najmu' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 7,
+                  "tooltipMessage": ""
+                }
               }
             ],
             "states": [],
             "questionOrder": 0,
-            "tooltipMessage": ""
-          }
-        },
-        {
-          "x": 0,
-          "y": 6,
-          "rows": 2,
-          "cols": 3,
-          "field": {
-            "id": "36b4238e-a4c9-5d16-99f4-ac4b1ba0d2f2",
-            "type": "SECTION",
-            "techName": "informacje",
-            "title": "Informacje",
-            "description": "<html><head></head><body></body></html>",
-            "options": [],
-            "validation": [],
-            "readOnly": false,
-            "repeatingSectionGrid": [
-              {
-                "x": 0,
-                "y": 0,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "a23a6fd2-73ce-5bb2-a964-5b0111b6232b",
-                  "type": "TEXT_BLOCK",
-                  "techName": "informacje_tekst",
-                  "title": "",
-                  "description": "<html><head></head><body><p>Niniejszą informację otrzym uje Pani/Pan w związku z obowiązkami określonymi w art. 13 rozporządzenia</p><p>Fizycznych w związku z przetwarzaniem danych osobowych i w sprawie swobodnego przepływu takich</p><p>Danych oraz uchylenia dyrektywy 95/46/WE (ogólne rozporządzenie o ochronie danych) (Dziennik Urzędowy</p><p>Administrator danych</p><p>Administratorem Pani/Pana danych osobowych jes t Prezydent Wrocławia. Możesz się z nami skontaktować w</p><p>Następujący sposób</p><p>• listownie na adres: Prezydent Wrocławia, Urząd Miejski Wrocławia, pl. Nowy Targ 1 -8, 50- 141 Wrocław,</p><p>• za pośrednictwem poczty elektronicznej na adres : wsr@um.wroc.pl</p><p>• telefonicznie: +48 71 799 67 00.</p><p>Cele przetwarzania danych</p><p>Pani/Pana dane osobowe będą przetwarzane w celu</p><p>• wydania zezwolenia na hodowanie/utrzymywanie * charta/chartów * lub mieszańca charta/mieszańców</p><p>Chartów ,</p><p>• zaksięgowania i rozliczenia zapłaconej opłaty skarbowej.</p><p>Podstawy prawne przetwarzania</p><p>Będziemy przetwarzać Pani/Pana dane osobowe na podstawie art. 6 ust. 1 lit. c) RODO oraz ustawy kodeks</p><p>Postępowania administracyjnego i ustawy Prawo łowieckie.</p><p>Obligatoryjność/fakultatywność podania danych osobowych</p><p>Podanie przez Panią/Pana danych osobowych jest wymogiem wynikającym z ustawy Prawo łowieckie oraz</p><p>Kodeksu postepowania administracyjnego.</p><p>Okres retencji</p><p>Pani/Pana dane osobowe będą przechowywane przez okres 5 lat, następnie Archiwum Państwowe po</p><p>Ekspertyzie dokumentów może podjąć decyzję o ich zniszczeniu lub przekwalifikować na kategorię A i</p><p>Wtedy Pani/Pana dane osobowe będą przetwarzane przez Administratora przez 25 lat od stycznia kolejnego</p><p>Roku po zakończeniu Pani/Pana sprawy a następnie zostaną przekazane do Archiwum Państwowego we</p><p>Wrocławiu, gdzie będą przetwarzane wieczyście.</p><p>Odbiorcy danych</p><p>Odbiorcami Pani/Pana danych osobowych mogą być</p><p>• dostawcy usług IT</p><p>• podmioty upoważnione na podstawie przepisów prawa</p><p>Takie podmioty przetwarzają dane na podstawie umowy z nam i i tylko zgodnie z naszymi poleceniami.</p><p>Przysługujące prawa</p><p>Przysługują Pani/Panu</p><p>• prawo dostępu do swoich danych oraz otrzymania ich kopii,</p><p>• prawo do sprostowania (poprawiania) swoich danych,</p><p>• prawo do ograniczenia przetwarzania danych,</p><p>• prawo wniesienia skargi do organu nadzorczego - tj. Prezesa Urzędu Ochrony Danych Osobowych</p><p>Inspektor Ochrony Danych</p><p>W Urzędzie wyznaczony został Inspektor Ochrony Danych – Sebastian Sobecki. Jest to osoba, z którą</p><p>Można się kontaktować w sprawach dotyczących przetwarzan ia Twoich danych osobowych oraz korzystania</p><p>Z przysługujących Ci praw związanych z przetwarzaniem danych.</p><p>Z Inspektorem można kontaktować się w następujący sposób</p><p>• listownie na adres: al. M. Kromera 44, 51-163 Wrocław</p><p>• przez e-mail: iod@um.wroc.pl</p><p>• telefonicznie: 71 777 77 24.</p><p>Zautomatyzowane podejmowanie decyzji</p><p>Pani/Pana dane nie będą podlegały profilowaniu lub zautomatyzowanemu podejmowaniu decyzji</p></body></html>",
-                  "options": [],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 0,
-                  "tooltipMessage": ""
-                }
-              }
-            ],
-            "states": [],
-            "questionOrder": 6,
-            "tooltipMessage": ""
-          }
-        },
-        {
-          "x": 0,
-          "y": 8,
-          "rows": 2,
-          "cols": 3,
-          "field": {
-            "id": "ecb0d141-f0ab-5cf4-8b2c-812a9b7d5fb0",
-            "type": "SECTION",
-            "techName": "oplata",
-            "title": "Opłata",
-            "description": "<html><head></head><body></body></html>",
-            "options": [],
-            "validation": [],
-            "readOnly": false,
-            "repeatingSectionGrid": [
-              {
-                "x": 0,
-                "y": 0,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "3578546d-e68a-59d0-8674-1d024d73c9c3",
-                  "type": "FILE_UPLOADER",
-                  "techName": "potwierdzenie_zaplaty_oplaty_skarbowej",
-                  "title": "Potwierdzenie zapłaty opłaty skarbowej",
-                  "description": "",
-                  "options": [],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 0,
-                  "tooltipMessage": ""
-                }
-              }
-            ],
-            "states": [],
-            "questionOrder": 8,
-            "tooltipMessage": ""
-          }
-        },
-        {
-          "x": 0,
-          "y": 10,
-          "rows": 2,
-          "cols": 3,
-          "field": {
-            "id": "43d91e15-5ed4-587a-83f1-0f28a12dab36",
-            "type": "SECTION",
-            "techName": "oswiadczenia",
-            "title": "Oświadczenia",
-            "description": "<html><head></head><body></body></html>",
-            "options": [],
-            "validation": [],
-            "readOnly": false,
-            "repeatingSectionGrid": [
-              {
-                "x": 0,
-                "y": 0,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "d0fc7a9b-8d7f-595e-9b18-7a9f9690287a",
-                  "type": "CONSENT_SECTION",
-                  "techName": "pole",
-                  "title": "",
-                  "description": "",
-                  "options": [],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 0,
-                  "tooltipMessage": "",
-                  "consentSectionConfig": {
-                    "consents": [
-                      {
-                        "description": "<html><head></head><body><p>Oświadczam, że psy nie będą wykorzystywane do polowań.</p></body></html>",
-                        "required": true
-                      },
-                      {
-                        "description": "<html><head></head><body><p>Oświadczam, że zaszczepiono psa /psy przeciwko wściekliźnie – w załączeniu kopia dla każdego psa .</p></body></html>",
-                        "required": true
-                      },
-                      {
-                        "description": "<html><head></head><body><p>Oświadczam, że zapewniam warunki utrzymywania psa, zgodnie z rozporządzeniem Ministra</p></body></html>",
-                        "required": true
-                      }
-                    ],
-                    "files": []
-                  }
-                }
-              }
-            ],
-            "states": [],
-            "questionOrder": 10,
             "tooltipMessage": ""
           }
         }

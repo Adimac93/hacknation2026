@@ -1,3 +1,4 @@
+# ruff: noqa: E501  (long Polish sentences of the generated report)
 """Licence gate for runtime dependencies (CLAUDE.md, hard rule 1; PLAN B6).
 
 Development tool only, never part of the image. Standard library only. From the repo root:
@@ -192,9 +193,7 @@ def judge(pkg: Package) -> Verdict:
 
 
 def run(cmd: list[str], cwd: Path) -> str:
-    return subprocess.run(
-        cmd, cwd=cwd, check=True, capture_output=True, text=True
-    ).stdout
+    return subprocess.run(cmd, cwd=cwd, check=True, capture_output=True, text=True).stdout
 
 
 def python_packages() -> tuple[list[Package], list[str]]:
@@ -237,8 +236,7 @@ def python_packages() -> tuple[list[Package], list[str]]:
         API,
     )
     found = [
-        Package("python", row["Name"], row["Version"], row["License"])
-        for row in json.loads(out)
+        Package("python", row["Name"], row["Version"], row["License"]) for row in json.loads(out)
     ]
     seen = {normalise(p.name) for p in found}
     missing = sorted(n for n in wanted if n not in seen)
@@ -263,9 +261,7 @@ def npm_packages() -> list[Package]:
         if not isinstance(licence, str):  # legacy {"type": ...} objects
             licence = str(licence.get("type", "")) if isinstance(licence, dict) else ""
         packages.append(
-            Package(
-                "npm", name, meta.get("version", ""), licence, bool(meta.get("dev"))
-            )
+            Package("npm", name, meta.get("version", ""), licence, bool(meta.get("dev")))
         )
     return packages
 
@@ -280,9 +276,7 @@ def summary(verdicts: list[Verdict], skipped: list[str]) -> bool:
         detail = ", ".join(f"{k} {n}" for k, n in sorted(counts.items()))
         print(f"{eco}: {len(mine)} packages ({detail})")
     if skipped:
-        print(
-            f"python: not installed on this platform (environment marker): {', '.join(skipped)}"
-        )
+        print(f"python: not installed on this platform (environment marker): {', '.join(skipped)}")
     for v in verdicts:
         if v.kind == PERMISSIVE:
             print(f"  resolved   {v.package.name} {v.package.version}: {v.reason}")
@@ -380,9 +374,7 @@ def report(verdicts: list[Verdict], skipped: list[str]) -> str:
     for v in sorted(py, key=lambda v: v.package.name.lower()):
         p = v.package
         verdict = status.get(v.kind, "**niedozwolona**")
-        lines.append(
-            f"| `{p.name}` | {p.version} | {md_escape(p.licence)} | {verdict} |"
-        )
+        lines.append(f"| `{p.name}` | {p.version} | {md_escape(p.licence)} | {verdict} |")
     if skipped:
         lines += [
             "",
@@ -402,9 +394,7 @@ def report(verdicts: list[Verdict], skipped: list[str]) -> str:
     for v in sorted(runtime, key=lambda v: v.package.name):
         p = v.package
         verdict = status.get(v.kind, "**niedozwolona**")
-        lines.append(
-            f"| `{p.name}` | {p.version} | {md_escape(p.licence)} | {verdict} |"
-        )
+        lines.append(f"| `{p.name}` | {p.version} | {md_escape(p.licence)} | {verdict} |")
     counts: dict[str, int] = {}
     for v in dev:
         counts[v.package.licence] = counts.get(v.package.licence, 0) + 1
@@ -475,17 +465,13 @@ def self_test() -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument(
-        "--write", action="store_true", help=f"write {REPORT.relative_to(ROOT)}"
-    )
+    parser.add_argument("--write", action="store_true", help=f"write {REPORT.relative_to(ROOT)}")
     parser.add_argument(
         "--simulate",
         metavar="LICENCE",
         help="add a fake Python and npm package with this licence (dry run, never writes)",
     )
-    parser.add_argument(
-        "--self-test", action="store_true", help="check the evaluator and exit"
-    )
+    parser.add_argument("--self-test", action="store_true", help="check the evaluator and exit")
     args = parser.parse_args()
     if args.self_test:
         self_test()

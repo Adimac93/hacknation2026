@@ -7,23 +7,39 @@ import pytest
 
 from formcompiler.config import Settings
 from formcompiler.heuristics import Analysis
-from formcompiler.ir import Addressee, Applicant, Cond, FieldType, PageIR, SectionIR, Validator
+from formcompiler.ir import (
+    Addressee,
+    Applicant,
+    Cond,
+    FieldIR,
+    FieldType,
+    PageIR,
+    SectionIR,
+    Validator,
+)
 from formcompiler.llm import (
     EXAMPLES,
+    INVENTORY_MAX_TOKENS,
+    INVENTORY_MIN_TOKENS,
     SEED,
     SUBJECT_PAGE,
     InventoryField,
     InventoryIR,
     LLMError,
     ShowIfOption,
+    TruncatedAnswer,
     addressee_in_header,
     applicant_flags,
     clean_inventory,
+    complete_parts,
+    covers_form,
     flat_schema,
     header_text,
     inventory,
+    inventory_budget,
     refine,
     request_json,
+    salvage,
     to_subject_pages,
 )
 from formcompiler.sections import RESERVED_KEYS, assemble
@@ -534,6 +550,96 @@ def test_clean_drops_fields_the_predefined_sections_cover() -> None:
     assert [f.label for f in cleaned.fields] == ["Ulica", "Miejscowość", "Telefon wykonawcy"]
 
 
+# Shaped like the model answer for form 8 (waste fee declaration): the applicant's identity,
+# residence and contact repeat the predefined sections; spouse, correspondence and property stay.
+FORM8_PAGE = "Okoliczności składania"
+FORM8_DROPPED = [
+    ("Dane identyfikacyjne", "nazwa_skladajacego", "Nazwisko, imię / Nazwa pełna"),
+    ("Dane identyfikacyjne", "nip_regon", "NIP/REGON"),
+    ("Dane składającego", "pesel_skladajacego", "PESEL składającego"),
+    ("Dane składającego", "dane_podmiotu_2", "Dane podmiotu (osoba fizyczna lub prawna)"),
+    ("Adres zamieszkania/siedziby", "kraj_zamieszkania", "Kraj zamieszkania"),
+    ("Adres zamieszkania/siedziby", "wojewodztwo", "Województwo"),
+    ("Adres zamieszkania/siedziby", "gmina_zamieszkania", "Gmina zamieszkania"),
+    ("Adres zamieszkania/siedziby", "numer_domu", "Numer nieruchomości/domu"),
+    ("Adres zamieszkania/siedziby", "kod", "Kod pocztowy zamieszkania"),
+    ("Okoliczności", "adres_wn", "Adres zamieszkania/siedziby"),
+    ("Dane kontaktowe", "tel_fax", "Nr tel./fax"),
+    ("Dane kontaktowe", "email", "Adres poczty elektronicznej"),
+    ("Inne", "telefon", "Telefon kontaktowy"),
+    ("Zgody", "zgoda_rodo", "Zgoda na przetwarzanie danych osobowych"),
+]
+FORM8_KEPT = [
+    ("Dane składającego", "rodzaj_posiadania", "Rodzaj posiadania nieruchomości"),
+    ("Dane współmałżonka", "imie", "Imię"),
+    ("Dane współmałżonka", "nazwisko_wspolmalzonka", "Nazwisko, imię współmałżonka"),
+    ("Dane współmałżonka", "numer_pesel", "PESEL współmałżonka"),
+    ("Współwłaściciele", "wspolwlasciciel", "Imię i nazwisko współwłaściciela"),
+    ("Adres korespondencji", "kraj_korespondencji", "Kraj"),
+    ("Adres korespondencji", "gmina_korespondencji", "Gmina"),
+    ("Adres korespondencji", "ulica_korespondencji", "Ulica"),
+    ("Dane wnioskodawcy", "adres_korespondencyjny", "Adres do korespondencji"),
+    ("Adres nieruchomości", "miejscowosc_nieruchomosci", "Miejscowość"),
+    ("Adres nieruchomości", "numer_nieruchomosci", "Numer nieruchomości/domu"),
+    ("Dane składającego", "adres_nieruchomosci", "Adres nieruchomości"),
+    ("Dane kontaktowe", "plik_upowaznienie", "Dokumenty upoważniające do złożenia deklaracji"),
+    ("Informacje o psie", "nazwisko_poprzedniego", "Nazwisko poprzedniego właściciela"),
+    ("Dane sportowca", "imie_sportowca", "Imię sportowca"),
+    ("Wykonawca", "telefon_wykonawcy", "Telefon wykonawcy"),
+    ("Droga", "nazwa_drogi", "Nazwa drogi oraz jej numer"),
+]
+
+
+@pytest.mark.parametrize(("section", "key", "label"), FORM8_DROPPED)
+def test_clean_drops_applicant_data_the_library_covers(section: str, key: str, label: str) -> None:
+    inv = InventoryIR(title="Deklaracja", fields=[field(FORM8_PAGE, section, key, label)])
+
+    assert clean_inventory(inv).fields == []
+
+
+@pytest.mark.parametrize(("section", "key", "label"), FORM8_KEPT)
+def test_clean_keeps_data_about_other_people_and_objects(
+    section: str, key: str, label: str
+) -> None:
+    inv = InventoryIR(title="Deklaracja", fields=[field(FORM8_PAGE, section, key, label)])
+
+    assert [f.label for f in clean_inventory(inv).fields] == [label]
+
+
+def test_clean_form8_answer_keeps_only_subject_sections() -> None:
+    fields = [field(FORM8_PAGE, *row) for row in FORM8_DROPPED + FORM8_KEPT]
+    inv = InventoryIR(title="Deklaracja", fields=fields)
+
+    sections = {f.section for f in clean_inventory(inv).fields}
+
+    assert not sections & {"Dane identyfikacyjne", "Adres zamieszkania/siedziby", "Zgody"}
+    assert {"Dane współmałżonka", "Adres korespondencji", "Adres nieruchomości"} <= sections
+
+
+def test_clean_drops_conditions_on_a_dropped_applicant_choice() -> None:
+    kind = field(
+        "S",
+        "Dane składającego",
+        "nip_regon",
+        "NIP/REGON",
+        type="RADIO",
+        options=["NIP", "REGON"],
+        src=["L5", "L9"],
+    )
+    on_kind = ShowIfOption(field_key="nip_regon", value="NIP")
+    inv = InventoryIR(
+        title="Deklaracja",
+        fields=[
+            kind,
+            field("S", "Okoliczności", "data", "Data zmiany", src=["L6"], show_if_option=on_kind),
+        ],
+    )
+
+    [kept] = clean_inventory(inv).fields
+
+    assert (kept.key, kept.show_if_option) == ("data", None)
+
+
 def test_clean_moves_fields_off_pages_titled_like_the_library() -> None:
     inv = InventoryIR(
         title="Wniosek",
@@ -679,3 +785,191 @@ def test_refine_replaces_an_addressee_taken_from_the_clause() -> None:
 
     assert result.addressee == RULES.addressee
     assert result.applicant == RULES.applicant
+
+
+# --- Budget and salvage of cut-off answers --------------------------------------------------
+
+
+def rules_with(*srcs: list[str], info: list[str] | None = None) -> Analysis:
+    """Rules-mode analysis with one text field per `srcs` entry and an optional text block."""
+    fields = [
+        FieldIR(key=f"pole_{i}", label=f"Pole {i}", type=FieldType.TEXT_FIELD, src=src)
+        for i, src in enumerate(srcs, start=1)
+    ]
+    if info is not None:
+        fields.append(
+            FieldIR(key="informacje", label="Informacje", type=FieldType.TEXT_BLOCK, src=info)
+        )
+    section = SectionIR(key="z_regul", title="Z reguł", fields=fields)
+    return RULES.model_copy(update={"pages": [PageIR(title="Z reguł", sections=[section])]})
+
+
+def cut_off(content: str) -> httpx.Response:
+    body = {
+        "choices": [{"message": {"content": content}, "finish_reason": "length"}],
+        "usage": {"prompt_tokens": 100, "completion_tokens": 2048},
+    }
+    return httpx.Response(200, json=body)
+
+
+def item(key: str, *src: str) -> dict[str, Any]:
+    return field("Sprawa", "Szczegóły", key, key.capitalize(), src=list(src)).model_dump(
+        mode="json"
+    )
+
+
+def looping(*items: dict[str, Any], repeat: int = 3) -> str:
+    """A cut-off answer: header without the title, `items`, the last item again, a cut."""
+    head = {"addressee": None, "applicant": {"persons": True, "entities": True, "proxy": False}}
+    text = json.dumps(head)[:-1] + ', "fields": ['
+    return text + ", ".join(json.dumps(i) for i in [*items, *[items[-1]] * repeat]) + ', {"dic'
+
+
+@pytest.mark.parametrize(
+    ("rules_count", "chars", "expected"),
+    [
+        (0, 0, INVENTORY_MIN_TOKENS),
+        (5, 1400, INVENTORY_MIN_TOKENS),  # form 3: the floor
+        (21, 5000, 21 * 150 + 1024),  # form 6: the rules count dominates
+        (8, 6500, round(6500 * 0.45) + 1024),  # form 7: the text length dominates
+        (8, 17_747, INVENTORY_MAX_TOKENS),  # form 8: 8 rules fields, ~6.4k tokens needed
+        (400, 0, INVENTORY_MAX_TOKENS),
+    ],
+)
+def test_inventory_budget_follows_rules_fields_and_text_length(
+    rules_count: int, chars: int, expected: int
+) -> None:
+    rules = rules_with(*[[f"L{i}"] for i in range(1, rules_count + 1)])
+
+    assert inventory_budget(rules, "x" * chars) == expected
+
+
+def test_refine_asks_for_the_budget_of_the_form() -> None:
+    rules = rules_with(*[[f"L{i}"] for i in range(1, 21)])
+    handler, seen = scripted(completion(ANSWER.model_dump_json()))
+
+    refine(make(), "L1 Blankiet", rules, transport=httpx.MockTransport(handler))
+
+    assert json.loads(seen[0].content)["max_tokens"] == 20 * 150 + 1024
+
+
+def test_complete_parts_keep_what_precedes_the_cut() -> None:
+    members, items = complete_parts(looping(item("a", "L1"), item("b", "L2"), repeat=1))
+
+    assert members == {
+        "addressee": None,
+        "applicant": {"persons": True, "entities": True, "proxy": False},
+    }
+    assert [i["key"] for i in items] == ["a", "b", "b"]
+    assert complete_parts('{"title": "Wnio') == ({}, [])
+    assert complete_parts("nie JSON") == ({}, [])
+
+
+def test_refine_salvages_a_loop_that_covers_the_form(caplog: pytest.LogCaptureFixture) -> None:
+    rules = rules_with(["L3"], ["L5"], ["L8"], info=["L20", "L21"])
+    answer = looping(item("cel", "L3"), item("termin", "L5"), item("rachunek", "L8", "L9"))
+    handler, seen = scripted(cut_off(answer))
+
+    with caplog.at_level("DEBUG"):
+        result = refine(make(), "L1 Blankiet", rules, transport=httpx.MockTransport(handler))
+
+    assert len(seen) == 1
+    assert result.title == rules.title  # the cut-off answer never reached its title
+    assert result.applicant == Applicant(persons=True, entities=False, proxy=False)
+    assert [f.key for p in result.pages for s in p.sections for f in s.fields] == [
+        "cel",
+        "termin",
+        "rachunek",
+    ]
+    assert "salvaged 3 fields" in caplog.text
+    assert "Rachunek" not in caplog.text
+    assemble(result.title, result.addressee, result.applicant, result.pages)
+
+
+def test_refine_falls_back_when_the_loop_starts_early() -> None:
+    # Form 9: the second field repeated 85 times, far before the end of the form.
+    rules = rules_with(["L3"], ["L5"], ["L8"])
+    handler, _ = scripted(cut_off(looping(item("cel", "L3"), item("termin", "L4"))))
+
+    with pytest.raises(TruncatedAnswer, match="max_tokens"):
+        refine(make(), "L1 Blankiet", rules, transport=httpx.MockTransport(handler))
+
+
+@pytest.mark.parametrize(
+    ("srcs", "rules", "expected"),
+    [
+        ([["L3"], ["L9"]], rules_with(["L3"], ["L8"], info=["L30"]), True),
+        ([["L3"], ["L7"]], rules_with(["L3"], ["L8"]), False),  # stops short of the last field
+        ([["L9"]], rules_with(["L3"], ["L4"], ["L5"], ["L8"]), False),  # too few fields
+        ([["L3"]], rules_with([]), False),  # rules mode gives no line to reach
+        ([[], []], rules_with(["L3"]), False),  # the model gives no lines
+    ],
+)
+def test_salvaged_fields_must_cover_the_form(
+    srcs: list[list[str]], rules: Analysis, expected: bool
+) -> None:
+    fields = [field("P", "S", f"pole_{i}", f"Pole {i}", src=src) for i, src in enumerate(srcs)]
+
+    assert covers_form(fields, rules) is expected
+
+
+def test_refine_falls_back_on_copies_under_numbered_keys() -> None:
+    # Form 9, another run: one field again as ..._4 to ..._33, reaching the end of the form.
+    rules = rules_with(["L3"], ["L5"], ["L8"], ["L9"])
+    first = field("Sprawa", "Szczegóły", "sposob", "Sposób", src=["L3", "L9"])
+    copies = [first.model_copy(update={"key": f"sposob_{i}"}) for i in range(2, 6)]
+    answer = looping(*(f.model_dump(mode="json") for f in [first, *copies]), repeat=0)
+    handler, _ = scripted(cut_off(answer))
+
+    with pytest.raises(TruncatedAnswer):
+        refine(make(), "L1 Blankiet", rules, transport=httpx.MockTransport(handler))
+
+
+def test_salvage_takes_a_wrong_header_from_rules_and_stops_at_a_broken_field() -> None:
+    rules = rules_with(["L3"])
+    broken = {**item("zly", "L4"), "type": "NIEZNANY"}
+    answer = json.dumps(
+        {"title": 7, "applicant": {"persons": "?"}, "fields": [item("cel", "L3"), broken]}
+    )
+
+    inv = salvage(answer[:-5], rules)
+
+    assert inv is not None
+    assert (inv.title, inv.addressee, inv.applicant) == (
+        rules.title,
+        rules.addressee,
+        rules.applicant,
+    )
+    assert [f.key for f in inv.fields] == ["cel"]
+
+
+@pytest.mark.parametrize(
+    "label",
+    [
+        "Podpis składającego deklarację",
+        "Podpis rodzica/opiekuna prawnego",
+        "Czytelny podpis wnioskodawcy",
+        "Pieczęć firmy",
+        "Miejscowość i data",
+        "Data wypełnienia",
+        "Data złożenia wniosku",
+        "Data wpływu",
+        "Wypełnia urząd",
+    ],
+)
+def test_fields_kept_off_the_form_are_dropped(label: str) -> None:
+    inv = InventoryIR(
+        title="Wniosek",
+        fields=[field("Pies", "Pies", "rasa", "Rasa psa"), field("Podpis", "Podpis", "x", label)],
+    )
+
+    assert [f.key for f in clean_inventory(inv).fields] == ["rasa"]
+
+
+@pytest.mark.parametrize("label", ["Data urodzenia", "Data zdarzenia", "Decyzja z dnia"])
+def test_other_dates_stay(label: str) -> None:
+    inv = InventoryIR(
+        title="Wniosek", fields=[field("Pies", "Pies", "d", label, type="DATEPICKER")]
+    )
+
+    assert len(clean_inventory(inv).fields) == 1

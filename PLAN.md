@@ -23,6 +23,21 @@ Zostało niecałe 11 godzin. Zamrożenie funkcji o 07:00 bez zmian, oddanie o 9:
 - nazwy plików w `outputs/` zależą od tytułu, więc tryb modelu i tryb reguł dają różne nazwy,
 - brak bramki licencyjnej `pip-licenses` i README bez opisu lokalnego hostowania modelu.
 
+### Stan o 01:15
+
+Zrobione i na `main`: B1 (budżet tokenów, odzysk z pętli, prompt), B2, B3, B4 (`research/08`: 53/53 plików, HTTP 200, 0 błędów lintera), B5 (`research/10`: model 64–82%, reguły 9%), B6 (bramka licencji, D26), B7 (ostateczne `outputs/` w trybie modelu, bez pól podpisu). Demo na najnowszym kodzie.
+
+Fala 3 (agenci, do 05:00):
+
+| # | Zadanie | Pliki |
+|---|---|---|
+| W6 | Etykiety pól w trybie reguł (dziś 9% pokrycia; to tryb zgodny z regulaminem i zapas na obronę) | `heuristics.py` |
+| W7 | Wynik modelu bez duplikatów sekcji predefiniowanych (np. „Dane identyfikacyjne” obok „Twoje dane” w formularzu 8) | `llm.py` |
+| W8 | Odporność OCR na zdegradowane skany i zdjęcia (obrót, rozmycie, kompresja, jedna strona) | `ingest/raster.py`, `research/11` |
+| W9 | Treść prezentacji (10 slajdów), scenariusz filmu, scenariusz demo na żywo | `research/12` |
+
+Potem (koordynator): ponowne `outputs/` po W7, test czystego klonu repozytorium na amd64, `docker save`, sprzątanie worktree. Merge co godzinę.
+
 ### Backend i model (Adimac93 + agenci), do 07:00
 
 | # | Zadanie | Dlaczego | Gotowe, gdy |

@@ -1,3 +1,4 @@
+# ruff: noqa: E501, RUF001  (real legal titles with en dashes)
 import pytest
 from eli import (
     NON_FORM_TITLE,

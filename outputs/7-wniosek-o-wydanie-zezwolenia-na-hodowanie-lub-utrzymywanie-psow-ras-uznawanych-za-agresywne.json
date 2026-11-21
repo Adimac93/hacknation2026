@@ -1,5 +1,5 @@
 {
-  "title": "Wniosek o wynajęcie/użyczenie świetlicy wiejskiej",
+  "title": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanych za agresywne",
   "tabs": [
     {
       "id": "842469a4-97f9-5241-b252-036214778853",
@@ -12,10 +12,10 @@
           "rows": 2,
           "cols": 3,
           "field": {
-            "id": "9a94e505-6a9a-5fc2-a34a-7d3c672a185e",
+            "id": "065ab19c-d31f-5394-935b-8b79f28d2445",
             "type": "SECTION",
-            "techName": "organ_do_ktorego_jest_skladany_wniosek",
-            "title": "Organ, do którego jest składany wniosek",
+            "techName": "urzad_do_ktorego_jest_skladany_wniosek",
+            "title": "Urząd, do którego jest składany wniosek",
             "description": "<html><head></head><body></body></html>",
             "options": [],
             "validation": [],
@@ -27,10 +27,10 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "27759d34-e92a-58dc-aec7-f3769fbd18d0",
+                  "id": "b04e8496-658f-57bd-885e-0b15ab37101f",
                   "type": "TEXT_FIELD",
-                  "techName": "nazwa_organu",
-                  "title": "Nazwa organu",
+                  "techName": "nazwa_urzedu",
+                  "title": "Nazwa urzędu",
                   "description": "",
                   "options": [],
                   "validation": [],
@@ -39,7 +39,7 @@
                   "states": [],
                   "questionOrder": 0,
                   "tooltipMessage": "",
-                  "defaultValue": "Wójt Gminy Płoskinia"
+                  "defaultValue": "Urząd Miejski Wrocławia"
                 }
               }
             ],
@@ -394,13 +394,13 @@
         {
           "x": 0,
           "y": 0,
-          "rows": 5,
+          "rows": 2,
           "cols": 3,
           "field": {
-            "id": "1f69e025-3e6c-5c8f-ac6d-f58c5ed41e48",
+            "id": "08525a6c-7a96-5c4d-993b-0f90cebf2610",
             "type": "SECTION",
-            "techName": "zakres_wniosku",
-            "title": "Zakres wniosku",
+            "techName": "rodzaj_wniosku",
+            "title": "Rodzaj wniosku",
             "description": "<html><head></head><body></body></html>",
             "options": [],
             "validation": [],
@@ -412,13 +412,79 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "48b406df-e39a-548b-839e-d893f630bf94",
+                  "id": "aff2685e-3913-5517-ba26-1bcb3f209313",
+                  "type": "RADIO",
+                  "techName": "rodzaj_wniosku_2",
+                  "title": "Rodzaj wniosku",
+                  "description": "",
+                  "options": [
+                    {
+                      "id": "Hodowanie charta/chartów",
+                      "name": "Hodowanie charta/chartów",
+                      "techName": "hodowanie_charta_chartow"
+                    },
+                    {
+                      "id": "Utrzymywanie charta/chartów",
+                      "name": "Utrzymywanie charta/chartów",
+                      "techName": "utrzymywanie_charta_chartow"
+                    },
+                    {
+                      "id": "Hodowanie mieszańca charta/mieszańców chartów",
+                      "name": "Hodowanie mieszańca charta/mieszańców chartów",
+                      "techName": "hodowanie_mieszanca_charta_mieszancow_chartow"
+                    },
+                    {
+                      "id": "Utrzymywanie mieszańca charta/mieszańców chartów",
+                      "name": "Utrzymywanie mieszańca charta/mieszańców chartów",
+                      "techName": "utrzymywanie_mieszanca_charta_mieszancow_chartow"
+                    }
+                  ],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "states": [],
+            "questionOrder": 0,
+            "tooltipMessage": ""
+          }
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "rows": 14,
+          "cols": 3,
+          "field": {
+            "id": "d793c511-7a00-5f12-b601-a3d408f09d05",
+            "type": "SECTION",
+            "techName": "informacje_o_psie",
+            "title": "Informacje o psie",
+            "description": "<html><head></head><body></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "7f636df5-9887-5f56-a5a8-9cbc7dd7c3f0",
                   "type": "TEXT_FIELD",
-                  "techName": "prosze_o_wynajem_uzyczenie_swietlicy_wiejskiej_w",
-                  "title": "Proszę o wynajem/użyczenie* świetlicy wiejskiej w",
+                  "techName": "metryka_rodowod",
+                  "title": "Pochodzenie psa (metryka, numer rodowodu)",
                   "description": "",
                   "options": [],
-                  "validation": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
@@ -432,13 +498,15 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "b0a42463-e9f2-58be-ba6d-ec5a353e118c",
+                  "id": "6202dfb1-f3fe-5f3d-ac6a-a3b9225f13d2",
                   "type": "TEXT_FIELD",
-                  "techName": "wraz_z_wyposazeniem_w_terminie_od_do",
-                  "title": "Wraz z wyposażeniem w terminie od do",
+                  "techName": "imie_psa",
+                  "title": "Imię psa",
                   "description": "",
                   "options": [],
-                  "validation": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
@@ -452,13 +520,15 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "da1c1a1e-b66e-5bcd-b9ed-e83da1f88f19",
-                  "type": "TEXTAREA",
-                  "techName": "cel_wynajecia_swietlicy",
-                  "title": "Cel wynajęcia świetlicy",
+                  "id": "9255c026-64dd-5553-bcf7-8d170a2c72de",
+                  "type": "TEXT_FIELD",
+                  "techName": "nazwisko_poprzedniego_wlasiciela",
+                  "title": "Nazwisko poprzedniego właściciela",
                   "description": "",
                   "options": [],
-                  "validation": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
@@ -472,23 +542,245 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "23f48c70-cce8-5ccb-a280-78a3a9e7eb02",
+                  "id": "af66b00d-406b-59f2-a92e-c1e70e1e585c",
                   "type": "TEXT_FIELD",
-                  "techName": "przewidywana_ilosc_uczestnikow",
-                  "title": "Przewidywana ilość uczestników",
+                  "techName": "adres_poprzedniego_wlasiciela",
+                  "title": "Adres poprzedniego właściciela",
                   "description": "",
                   "options": [],
-                  "validation": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
                   "questionOrder": 3,
                   "tooltipMessage": ""
                 }
+              },
+              {
+                "x": 0,
+                "y": 4,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "b3e5cf22-ccb0-5104-b027-d8e8a603bf4e",
+                  "type": "TEXT_FIELD",
+                  "techName": "rasa_psa",
+                  "title": "Rasa psa",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 4,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 5,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "aa3aec9d-60db-52ce-bdba-d5bf8a57b90b",
+                  "type": "DATEPICKER",
+                  "techName": "data_urodzenia_psa",
+                  "title": "Data urodzenia psa",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 5,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 6,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "4e946f19-915b-5529-99e7-c386ae727b68",
+                  "type": "DATEPICKER",
+                  "techName": "data_szczepienia",
+                  "title": "Data szczepienia",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 6,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 7,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "3bf9eb46-5100-5c29-8345-e79be48140c0",
+                  "type": "RADIO",
+                  "techName": "plec_psa",
+                  "title": "Płeć psa",
+                  "description": "",
+                  "options": [
+                    {
+                      "id": "Pies",
+                      "name": "Pies",
+                      "techName": "pies"
+                    },
+                    {
+                      "id": "Suka",
+                      "name": "Suka",
+                      "techName": "suka"
+                    }
+                  ],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 7,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 8,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "6cf65597-fcac-5ea9-9604-699222b8e2d3",
+                  "type": "TEXT_FIELD",
+                  "techName": "numer_mikroprocesora",
+                  "title": "Numer mikroprocesora",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 8,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 9,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "e0631a84-e3a1-5a70-af24-a11c327e821d",
+                  "type": "RADIO",
+                  "techName": "sposob_oznakowania",
+                  "title": "Sposób oznakowania psa",
+                  "description": "",
+                  "options": [
+                    {
+                      "id": "Tatuaż",
+                      "name": "Tatuaż",
+                      "techName": "tatuaz"
+                    },
+                    {
+                      "id": "Brak",
+                      "name": "Brak",
+                      "techName": "brak"
+                    }
+                  ],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 9,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 10,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "3b8065b4-dd0e-5d40-8f75-efd197ef6a7b",
+                  "type": "TEXT_FIELD",
+                  "techName": "numer_identifikacyjny",
+                  "title": "Numer identyfikacyjny",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 10,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 11,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "e048d048-50ff-55d2-a566-c3d377684e62",
+                  "type": "TEXTAREA",
+                  "techName": "adres_utrymywania",
+                  "title": "Adres miejsca utrzymywania psa",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 11,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 12,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "dd56416b-ef4f-51b8-a6b3-c4b41625ce84",
+                  "type": "TEXTAREA",
+                  "techName": "opis_miejsca_i_warunkow",
+                  "title": "Opis miejsca i warunków utrzymywania psa",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 12,
+                  "tooltipMessage": ""
+                }
               }
             ],
             "states": [],
-            "questionOrder": 0,
+            "questionOrder": 2,
             "tooltipMessage": ""
           }
         }

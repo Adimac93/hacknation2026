@@ -1,5 +1,5 @@
 {
-  "title": "Wniosek o przyznanie stypendium sportowego Rady Miasta Zgierza",
+  "title": "Wniosek o przyznanie stypendium sportowego, nagrody sportowej lub wyróżnienia sportowego Rady Miasta Zgierza",
   "tabs": [
     {
       "id": "842469a4-97f9-5241-b252-036214778853",
@@ -9,6 +9,48 @@
         {
           "x": 0,
           "y": 0,
+          "rows": 2,
+          "cols": 3,
+          "field": {
+            "id": "9a94e505-6a9a-5fc2-a34a-7d3c672a185e",
+            "type": "SECTION",
+            "techName": "organ_do_ktorego_jest_skladany_wniosek",
+            "title": "Organ, do którego jest składany wniosek",
+            "description": "<html><head></head><body></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "27759d34-e92a-58dc-aec7-f3769fbd18d0",
+                  "type": "TEXT_FIELD",
+                  "techName": "nazwa_organu",
+                  "title": "Nazwa organu",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": true,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": "",
+                  "defaultValue": "Prezydent Miasta Zgierza"
+                }
+              }
+            ],
+            "states": [],
+            "questionOrder": 0,
+            "tooltipMessage": ""
+          }
+        },
+        {
+          "x": 0,
+          "y": 2,
           "rows": 3,
           "cols": 3,
           "field": {
@@ -95,13 +137,13 @@
               }
             ],
             "states": [],
-            "questionOrder": 0,
+            "questionOrder": 2,
             "tooltipMessage": ""
           }
         },
         {
           "x": 0,
-          "y": 3,
+          "y": 5,
           "rows": 4,
           "cols": 3,
           "field": {
@@ -182,13 +224,13 @@
               }
             ],
             "states": [],
-            "questionOrder": 3,
+            "questionOrder": 5,
             "tooltipMessage": ""
           }
         },
         {
           "x": 0,
-          "y": 7,
+          "y": 9,
           "rows": 10,
           "cols": 3,
           "field": {
@@ -431,13 +473,13 @@
               }
             ],
             "states": [],
-            "questionOrder": 7,
+            "questionOrder": 9,
             "tooltipMessage": ""
           }
         },
         {
           "x": 0,
-          "y": 17,
+          "y": 19,
           "rows": 3,
           "cols": 3,
           "field": {
@@ -497,13 +539,13 @@
                 "query": "(\"Osoby prawnej lub jednostki organizacyjnej\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer)"
               }
             ],
-            "questionOrder": 17,
+            "questionOrder": 19,
             "tooltipMessage": ""
           }
         },
         {
           "x": 0,
-          "y": 20,
+          "y": 22,
           "rows": 10,
           "cols": 3,
           "field": {
@@ -744,13 +786,13 @@
                 "query": "(\"Osoby prawnej lub jednostki organizacyjnej\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer)"
               }
             ],
-            "questionOrder": 20,
+            "questionOrder": 22,
             "tooltipMessage": ""
           }
         },
         {
           "x": 0,
-          "y": 30,
+          "y": 32,
           "rows": 2,
           "cols": 3,
           "field": {
@@ -790,13 +832,13 @@
                 "query": "(\"Osoby prawnej lub jednostki organizacyjnej\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer) and (\"Reprezentant\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_jako_kto_wnioskujesz' in field.techName].field.__userAnswer)"
               }
             ],
-            "questionOrder": 30,
+            "questionOrder": 32,
             "tooltipMessage": ""
           }
         },
         {
           "x": 0,
-          "y": 32,
+          "y": 34,
           "rows": 3,
           "cols": 3,
           "field": {
@@ -856,13 +898,13 @@
                 "query": "(\"Innej osoby\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer)"
               }
             ],
-            "questionOrder": 32,
+            "questionOrder": 34,
             "tooltipMessage": ""
           }
         },
         {
           "x": 0,
-          "y": 35,
+          "y": 37,
           "rows": 10,
           "cols": 3,
           "field": {
@@ -1102,13 +1144,13 @@
                 "query": "(\"Innej osoby\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer)"
               }
             ],
-            "questionOrder": 35,
+            "questionOrder": 37,
             "tooltipMessage": ""
           }
         },
         {
           "x": 0,
-          "y": 45,
+          "y": 47,
           "rows": 2,
           "cols": 3,
           "field": {
@@ -1148,13 +1190,13 @@
                 "query": "(\"Innej osoby\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer) or ((\"Osoby prawnej lub jednostki organizacyjnej\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer) and (\"Pełnomocnik\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_jako_kto_wnioskujesz' in field.techName].field.__userAnswer))"
               }
             ],
-            "questionOrder": 45,
+            "questionOrder": 47,
             "tooltipMessage": ""
           }
         },
         {
           "x": 0,
-          "y": 47,
+          "y": 49,
           "rows": 4,
           "cols": 3,
           "field": {
@@ -1255,13 +1297,13 @@
                 "query": "(\"Innej osoby\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer)"
               }
             ],
-            "questionOrder": 47,
+            "questionOrder": 49,
             "tooltipMessage": ""
           }
         },
         {
           "x": 0,
-          "y": 51,
+          "y": 53,
           "rows": 3,
           "cols": 3,
           "field": {
@@ -1321,27 +1363,27 @@
                 "query": "(\"Osoby prawnej lub jednostki organizacyjnej\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer) and (\"Pełnomocnik\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_jako_kto_wnioskujesz' in field.techName].field.__userAnswer)"
               }
             ],
-            "questionOrder": 51,
+            "questionOrder": 53,
             "tooltipMessage": ""
           }
         }
       ]
     },
     {
-      "id": "0f14a1dc-8d1e-5318-9643-0c2d7c38f4e8",
-      "title": "Szczegóły wniosku",
+      "id": "fcc74778-8893-5bfd-a4d7-5f6438ebaac0",
+      "title": "Rodzaj wniosku",
       "type": "MAIN",
       "questions": [
         {
           "x": 0,
           "y": 0,
-          "rows": 11,
+          "rows": 3,
           "cols": 3,
           "field": {
-            "id": "1f69e025-3e6c-5c8f-ac6d-f58c5ed41e48",
+            "id": "08525a6c-7a96-5c4d-993b-0f90cebf2610",
             "type": "SECTION",
-            "techName": "zakres_wniosku",
-            "title": "Zakres wniosku",
+            "techName": "rodzaj_wniosku",
+            "title": "Rodzaj wniosku",
             "description": "<html><head></head><body></body></html>",
             "options": [],
             "validation": [],
@@ -1353,24 +1395,31 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "aca382ff-1ff2-5221-a639-c046aa1f49c1",
+                  "id": "aff2685e-3913-5517-ba26-1bcb3f209313",
                   "type": "RADIO",
-                  "techName": "wnioskodawca",
-                  "title": "Wnioskodawca",
+                  "techName": "rodzaj_wniosku_2",
+                  "title": "Rodzaj wniosku",
                   "description": "",
                   "options": [
                     {
-                      "id": "Prezydent Miasta Zgierza",
-                      "name": "Prezydent Miasta Zgierza",
-                      "techName": "prezydent_miasta_zgierza"
+                      "id": "Wniosek o przyznanie stypendium sportowego Rady Miasta Zgierza",
+                      "name": "Wniosek o przyznanie stypendium sportowego Rady Miasta Zgierza",
+                      "techName": "wniosek_o_przyznanie_stypendium_sportowego_rady_miasta_zgierza"
                     },
                     {
-                      "id": "Klub sportowy",
-                      "name": "Klub sportowy",
-                      "techName": "klub_sportowy"
+                      "id": "Wniosek o przyznanie nagrody sportowej Rady Miasta Zgierza",
+                      "name": "Wniosek o przyznanie nagrody sportowej Rady Miasta Zgierza",
+                      "techName": "wniosek_o_przyznanie_nagrody_sportowej_rady_miasta_zgierza"
+                    },
+                    {
+                      "id": "Wniosek o przyznanie wyróżnienia sportowego Rady Miasta Zgierza",
+                      "name": "Wniosek o przyznanie wyróżnienia sportowego Rady Miasta Zgierza",
+                      "techName": "wniosek_o_przyznanie_wyroznienia_sportowego_rady_miasta_zgierza"
                     }
                   ],
-                  "validation": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
@@ -1384,16 +1433,113 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "02705f09-9ed4-562c-a5c9-c249b83f2683",
+                  "id": "c8655930-bd65-5889-886e-dcb6a406c5f7",
                   "type": "RADIO",
-                  "techName": "nalezy_wypelnic_w_przypadku_wnioskodawcy_klubu_spo",
-                  "title": "Należy wypełnić w przypadku Wnioskodawcy – Klubu sportowego.",
+                  "techName": "wybierz_rodzaj_wniosku",
+                  "title": "Wybierz rodzaj wniosku",
                   "description": "",
                   "options": [
                     {
-                      "id": "Dane reprezentanta klubu sportowego z KRS lub innego właściwego rejestru",
-                      "name": "Dane reprezentanta klubu sportowego z KRS lub innego właściwego rejestru",
-                      "techName": "dane_reprezentanta_klubu_sportowego_z_krs_lub_innego_wlasciwego_rejestru"
+                      "id": "Stypendium sportowe",
+                      "name": "Stypendium sportowe",
+                      "techName": "stypendium_sportowe"
+                    },
+                    {
+                      "id": "Nagroda sportowa",
+                      "name": "Nagroda sportowa",
+                      "techName": "nagroda_sportowa"
+                    },
+                    {
+                      "id": "Wyróżnienie sportowe",
+                      "name": "Wyróżnienie sportowe",
+                      "techName": "wyroznienie_sportowe"
+                    }
+                  ],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 1,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "states": [],
+            "questionOrder": 0,
+            "tooltipMessage": ""
+          }
+        },
+        {
+          "x": 0,
+          "y": 3,
+          "rows": 14,
+          "cols": 3,
+          "field": {
+            "id": "6eed2958-a75f-5405-ad18-8beaf600303f",
+            "type": "SECTION",
+            "techName": "dane_wnioskodawcy",
+            "title": "Dane wnioskodawcy",
+            "description": "<html><head></head><body></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "f146e21e-503f-5eab-aa2a-d059bda58f0c",
+                  "type": "RADIO",
+                  "techName": "wybierz_wnioskodawce",
+                  "title": "Wybierz wnioskodawcę",
+                  "description": "",
+                  "options": [
+                    {
+                      "id": "Prezydent Miasta Zgierza",
+                      "name": "Prezydent Miasta Zgierza",
+                      "techName": "prezydent_miasta_zgierza"
+                    },
+                    {
+                      "id": "Klub sportowy",
+                      "name": "Klub sportowy",
+                      "techName": "klub_sportowy"
+                    }
+                  ],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 1,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "9b1697f6-1910-5fc0-8f31-c1272634830a",
+                  "type": "RADIO",
+                  "techName": "wybierz_dane_reprezentanta",
+                  "title": "Czy wnioskodawca jest reprezentantem klubu sportowego z KRS lub innego właściwego rejestru?",
+                  "description": "",
+                  "options": [
+                    {
+                      "id": "Tak",
+                      "name": "Tak",
+                      "techName": "tak"
+                    },
+                    {
+                      "id": "Nie",
+                      "name": "Nie",
+                      "techName": "nie"
                     }
                   ],
                   "validation": [],
@@ -1410,22 +1556,21 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "27c049a9-4210-5dc6-9011-ee4430f15f57",
-                  "type": "RADIO",
-                  "techName": "wybierz",
-                  "title": "Wybierz",
+                  "id": "c6d4c7ab-6eda-5039-b792-5111c782f826",
+                  "type": "TEXT_FIELD",
+                  "techName": "imie_reprezentanta",
+                  "title": "Imię reprezentanta klubu sportowego",
                   "description": "",
-                  "options": [
-                    {
-                      "id": "Dane pełnomocnika klubu sportowego",
-                      "name": "Dane pełnomocnika klubu sportowego",
-                      "techName": "dane_pelnomocnika_klubu_sportowego"
-                    }
-                  ],
+                  "options": [],
                   "validation": [],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
-                  "states": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Tak\" in tabs['Rodzaj wniosku' in title].questions['dane_wnioskodawcy' in field.techName].field.repeatingSectionGrid['wybierz_dane_reprezentanta' in field.techName].field.__userAnswer)"
+                    }
+                  ],
                   "questionOrder": 2,
                   "tooltipMessage": ""
                 }
@@ -1433,6 +1578,56 @@
               {
                 "x": 0,
                 "y": 3,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "d0f8b492-a633-5c02-91d3-5caa6ac17f5a",
+                  "type": "TEXT_FIELD",
+                  "techName": "nazwisko_reprezentanta",
+                  "title": "Nazwisko reprezentanta klubu sportowego",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Tak\" in tabs['Rodzaj wniosku' in title].questions['dane_wnioskodawcy' in field.techName].field.repeatingSectionGrid['wybierz_dane_reprezentanta' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 3,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 4,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "bda3f2a4-565e-5373-b6a7-135ad99a4240",
+                  "type": "TEXT_FIELD",
+                  "techName": "numer_telefonu_reprezentanta",
+                  "title": "Numer telefonu reprezentanta klubu sportowego",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Tak\" in tabs['Rodzaj wniosku' in title].questions['dane_wnioskodawcy' in field.techName].field.repeatingSectionGrid['wybierz_dane_reprezentanta' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 4,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 5,
                 "rows": 1,
                 "cols": 3,
                 "field": {
@@ -1445,74 +1640,12 @@
                   "validation": [],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 3,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 4,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "01a04251-df25-5b23-9146-2dc0928ae451",
-                  "type": "RADIO",
-                  "techName": "korespondencja_z_urzedem_wybierz_preferowany_sposo",
-                  "title": "Korespondencja z urzędem ( wybierz preferowany sposób korespondencji z urzędem )",
-                  "description": "",
-                  "options": [
+                  "states": [
                     {
-                      "id": "Poczta tradycyjna - na który adres kierować korespondencję",
-                      "name": "Poczta tradycyjna - na który adres kierować korespondencję",
-                      "techName": "poczta_tradycyjna_na_ktory_adres_kierowac_korespondencje"
-                    },
-                    {
-                      "id": "Adres siedziby klubu",
-                      "name": "Adres siedziby klubu",
-                      "techName": "adres_siedziby_klubu"
-                    },
-                    {
-                      "id": "Inny adres korespondencyjny",
-                      "name": "Inny adres korespondencyjny",
-                      "techName": "inny_adres_korespondencyjny"
+                      "type": "SHOW",
+                      "query": "(\"Klub sportowy\" in tabs['Rodzaj wniosku' in title].questions['dane_wnioskodawcy' in field.techName].field.repeatingSectionGrid['wybierz_wnioskodawce' in field.techName].field.__userAnswer)"
                     }
                   ],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 4,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 5,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "4028b484-0d4a-59c9-8cf9-f180527f7533",
-                  "type": "RADIO",
-                  "techName": "wybierz_2",
-                  "title": "Wybierz",
-                  "description": "",
-                  "options": [
-                    {
-                      "id": "Skrzynka ePUAP - adres skrzynki",
-                      "name": "Skrzynka ePUAP - adres skrzynki",
-                      "techName": "skrzynka_epuap_adres_skrzynki"
-                    },
-                    {
-                      "id": "EDoręczenia - adres skrzynki",
-                      "name": "EDoręczenia - adres skrzynki",
-                      "techName": "edoreczenia_adres_skrzynki"
-                    }
-                  ],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
                   "questionOrder": 5,
                   "tooltipMessage": ""
                 }
@@ -1523,16 +1656,21 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "59530889-ec6d-58ec-95cb-c5da88b56469",
-                  "type": "DATEPICKER",
-                  "techName": "data_urodzenia",
-                  "title": "Data urodzenia",
+                  "id": "4f624e32-a32d-56bc-ae16-b565971b579f",
+                  "type": "TEXT_FIELD",
+                  "techName": "telefon_kontaktowy_klubu",
+                  "title": "Telefon kontaktowy klubu sportowego",
                   "description": "",
                   "options": [],
                   "validation": [],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
-                  "states": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Klub sportowy\" in tabs['Rodzaj wniosku' in title].questions['dane_wnioskodawcy' in field.techName].field.repeatingSectionGrid['wybierz_wnioskodawce' in field.techName].field.__userAnswer)"
+                    }
+                  ],
                   "questionOrder": 6,
                   "tooltipMessage": ""
                 }
@@ -1543,32 +1681,21 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "4518cdae-8152-5a9b-92ea-2cdd0f9861a5",
-                  "type": "RADIO",
-                  "techName": "a_nastepnie_wybierz_konkretne_dyscypliny_z_listy",
-                  "title": "A następnie wybierz konkretne dyscypliny z listy",
+                  "id": "7ea9a022-a526-52ae-b4f5-b939bd9d5733",
+                  "type": "TEXT_FIELD",
+                  "techName": "adres_siedziby_klubu",
+                  "title": "Adres siedziby klubu sportowego",
                   "description": "",
-                  "options": [
-                    {
-                      "id": "Zespołowa",
-                      "name": "Zespołowa",
-                      "techName": "zespolowa"
-                    },
-                    {
-                      "id": "Indywidualna – inna",
-                      "name": "Indywidualna – inna",
-                      "techName": "indywidualna_inna"
-                    },
-                    {
-                      "id": "Indywidualna – lekkoatletyka",
-                      "name": "Indywidualna – lekkoatletyka",
-                      "techName": "indywidualna_lekkoatletyka"
-                    }
-                  ],
+                  "options": [],
                   "validation": [],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
-                  "states": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Klub sportowy\" in tabs['Rodzaj wniosku' in title].questions['dane_wnioskodawcy' in field.techName].field.repeatingSectionGrid['wybierz_wnioskodawce' in field.techName].field.__userAnswer)"
+                    }
+                  ],
                   "questionOrder": 7,
                   "tooltipMessage": ""
                 }
@@ -1579,10 +1706,203 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "d99e1f28-6507-5beb-9735-9b7ae3709c60",
-                  "type": "SELECT",
-                  "techName": "dyscypliny_sportowe",
-                  "title": "Dyscypliny sportowe",
+                  "id": "e31a1a6c-687b-5110-a27d-5c2b0639081d",
+                  "type": "RADIO",
+                  "techName": "wybierz_sposob_korespondencji",
+                  "title": "Wybierz preferowany sposób korespondencji z urzędem",
+                  "description": "",
+                  "options": [
+                    {
+                      "id": "Poczta tradycyjna - na adres siedziby klubu",
+                      "name": "Poczta tradycyjna - na adres siedziby klubu",
+                      "techName": "poczta_tradycyjna_na_adres_siedziby_klubu"
+                    },
+                    {
+                      "id": "Poczta tradycyjna - na inny adres korespondencyjny",
+                      "name": "Poczta tradycyjna - na inny adres korespondencyjny",
+                      "techName": "poczta_tradycyjna_na_inny_adres_korespondencyjny"
+                    },
+                    {
+                      "id": "Skrzynka ePUAP",
+                      "name": "Skrzynka ePUAP",
+                      "techName": "skrzynka_epuap"
+                    },
+                    {
+                      "id": "eDoręczenia",
+                      "name": "eDoręczenia",
+                      "techName": "edoreczenia"
+                    }
+                  ],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 8,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 9,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "2ef31f0a-6a8d-51ab-a747-7ace37416606",
+                  "type": "TEXT_FIELD",
+                  "techName": "adres_korespondencyjny",
+                  "title": "Adres korespondencyjny",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Poczta tradycyjna - na inny adres korespondencyjny\" in tabs['Rodzaj wniosku' in title].questions['dane_wnioskodawcy' in field.techName].field.repeatingSectionGrid['wybierz_sposob_korespondencji' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 9,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 10,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "9607cc99-d70b-5e51-86f2-2d8328e32218",
+                  "type": "TEXT_FIELD",
+                  "techName": "adres_skrzynki_epuap",
+                  "title": "Adres skrzynki ePUAP",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Skrzynka ePUAP\" in tabs['Rodzaj wniosku' in title].questions['dane_wnioskodawcy' in field.techName].field.repeatingSectionGrid['wybierz_sposob_korespondencji' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 10,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 11,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "94d39755-b21c-5e79-b2cb-be61f17a6980",
+                  "type": "TEXT_FIELD",
+                  "techName": "adres_skrzynki_edoreczenia",
+                  "title": "Adres skrzynki eDoręczenia",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"eDoręczenia\" in tabs['Rodzaj wniosku' in title].questions['dane_wnioskodawcy' in field.techName].field.repeatingSectionGrid['wybierz_sposob_korespondencji' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 11,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 12,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "2e4f8fcb-6149-53ee-9c88-b52bae0b6e2c",
+                  "type": "FILE_UPLOADER",
+                  "techName": "plik_odpisu_danych_z_krs",
+                  "title": "Odpis danych z KRS lub innego właściwego rejestru",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 12,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "states": [],
+            "questionOrder": 3,
+            "tooltipMessage": ""
+          }
+        },
+        {
+          "x": 0,
+          "y": 17,
+          "rows": 9,
+          "cols": 3,
+          "field": {
+            "id": "65bf5303-bd5d-561c-9d94-2168801694e7",
+            "type": "SECTION",
+            "techName": "dane_sportowca",
+            "title": "Dane sportowca",
+            "description": "<html><head></head><body></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "406eb17f-7bbb-5085-aba6-fd4bac53e135",
+                  "type": "CHECKBOX",
+                  "techName": "wybierz_dyscypliny_sportowe",
+                  "title": "Wybierz rodzaje dyscyplin sportowych",
+                  "description": "",
+                  "options": [
+                    {
+                      "id": "Zespołowa",
+                      "name": "Zespołowa",
+                      "techName": "zespolowa"
+                    },
+                    {
+                      "id": "Indywidualna - inna",
+                      "name": "Indywidualna - inna",
+                      "techName": "indywidualna_inna"
+                    },
+                    {
+                      "id": "Indywidualna - lekkoatletyka",
+                      "name": "Indywidualna - lekkoatletyka",
+                      "techName": "indywidualna_lekkoatletyka"
+                    }
+                  ],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 1,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "e8247472-dc23-57eb-8b87-9fdb7d51e2bd",
+                  "type": "CHECKBOX",
+                  "techName": "wybierz_dyscypliny_sportowe_2",
+                  "title": "Wybierz konkretne dyscypliny sportowe",
                   "description": "",
                   "options": [
                     {
@@ -1684,565 +2004,574 @@
                       "id": "Zapasy",
                       "name": "Zapasy",
                       "techName": "zapasy"
+                    },
+                    {
+                      "id": "Inna",
+                      "name": "Inna",
+                      "techName": "inna"
                     }
                   ],
                   "validation": [],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
-                  "questionOrder": 8,
-                  "tooltipMessage": "",
-                  "defaultValue": [],
-                  "searchEnabled": true
+                  "questionOrder": 1,
+                  "tooltipMessage": ""
                 }
               },
               {
                 "x": 0,
-                "y": 9,
+                "y": 2,
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "7822e5e1-557b-5757-b52e-437faec71d99",
+                  "id": "433c7250-8a71-55b7-af8a-8a9ca85da1c7",
                   "type": "TEXT_FIELD",
-                  "techName": "dyscyplina",
-                  "title": "Dyscyplina",
+                  "techName": "dyscyplina_inna",
+                  "title": "Inna dyscyplina sportowa",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Inna\" in tabs['Rodzaj wniosku' in title].questions['dane_sportowca' in field.techName].field.repeatingSectionGrid['wybierz_dyscypliny_sportowe_2' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 2,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 3,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "49f70abb-74d0-5ff9-86e1-d76f0d376b85",
+                  "type": "TEXT_FIELD",
+                  "techName": "imie_sportowca",
+                  "title": "Imię sportowca",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 3,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 4,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "7b8af3d1-692d-5fc2-995a-8ebec8834fcd",
+                  "type": "TEXT_FIELD",
+                  "techName": "nazwisko_sportowca",
+                  "title": "Nazwisko sportowca",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 4,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 5,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "51614055-708c-546a-9e16-4fa280f3e6fc",
+                  "type": "DATEPICKER",
+                  "techName": "data_urodzenia_sportowca",
+                  "title": "Data urodzenia sportowca",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 5,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 6,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "a96a4811-aef3-51a7-a297-d11a3e6e50bc",
+                  "type": "TEXT_FIELD",
+                  "techName": "adres_zameldowania_sportowca",
+                  "title": "Adres zameldowania sportowca",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 6,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 7,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "8c52fc69-87b6-5424-ac1c-7127bff6bf42",
+                  "type": "TEXT_FIELD",
+                  "techName": "adres_do_korespondencji_sportowca",
+                  "title": "Adres do korespondencji sportowca",
                   "description": "",
                   "options": [],
                   "validation": [],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
-                  "questionOrder": 9,
+                  "questionOrder": 7,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "states": [],
+            "questionOrder": 17,
+            "tooltipMessage": ""
+          }
+        },
+        {
+          "x": 0,
+          "y": 26,
+          "rows": 5,
+          "cols": 3,
+          "field": {
+            "id": "adff24c6-b5dc-5e21-8a10-449698b76f91",
+            "type": "SECTION",
+            "techName": "dane_podopiecznych",
+            "title": "Dane podopiecznych",
+            "description": "<html><head></head><body></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "2c0b9ef2-0bdd-5148-aa9d-187b6390d292",
+                  "type": "CHECKBOX",
+                  "techName": "wybierz_podopiecznych",
+                  "title": "Wybierz podopiecznych trenera",
+                  "description": "",
+                  "options": [
+                    {
+                      "id": "Podopieczny 1",
+                      "name": "Podopieczny 1",
+                      "techName": "podopieczny_1"
+                    },
+                    {
+                      "id": "Podopieczny 2",
+                      "name": "Podopieczny 2",
+                      "techName": "podopieczny_2"
+                    },
+                    {
+                      "id": "Podopieczny 3",
+                      "name": "Podopieczny 3",
+                      "techName": "podopieczny_3"
+                    },
+                    {
+                      "id": "Podopieczny 4",
+                      "name": "Podopieczny 4",
+                      "techName": "podopieczny_4"
+                    }
+                  ],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 1,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "e26dc6e8-386e-56ba-8f3b-59d71526355a",
+                  "type": "TEXT_FIELD",
+                  "techName": "imie_i_nazwisko_podopiecznego",
+                  "title": "Imię i nazwisko podopiecznego",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 1,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 2,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "f250447a-a1b0-5003-9f06-59273ff6e764",
+                  "type": "TEXTAREA",
+                  "techName": "osiagniecia_podopiecznego",
+                  "title": "Osiągnięcia sportowe podopiecznego",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 2,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 3,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "15cbd0bd-5e65-5dc0-84f3-74d2a6a47f89",
+                  "type": "FILE_UPLOADER",
+                  "techName": "plik_dyplomow_podopiecznego",
+                  "title": "Dyplomy lub inne dokumenty potwierdzające osiągnięcia sportowe podopiecznego",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 3,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "states": [],
+            "questionOrder": 26,
+            "tooltipMessage": ""
+          }
+        },
+        {
+          "x": 0,
+          "y": 31,
+          "rows": 6,
+          "cols": 3,
+          "field": {
+            "id": "d39f35dc-e99d-5ea7-88ee-d6b8e6896152",
+            "type": "SECTION",
+            "techName": "zgody",
+            "title": "Zgody",
+            "description": "<html><head></head><body></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "7d98ad18-f503-50c5-8919-1329878a7a49",
+                  "type": "RADIO",
+                  "techName": "wybierz_zgode",
+                  "title": "Wybierz zgodę",
+                  "description": "",
+                  "options": [
+                    {
+                      "id": "Zgoda kandydata pełnoletniego",
+                      "name": "Zgoda kandydata pełnoletniego",
+                      "techName": "zgoda_kandydata_pelnoletniego"
+                    },
+                    {
+                      "id": "Zgoda w imieniu kandydata nieletniego",
+                      "name": "Zgoda w imieniu kandydata nieletniego",
+                      "techName": "zgoda_w_imieniu_kandydata_nieletniego"
+                    }
+                  ],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 1,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "25f943c1-7fff-5074-acd2-fff60918da9e",
+                  "type": "TEXT_FIELD",
+                  "techName": "imie_i_nazwisko_kandydata",
+                  "title": "Imię i nazwisko kandydata",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 1,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 2,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "ca6cd6b9-da2d-52cc-bd43-b7168187e3cf",
+                  "type": "DATEPICKER",
+                  "techName": "data_zgody",
+                  "title": "Data zgody",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 2,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 3,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "44d92b09-d734-5222-9945-a224280e90bf",
+                  "type": "TEXT_FIELD",
+                  "techName": "imie_i_nazwisko_rodzica",
+                  "title": "Imię i nazwisko rodzica/opiekuna prawnego",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Zgoda w imieniu kandydata nieletniego\" in tabs['Rodzaj wniosku' in title].questions['zgody' in field.techName].field.repeatingSectionGrid['wybierz_zgode' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 3,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 4,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "a0fb587f-fb9c-50d9-9c58-e836d4a48ffd",
+                  "type": "FILE_UPLOADER",
+                  "techName": "plik_potwierdzenia_przelewu",
+                  "title": "Potwierdzenie uiszczenia opłaty skarbowej",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 4,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "states": [],
+            "questionOrder": 31,
+            "tooltipMessage": ""
+          }
+        }
+      ]
+    },
+    {
+      "id": "efd89b7d-fa70-51e4-9de8-10078ef8327a",
+      "title": "Osiągnięcia sportowe",
+      "type": "MAIN",
+      "questions": [
+        {
+          "x": 0,
+          "y": 0,
+          "rows": 7,
+          "cols": 3,
+          "field": {
+            "id": "2b1feb9f-57e1-52a9-9157-1254c08e55f3",
+            "type": "SECTION",
+            "techName": "osiagniecia_sportowe",
+            "title": "Osiągnięcia sportowe",
+            "description": "<html><head></head><body></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "167ba8e4-e918-58ea-aa1a-4fb638934aef",
+                  "type": "TEXTAREA",
+                  "techName": "osiagniecia_sportowe_2",
+                  "title": "Osiągnięcia sportowe",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 1,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "df6566eb-259b-5d41-a59c-986990d97c30",
+                  "type": "FILE_UPLOADER",
+                  "techName": "plik_dyplomow",
+                  "title": "Dyplomy lub inne dokumenty potwierdzające osiągnięcia sportowe",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 1,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 2,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "22f7cf12-ad6b-5fbb-9b12-02e14de045a7",
+                  "type": "TEXTAREA",
+                  "techName": "opinia_klubu",
+                  "title": "Opinia macierzystego klubu sportowego",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 2,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 3,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "99ca75b9-06fb-5921-a65f-8a0b2ebb6458",
+                  "type": "FILE_UPLOADER",
+                  "techName": "plik_opinii_klubu",
+                  "title": "Dokument z opinią klubu",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 3,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 4,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "88badf2e-8df3-56e0-b512-5d4e040b528a",
+                  "type": "FILE_UPLOADER",
+                  "techName": "zaswiadczenia_sportowe",
+                  "title": "Zaświadczenia wydane przez Polski Związek Sportowy",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 4,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 5,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "640bcb8f-a4d8-5686-8701-eeb3fbc9a161",
+                  "type": "TEXTAREA",
+                  "techName": "dodatkowe_informacje",
+                  "title": "Dodatkowe informacje o kandydacie",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 5,
                   "tooltipMessage": ""
                 }
               }
             ],
             "states": [],
             "questionOrder": 0,
-            "tooltipMessage": ""
-          }
-        },
-        {
-          "x": 0,
-          "y": 11,
-          "rows": 8,
-          "cols": 3,
-          "field": {
-            "id": "31dc402e-da20-5498-99ca-63e005ef40f8",
-            "type": "SECTION",
-            "techName": "wniosek_o_przyznanie_nagrody_sportowej_rady_miasta",
-            "title": "Wniosek o przyznanie nagrody sportowej Rady Miasta Zgierza",
-            "description": "<html><head></head><body></body></html>",
-            "options": [],
-            "validation": [],
-            "readOnly": false,
-            "repeatingSectionGrid": [
-              {
-                "x": 0,
-                "y": 0,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "4128f766-4792-5a3c-91b3-89028b0a1919",
-                  "type": "RADIO",
-                  "techName": "wnioskodawca_2",
-                  "title": "Wnioskodawca",
-                  "description": "",
-                  "options": [
-                    {
-                      "id": "Prezydent Miasta Zgierza",
-                      "name": "Prezydent Miasta Zgierza",
-                      "techName": "prezydent_miasta_zgierza"
-                    },
-                    {
-                      "id": "Klub sportowy",
-                      "name": "Klub sportowy",
-                      "techName": "klub_sportowy"
-                    }
-                  ],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 0,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 1,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "d58ba9b7-fc5d-5965-bf43-3b9aeb29109c",
-                  "type": "RADIO",
-                  "techName": "nalezy_wypelnic_w_przypadku_wnioskodawcy_klubu_spo_2",
-                  "title": "Należy wypełnić w przypadku Wnioskodawcy – Klubu sportowego.",
-                  "description": "",
-                  "options": [
-                    {
-                      "id": "Dane reprezentanta klubu sportowego z KRS lub innego właściwego rejestru",
-                      "name": "Dane reprezentanta klubu sportowego z KRS lub innego właściwego rejestru",
-                      "techName": "dane_reprezentanta_klubu_sportowego_z_krs_lub_innego_wlasciwego_rejestru"
-                    }
-                  ],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 1,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 2,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "71d95583-ff75-510e-987d-6f8a09d34555",
-                  "type": "RADIO",
-                  "techName": "wybierz_3",
-                  "title": "Wybierz",
-                  "description": "",
-                  "options": [
-                    {
-                      "id": "Dane pełnomocnika klubu sportowego",
-                      "name": "Dane pełnomocnika klubu sportowego",
-                      "techName": "dane_pelnomocnika_klubu_sportowego"
-                    }
-                  ],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 2,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 3,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "685b3557-eb85-5d12-8f65-58684d8df06a",
-                  "type": "TEXT_FIELD",
-                  "techName": "nazwa_klubu_sportowego_2",
-                  "title": "Nazwa klubu sportowego",
-                  "description": "",
-                  "options": [],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 3,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 4,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "47872cc9-1f41-53ee-a6e9-b8a9342d818e",
-                  "type": "RADIO",
-                  "techName": "korespondencja_z_urzedem_wybierz_preferowany_sposo_2",
-                  "title": "Korespondencja z urzędem ( wybierz preferowany sposób korespondencji z urzędem )",
-                  "description": "",
-                  "options": [
-                    {
-                      "id": "Poczta tradycyjna - na który adres kierować korespondencję",
-                      "name": "Poczta tradycyjna - na który adres kierować korespondencję",
-                      "techName": "poczta_tradycyjna_na_ktory_adres_kierowac_korespondencje"
-                    },
-                    {
-                      "id": "Adres siedziby klubu",
-                      "name": "Adres siedziby klubu",
-                      "techName": "adres_siedziby_klubu"
-                    },
-                    {
-                      "id": "Inny adres korespondencyjny",
-                      "name": "Inny adres korespondencyjny",
-                      "techName": "inny_adres_korespondencyjny"
-                    }
-                  ],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 4,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 5,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "d18fd9af-4c57-55e2-b282-38a1dd9d48cf",
-                  "type": "RADIO",
-                  "techName": "wybierz_4",
-                  "title": "Wybierz",
-                  "description": "",
-                  "options": [
-                    {
-                      "id": "Skrzynka ePUAP - adres skrzynki",
-                      "name": "Skrzynka ePUAP - adres skrzynki",
-                      "techName": "skrzynka_epuap_adres_skrzynki"
-                    },
-                    {
-                      "id": "EDoręczenia - adres skrzynki",
-                      "name": "EDoręczenia - adres skrzynki",
-                      "techName": "edoreczenia_adres_skrzynki"
-                    }
-                  ],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 5,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 6,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "180845c4-adc8-57fb-90f6-937efc6444e7",
-                  "type": "DATEPICKER",
-                  "techName": "data_urodzenia_2",
-                  "title": "Data urodzenia",
-                  "description": "",
-                  "options": [],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 6,
-                  "tooltipMessage": ""
-                }
-              }
-            ],
-            "states": [],
-            "questionOrder": 11,
-            "tooltipMessage": ""
-          }
-        },
-        {
-          "x": 0,
-          "y": 19,
-          "rows": 8,
-          "cols": 3,
-          "field": {
-            "id": "92b5d31f-b066-5e17-b970-411af3bd0610",
-            "type": "SECTION",
-            "techName": "wniosek_o_przyznanie_wyroznienia_sportowego_rady_m",
-            "title": "Wniosek o przyznanie wyróżnienia sportowego Rady Miasta Zgierza",
-            "description": "<html><head></head><body></body></html>",
-            "options": [],
-            "validation": [],
-            "readOnly": false,
-            "repeatingSectionGrid": [
-              {
-                "x": 0,
-                "y": 0,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "ee1b74d1-8762-5309-9aa4-1fcb7c65306f",
-                  "type": "RADIO",
-                  "techName": "wnioskodawca_3",
-                  "title": "Wnioskodawca",
-                  "description": "",
-                  "options": [
-                    {
-                      "id": "Prezydent Miasta Zgierza",
-                      "name": "Prezydent Miasta Zgierza",
-                      "techName": "prezydent_miasta_zgierza"
-                    },
-                    {
-                      "id": "Klub sportowy",
-                      "name": "Klub sportowy",
-                      "techName": "klub_sportowy"
-                    }
-                  ],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 0,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 1,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "fac748a1-5590-5764-b743-e049a18372a3",
-                  "type": "RADIO",
-                  "techName": "nalezy_wypelnic_w_przypadku_wnioskodawcy_klubu_spo_3",
-                  "title": "Należy wypełnić w przypadku Wnioskodawcy – Klubu sportowego.",
-                  "description": "",
-                  "options": [
-                    {
-                      "id": "Dane reprezentanta klubu sportowego z KRS lub innego właściwego rejestru",
-                      "name": "Dane reprezentanta klubu sportowego z KRS lub innego właściwego rejestru",
-                      "techName": "dane_reprezentanta_klubu_sportowego_z_krs_lub_innego_wlasciwego_rejestru"
-                    }
-                  ],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 1,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 2,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "ab95f215-5c47-577a-b8d7-db24ffcb2111",
-                  "type": "RADIO",
-                  "techName": "wybierz_5",
-                  "title": "Wybierz",
-                  "description": "",
-                  "options": [
-                    {
-                      "id": "Dane pełnomocnika klubu sportowego",
-                      "name": "Dane pełnomocnika klubu sportowego",
-                      "techName": "dane_pelnomocnika_klubu_sportowego"
-                    }
-                  ],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 2,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 3,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "db104ca4-dcd5-5e3e-b9ee-046a6ef6c662",
-                  "type": "TEXT_FIELD",
-                  "techName": "nazwa_klubu_sportowego_3",
-                  "title": "Nazwa klubu sportowego",
-                  "description": "",
-                  "options": [],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 3,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 4,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "a8ab7fc3-8f27-5844-8487-c37a2edbb363",
-                  "type": "RADIO",
-                  "techName": "korespondencja_z_urzedem_wybierz_preferowany_sposo_3",
-                  "title": "Korespondencja z urzędem ( wybierz preferowany sposób korespondencji z urzędem )",
-                  "description": "",
-                  "options": [
-                    {
-                      "id": "Poczta tradycyjna - na który adres kierować korespondencję",
-                      "name": "Poczta tradycyjna - na który adres kierować korespondencję",
-                      "techName": "poczta_tradycyjna_na_ktory_adres_kierowac_korespondencje"
-                    },
-                    {
-                      "id": "Adres siedziby klubu",
-                      "name": "Adres siedziby klubu",
-                      "techName": "adres_siedziby_klubu"
-                    },
-                    {
-                      "id": "Inny adres korespondencyjny",
-                      "name": "Inny adres korespondencyjny",
-                      "techName": "inny_adres_korespondencyjny"
-                    }
-                  ],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 4,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 5,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "e5382ff0-d55c-5595-8281-70c3b78207aa",
-                  "type": "RADIO",
-                  "techName": "wybierz_6",
-                  "title": "Wybierz",
-                  "description": "",
-                  "options": [
-                    {
-                      "id": "Skrzynka ePUAP - adres skrzynki",
-                      "name": "Skrzynka ePUAP - adres skrzynki",
-                      "techName": "skrzynka_epuap_adres_skrzynki"
-                    },
-                    {
-                      "id": "EDoręczenia - adres skrzynki",
-                      "name": "EDoręczenia - adres skrzynki",
-                      "techName": "edoreczenia_adres_skrzynki"
-                    }
-                  ],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 5,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 6,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "77bf203c-d216-5a08-8a90-c033a08e5e29",
-                  "type": "DATEPICKER",
-                  "techName": "data_urodzenia_3",
-                  "title": "Data urodzenia",
-                  "description": "",
-                  "options": [],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 6,
-                  "tooltipMessage": ""
-                }
-              }
-            ],
-            "states": [],
-            "questionOrder": 19,
-            "tooltipMessage": ""
-          }
-        },
-        {
-          "x": 0,
-          "y": 27,
-          "rows": 2,
-          "cols": 3,
-          "field": {
-            "id": "43d91e15-5ed4-587a-83f1-0f28a12dab36",
-            "type": "SECTION",
-            "techName": "oswiadczenia",
-            "title": "Oświadczenia",
-            "description": "<html><head></head><body></body></html>",
-            "options": [],
-            "validation": [],
-            "readOnly": false,
-            "repeatingSectionGrid": [
-              {
-                "x": 0,
-                "y": 0,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "d0fc7a9b-8d7f-595e-9b18-7a9f9690287a",
-                  "type": "CONSENT_SECTION",
-                  "techName": "pole",
-                  "title": "",
-                  "description": "",
-                  "options": [],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 0,
-                  "tooltipMessage": "",
-                  "consentSectionConfig": {
-                    "consents": [
-                      {
-                        "description": "<html><head></head><body><p>Wyrażam zgodę na przetwarzanie moich danych osobowych zwartych we wniosku w celu</p></body></html>",
-                        "required": true
-                      },
-                      {
-                        "description": "<html><head></head><body><p>Oświadczam, że zapoznałem się z regulaminem przyznawania stypendiów sportowych</p></body></html>",
-                        "required": true
-                      },
-                      {
-                        "description": "<html><head></head><body><p>Wyrażam zgodę na przetwarzanie danych osobowych mojego dziecka/podopiecznego</p></body></html>",
-                        "required": true
-                      },
-                      {
-                        "description": "<html><head></head><body><p>Oświadczam, że zapoznałem się z regulaminem przyznawania stypendiów sportowych</p></body></html>",
-                        "required": true
-                      },
-                      {
-                        "description": "<html><head></head><body><p>Wyrażam zgodę na przetwarzanie moich danych osobowych zwartych we wniosku w celu</p></body></html>",
-                        "required": true
-                      },
-                      {
-                        "description": "<html><head></head><body><p>Oświadczam, że zapoznałem się z regulaminem przyznawania nagród sportowych Rady</p></body></html>",
-                        "required": true
-                      },
-                      {
-                        "description": "<html><head></head><body><p>Wyrażam zgodę na przetwarzanie danych osobowych mojego dziecka/podopiecznego</p></body></html>",
-                        "required": true
-                      },
-                      {
-                        "description": "<html><head></head><body><p>Oświadczam, że zapoznałem się z regulaminem przyznawania nagród sportowych Rady</p></body></html>",
-                        "required": true
-                      },
-                      {
-                        "description": "<html><head></head><body><p>Wyrażam zgodę na przetwarzanie moich danych osobowych zwartych we wniosku w celu</p></body></html>",
-                        "required": true
-                      },
-                      {
-                        "description": "<html><head></head><body><p>Oświadczam, że zapoznałem się z regulaminem przyznawania wyróżnień sportowych Rady</p></body></html>",
-                        "required": true
-                      },
-                      {
-                        "description": "<html><head></head><body><p>Wyrażam zgodę na przetwarzanie moich danych osobowych zwartych we wniosku w celu</p></body></html>",
-                        "required": true
-                      },
-                      {
-                        "description": "<html><head></head><body><p>Oświadczam, że zapoznałem się z regulaminem przyznawania wyróżnień sportowych Rady</p></body></html>",
-                        "required": true
-                      },
-                      {
-                        "description": "<html><head></head><body><p>Wyrażam zgodę na przetwarzanie danych osobowych mojego dziecka/podopiecznego</p></body></html>",
-                        "required": true
-                      },
-                      {
-                        "description": "<html><head></head><body><p>Oświadczam, że zapoznałem się z regulaminem przyznawania wyróżnień sportowych Rady</p></body></html>",
-                        "required": true
-                      }
-                    ],
-                    "files": []
-                  }
-                }
-              }
-            ],
-            "states": [],
-            "questionOrder": 27,
             "tooltipMessage": ""
           }
         }
@@ -2422,13 +2751,18 @@
   "flow": {
     "links": [
       {
-        "id": "f74e517a-1d3e-52be-82d2-a66fb1baaf81",
+        "id": "81e678ab-51f6-517d-beb7-42289bde20f1",
         "source": "842469a4-97f9-5241-b252-036214778853",
-        "target": "0f14a1dc-8d1e-5318-9643-0c2d7c38f4e8"
+        "target": "fcc74778-8893-5bfd-a4d7-5f6438ebaac0"
       },
       {
-        "id": "435a5e39-73aa-5700-8fae-1ad4b0f28a64",
-        "source": "0f14a1dc-8d1e-5318-9643-0c2d7c38f4e8",
+        "id": "d42cd94c-c4a1-50c2-aeb9-05a13e98a053",
+        "source": "fcc74778-8893-5bfd-a4d7-5f6438ebaac0",
+        "target": "efd89b7d-fa70-51e4-9de8-10078ef8327a"
+      },
+      {
+        "id": "15f1dd0b-6538-5f15-9c2b-7574ec133d3f",
+        "source": "efd89b7d-fa70-51e4-9de8-10078ef8327a",
         "target": "a57fdd40-5691-51c1-82af-d0a1920999a1"
       },
       {
