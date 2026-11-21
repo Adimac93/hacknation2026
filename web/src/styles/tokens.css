@@ -1,40 +1,40 @@
-/* Design tokens read from the COI form visualisations (Docs/, "wizualizacja formularza"). */
+/* Tokens from DESIGN.md (source: Księga znaku Biurokratka v2). Use only through var(--…). */
 :root {
-  --color-bg: #f0f5fa;
-  --color-surface: #ffffff;
-  --color-readonly: #f6f8f9;
-  --color-text: #101317;
-  --color-border: #101317;
-  --color-primary: #0452a8;
-  --color-primary-hover: #033e80;
-  --color-on-primary: #ffffff;
-  /* The visualisations use #808893 for helper text, but it reaches only 3.6:1 on white.
-     Text uses the darker shade (6.1:1); #808893 stays for decorative lines. */
-  --color-muted-decor: #808893;
-  --color-muted: #5b636d;
-  --color-divider: #dde3ea;
-  --color-error: #b3261e;
-  --color-error-bg: #fdf1f0;
-  --color-info-bg: #eaf2fb;
+  --color-bg: #f3f2f2;
+  --color-surface: #eae9e9;
+  --color-white: #ffffff;
+  --color-text: #201e1d;
+  --color-accent: #ec3013;
 
-  --font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-size-sm: 0.875rem;
-  --font-size-md: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.5rem;
-  --line-height: 1.5;
+  --color-accent-text: #ae1800;
+  --color-text-muted: #605d5d;
+  --color-divider: color-mix(in srgb, #201e1d 40%, transparent);
+  --color-border-input: #605d5d;
+  --color-success: #2e6b3e;
+  --color-warning: #8a5a00;
+  --color-info: #2459a0;
+  --color-accent-hover: #dd2b0f;
+  --color-accent-tint: #ffe0d9;
+  --color-accent-400: #ff9783;
+  --color-track: #d7d3d3;
+
+  --font-body: "Archivo", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
   --space-4: 16px;
-  --space-5: 24px;
-  --space-6: 32px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
 
-  --radius-card: 8px;
-  --radius-control: 4px;
+  --rule: 2px;
+  --radius: 0;
+  --shadow-md: 0 3px 10px color-mix(in srgb, #2d2b2b 16%, transparent);
+
   --control-height: 44px;
-  --content-width: 760px;
-
-  --focus-ring: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-primary);
+  --content-width: 720px;
+  --page-width: 1280px;
 }

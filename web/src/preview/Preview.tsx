@@ -1,4 +1,5 @@
 import { type DragEvent, useState } from "react";
+import { AppHeader } from "../brand/AppHeader";
 import { ConfigError, parseConfig } from "../form/parse";
 import type { FormConfig } from "../form/types";
 import buttons from "../renderer/buttons.module.css";
@@ -79,10 +80,7 @@ export function Preview() {
       }}
       onDrop={onDrop}
     >
-      <header className={styles.toolbar}>
-        <a href="/" className={styles.back}>
-          Stanowisko urzędnika
-        </a>
+      <AppHeader>
         <div className={styles.loaders}>
           <input
             id="config-file"
@@ -108,7 +106,7 @@ export function Preview() {
             </button>
           ))}
         </div>
-      </header>
+      </AppHeader>
 
       <main className={styles.main}>
         {error ? (

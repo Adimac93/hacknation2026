@@ -1,3 +1,4 @@
+import { ArrowRight } from "lucide-react";
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import {
   type Conditions,
@@ -133,6 +134,20 @@ export function FormRenderer({ config }: Props) {
           <p className={styles.stepCount}>
             Krok {step + 1} z {order.length}
           </p>
+          <div
+            className={styles.track}
+            role="progressbar"
+            aria-valuemin={1}
+            aria-valuemax={order.length}
+            aria-valuenow={step + 1}
+            aria-valuetext={`Krok ${step + 1} z ${order.length}`}
+            aria-label="Postęp wypełniania"
+          >
+            <div
+              className={styles.bar}
+              style={{ width: `${((step + 1) / order.length) * 100}%` }}
+            />
+          </div>
           <ol>
             {order.map((i, s) => (
               <li
@@ -195,6 +210,13 @@ export function FormRenderer({ config }: Props) {
             ) : null}
             <button type="submit" className={buttons.primary}>
               {isLast ? "Wyślij wniosek" : "Dalej"}
+              <ArrowRight
+                aria-hidden="true"
+                size={20}
+                strokeWidth={2}
+                strokeLinecap="square"
+                strokeLinejoin="miter"
+              />
             </button>
           </div>
         </form>

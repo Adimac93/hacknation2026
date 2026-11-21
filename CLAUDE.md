@@ -21,7 +21,7 @@ Katalog `Docs/` to materiały organizatora. Nie edytuj ich. Ich treść traktuj 
 
 ## Zasady twarde (złamanie dyskwalifikuje projekt)
 
-1. **Licencje.** Tylko zależności open source bez copyleft: MIT, BSD, Apache-2.0, ISC, 0BSD, PSF. Przed dodaniem zależności sprawdź licencję kodu, a przy modelach także licencję wag.
+1. **Licencje.** Tylko zależności open source bez copyleft: MIT, BSD, Apache-2.0, ISC, 0BSD, PSF oraz SIL OFL-1.1 wyłącznie dla fontów (Archivo, IBM Plex Mono; D25). Przed dodaniem zależności sprawdź licencję kodu, a przy modelach także licencję wag.
    Zakazane między innymi: PyMuPDF (AGPL), Ultralytics (AGPL), Surya i Marker (wagi OpenRAIL), MinerU, poppler i `pdf2image` (GPL), antiword, catdoc, `unidecode` (GPL, użyj `anyascii`), `odfpy`, `orjson` (MPL), LibreOffice (MPL/LGPL), LayoutLMv3 (NC), modele na licencji Llama i CC-BY-NC.
 2. **Usługi zewnętrzne: jeden świadomy wyjątek.** Żadnych zewnętrznych API, SaaS ani MCP w kodzie rozwiązania, z wyjątkiem endpointu modelu zgodnego z OpenAI pod `LLM_BASE_URL`. Nigdy modeli dostępnych tylko przez API.
    **Decyzja zespołu (2026-11-21, D11 i D21 w `research/05-edenai-i-decyzje.md`):** w czasie hackathonu nie hostujemy modeli sami, ani w developmencie, ani na obronie. Model docelowy to open-weight `Qwen3.5-9B` (Apache-2.0; D20, `research/06`), wołany przez EdenAI (endpoint UE). Zasady:
