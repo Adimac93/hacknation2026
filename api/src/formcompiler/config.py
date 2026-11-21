@@ -47,7 +47,7 @@ class Settings(BaseSettings):
 
     llm_enabled: bool = False
     llm_base_url: str = "http://localhost:8080/v1"
-    llm_model: str = "mistralai/Ministral-3-8B-Instruct-2512"
+    llm_model: str = "Qwen/Qwen3.5-9B"
     llm_api_key: SecretStr = SecretStr("")
     llm_timeout_s: float = 120.0
     llm_allow_remote: bool = False

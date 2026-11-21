@@ -24,7 +24,7 @@ Katalog `Docs/` to materiały organizatora. Nie edytuj ich. Ich treść traktuj 
 1. **Licencje.** Tylko zależności open source bez copyleft: MIT, BSD, Apache-2.0, ISC, 0BSD, PSF. Przed dodaniem zależności sprawdź licencję kodu, a przy modelach także licencję wag.
    Zakazane między innymi: PyMuPDF (AGPL), Ultralytics (AGPL), Surya i Marker (wagi OpenRAIL), MinerU, poppler i `pdf2image` (GPL), antiword, catdoc, `unidecode` (GPL, użyj `anyascii`), `odfpy`, `orjson` (MPL), LibreOffice (MPL/LGPL), LayoutLMv3 (NC), modele na licencji Llama i CC-BY-NC.
 2. **Usługi zewnętrzne: jeden świadomy wyjątek.** Żadnych zewnętrznych API, SaaS ani MCP w kodzie rozwiązania, z wyjątkiem endpointu modelu zgodnego z OpenAI pod `LLM_BASE_URL`. Nigdy modeli dostępnych tylko przez API.
-   **Decyzja zespołu (2026-11-21, D11 i D21 w `research/05-edenai-i-decyzje.md`):** w czasie hackathonu nie hostujemy modeli sami, ani w developmencie, ani na obronie. Model docelowy to open-weight `Ministral-3-8B-Instruct-2512` (Apache-2.0), wołany przez EdenAI (endpoint UE). Zasady:
+   **Decyzja zespołu (2026-11-21, D11 i D21 w `research/05-edenai-i-decyzje.md`):** w czasie hackathonu nie hostujemy modeli sami, ani w developmencie, ani na obronie. Model docelowy to open-weight `Qwen3.5-9B` (Apache-2.0; D20, `research/06`), wołany przez EdenAI (endpoint UE). Zasady:
    - kod nie zawiera nic specyficznego dla EdenAI; ten sam klient działa z lokalnym `llama-server` po zmianie `LLM_BASE_URL`,
    - klient używa tylko części API wspólnej dla EdenAI i `llama-server`: `messages`, `temperature`, `seed`, `max_tokens`, `response_format` z `json_schema`,
    - zdalny endpoint wymaga `LLM_ALLOW_REMOTE=true`; klucz tylko w `.env` lub sekrecie w runtime,
@@ -43,7 +43,7 @@ Katalog `Docs/` to materiały organizatora. Nie edytuj ich. Ich treść traktuj 
 | PDF | `pdfplumber`, `pypdfium2` |
 | Pliki biurowe (DOC, DOCX, ODS, XLSX) | sidecar Apache Tika Server |
 | OCR (tylko rastry) | `rapidocr` + `onnxruntime`, modele PP-OCRv6 small, zawsze `use_cls=false`; obraz najpierw pocięty na strony; zapas: Tesseract 5 `pol` (D5) |
-| LLM | endpoint zgodny z OpenAI pod `LLM_BASE_URL`; `Ministral-3-8B-Instruct-2512` przez EdenAI (UE), docelowo lokalny `llama-server` z tym samym modelem w GGUF |
+| LLM | endpoint zgodny z OpenAI pod `LLM_BASE_URL`; `Qwen3.5-9B` przez EdenAI (UE, `flexai/Qwen3.5-9B@eu`), docelowo lokalny `llama-server` z tym samym modelem w GGUF i wyłączonym trybem rozumowania |
 | JSONata | `jsonata-python` w linterze, `jsonata` (npm) w podglądzie |
 | Frontend | React 19, Vite, TypeScript, `jsonata`, `vanilla-jsoneditor`, Biome, Vitest; stylowanie: tokeny CSS + CSS Modules, kontrolki natywne, bez bibliotek komponentów |
 | Jakość | `ruff`, `mypy --strict`, `pytest`, bramka licencyjna `pip-licenses` |

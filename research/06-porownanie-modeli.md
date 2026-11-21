@@ -74,3 +74,7 @@ Przed zamknięciem D20 warto puścić oba modele na formularzach 3, 4 i 6 i ocen
 ```
 
 Surowe odpowiedzi i `results.jsonl` są w katalogu tymczasowym autora, poza repo. Odtworzenie z `api/`: `uv run python ../devtools/compare_models.py --out <katalog>`.
+
+## Decyzja (18:50)
+
+Model docelowy: **Qwen3.5-9B** (D20, D3). Na hackathonie `flexai/Qwen3.5-9B@eu` przez EdenAI. Poprawki promptu kroku A z listy wyżej wchodzą niezależnie od modelu.
