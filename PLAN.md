@@ -67,7 +67,7 @@ Gotowe na `main` (98 testów Vitest, `biome` i `npm run build` bez błędów, 14
 Do zrobienia, w kolejności:
 
 1. Stanowisko urzędnika na `/` (teraz zaślepka): upload do `POST /api/v1/forms?details=true`, drzewo JSON (`vanilla-jsoneditor`), raport lintera, pobranie pliku, panel tekstu dokumentu z podświetleniem linii źródłowych pola (D16). Kontrakt odpowiedzi `report` ustalimy z torem A, gdy powstanie `main.py`.
-2. Uzgodnić `DESIGN.md` (Biurokratka) z D22: propozycja: stanowisko w stylu Biurokratki, podgląd e-formularza w wyglądzie e-usługi COI. Fonty Archivo i IBM Plex Mono są na OFL, której nie ma na liście licencji w `CLAUDE.md`: decyzja zespołu.
+2. Uzgodnić `DESIGN.md` (Biurokratka) z D22: propozycja: stanowisko w stylu Biurokratki, podgląd e-formularza w wyglądzie e-usługi COI. Fonty Archivo i IBM Plex Mono są na SIL OFL-1.1; dopuszczone w D25 i `CLAUDE.md` (tylko fonty, teksty licencji w `web/licenses/`). Zostaje decyzja o wyglądzie podglądu e-formularza.
 3. Kontener `web` (nginx-unprivileged, proxy `/api`) do `compose.yaml` i demo D24.
 4. Pominięte świadomie: wysyłka formularza, pełne słowniki (są przykładowe zestawy), potwierdzenie przy „Przerwij wypełnianie”.
 

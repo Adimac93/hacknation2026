@@ -321,7 +321,7 @@ React 19 + Vite + TypeScript. Dwie warstwy na wspólnych tokenach stylu (D22, D2
 1. **Renderer e-formularza** (`FormRenderer({ config })`), niezależny od API. Wygląd e-usługi z wizualizacji COI. Siatka CSS `grid-area: {y+1} / {x+1} / span {rows} / span {cols}`, warunki `SHOW` i `READ_ONLY` liczone na żywo biblioteką `jsonata`, walidatory (PESEL, NIP, REGON, kod pocztowy, e-mail) jako czyste funkcje. Pola z rejestru pokazują przykładowe dane, słowniki mają małe przykładowe zestawy. Dostępny jako panel stanowiska i jako osobna trasa `/podglad`, która wczytuje dowolny plik JSON (rozszerzenie V; w demo także referencyjne JSON-y organizatora).
 2. **Stanowisko urzędnika**: kolejka plików i trzy panele: tekst dokumentu z podświetleniem linii źródłowych wybranego pola, podgląd e-formularza, JSON (`vanilla-jsoneditor`) z raportem lintera i przyciskiem pobrania.
 
-Stylowanie: zmienne CSS w `styles/tokens.css` plus CSS Modules dla komponentów, bez biblioteki komponentów i bez Tailwinda. Tokeny odczytane z wizualizacji: tło `#f0f5fa`, karta sekcji `#ffffff`, pole tylko do odczytu `#f6f8f9`, tekst i ramka pola `#101317`, tekst pomocniczy `#808893`, kolor główny `#0452a8`. Font systemowy (`system-ui`), bo fonty OFL nie są na liście dozwolonych licencji. Kontrolki natywne; `react-aria-components` (Apache-2.0) tylko gdyby własny combobox dla długich słowników zawiódł. Bez godła i logotypów.
+Stylowanie: zmienne CSS w `styles/tokens.css` plus CSS Modules dla komponentów, bez biblioteki komponentów i bez Tailwinda. Tokeny odczytane z wizualizacji: tło `#f0f5fa`, karta sekcji `#ffffff`, pole tylko do odczytu `#f6f8f9`, tekst i ramka pola `#101317`, tekst pomocniczy `#808893`, kolor główny `#0452a8`. Fonty Archivo i IBM Plex Mono na SIL OFL-1.1, hostowane lokalnie (D25); `system-ui` tylko jako zapas. Kontrolki natywne; `react-aria-components` (Apache-2.0) tylko gdyby własny combobox dla długich słowników zawiódł. Bez godła i logotypów.
 
 ```text
 web/src/
@@ -366,6 +366,7 @@ Wyniki trafiają na slajd i do README.
 | D22 | Stylowanie: tokeny CSS + CSS Modules, kontrolki natywne | pełna kontrola nad wyglądem e-usługi, zero zależności w runtime, dostępność z natywnego HTML |
 | D23 | Renderer jako osobna trasa `/podglad` i panel stanowiska | rozszerzenie V wprost; render referencyjnych JSON-ów dowodzi poprawności |
 | D24 | Publiczne demo `formularze.heckyeah.pl`: `docker compose` w nowym LXC `wobbegong-demo` na PVE, wystawione przez Cloudflare Tunnel; dostęp publiczny z limitem zapytań na IP w nginx, limitem wydatków EdenAI i `MAX_UPLOAD_MB`; `REQUEST_TIMEOUT_S=90` | jeden host dla `web`, `api` i `tika` (Vercel nie uruchomi Tiki ani Tesseracta); bez otwierania portów; Cloudflare zrywa żądania po 100 s, więc wynik z trybu reguł musi przyjść wcześniej; obrona i tak na laptopie (D13) |
+| D25 | Fonty Archivo i IBM Plex Mono (SIL OFL-1.1) dozwolone, wyłącznie fonty | OFL nie jest copyleftem w rozumieniu zadania (AGPL, GPL): nie wymaga upublicznienia kodu aplikacji, pozwala osadzać i dystrybuować fonty w oprogramowaniu na dowolnej licencji. Warunki dotyczą samych fontów: zachować tekst licencji i noty (`web/licenses/`), nie sprzedawać fontów osobno, zmodyfikowane wersje pod inną nazwą. Fonty hostowane lokalnie z paczek `@fontsource` |
 
 ## 14. Otwarte pytania do mentorów COI
 
