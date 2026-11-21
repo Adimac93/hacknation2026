@@ -54,6 +54,8 @@ export interface SampleDictionary {
   /** Field label to show when the field title is just the dictionary name. */
   label: string;
   entries: string[];
+  /** No usable list in the preview (COI data not available): the field is typed by hand. */
+  manual?: boolean;
 }
 
 const VOIVODESHIPS = [
@@ -105,18 +107,10 @@ const DICTIONARIES: Record<string, SampleDictionary> = {
   teryt_dowodowy: VOIVODESHIP_DICTIONARY,
   teryt_4g_dowodowy: VOIVODESHIP_DICTIONARY,
   województwo: VOIVODESHIP_DICTIONARY,
-  powiat: {
-    label: "Powiat",
-    entries: ["elbląski", "Elbląg", "braniewski", "malborski", "nowodworski", "ostródzki"],
-  },
-  gmina: {
-    label: "Gmina",
-    entries: ["Elbląg", "Gronowo Elbląskie", "Milejewo", "Młynary", "Pasłęk", "Tolkmicko"],
-  },
-  miejscowość: {
-    label: "Miejscowość",
-    entries: ["Elbląg", "Pasłęk", "Tolkmicko", "Młynary", "Milejewo"],
-  },
+  // The preview has no TERYT data, so these are typed by hand instead of offering a fake list.
+  powiat: { label: "Powiat", entries: [], manual: true },
+  gmina: { label: "Gmina", entries: [], manual: true },
+  miejscowość: { label: "Miejscowość", entries: [], manual: true },
   "numery kierunkowe": {
     label: "Numer kierunkowy",
     entries: [

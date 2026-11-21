@@ -214,3 +214,22 @@ describe("field behaviour", () => {
     expect(screen.getByRole("status").textContent).toMatch(/Przerwano/);
   });
 });
+
+describe("dictionaries without data", () => {
+  it("Gmina is a plain text field, not a list with made-up entries", async () => {
+    const user = userEvent.setup();
+    const gmina: FormField = {
+      id: "g",
+      type: "SELECT",
+      techName: "gmina",
+      title: "Gmina",
+      dictionaryName: "Gmina",
+    };
+    render(<FormRenderer config={formWith([gmina])} />);
+    const input = screen.getByLabelText("Gmina") as HTMLInputElement;
+    expect(input.tagName).toBe("INPUT");
+    expect(screen.queryByRole("combobox")).toBeNull();
+    await user.type(input, "Pasłęk");
+    expect(input.value).toBe("Pasłęk");
+  });
+});

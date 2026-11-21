@@ -1,4 +1,5 @@
 import { optionsOf } from "../../form/model";
+import { sampleDictionary } from "../../form/sampleData";
 import { Combobox } from "./Combobox";
 import styles from "./Field.module.css";
 import { FieldFrame } from "./frame";
@@ -12,7 +13,9 @@ export function SelectField(props: FieldProps) {
   const options = optionsOf(field);
   const selected = value as string;
 
-  if (readOnly) {
+  const manual = options.length === 0 && sampleDictionary(field.dictionaryName)?.manual === true;
+
+  if (readOnly || manual) {
     const name = options.find((o) => o.id === selected)?.name ?? selected;
     return (
       <FieldFrame {...props}>
@@ -20,9 +23,12 @@ export function SelectField(props: FieldProps) {
           <input
             id={id}
             className={styles.control}
-            value={name}
-            readOnly
+            value={manual && !readOnly ? selected : name}
+            readOnly={readOnly}
+            onChange={(e) => onChange(e.target.value)}
+            autoComplete="off"
             aria-describedby={describedBy}
+            aria-invalid={error ? true : undefined}
           />
         )}
       </FieldFrame>
