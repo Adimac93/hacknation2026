@@ -2,6 +2,7 @@
 # requires-python = ">=3.14"
 # dependencies = ["httpx>=0.28", "pypdfium2>=4.30"]
 # ///
+# ruff: noqa: E501  (long URLs and Polish query phrases)
 """Collect official form templates ("wzory") from the Sejm ELI API.
 
 Searches in-force acts whose title names a form template, downloads each
