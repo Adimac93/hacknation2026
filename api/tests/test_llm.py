@@ -550,6 +550,96 @@ def test_clean_drops_fields_the_predefined_sections_cover() -> None:
     assert [f.label for f in cleaned.fields] == ["Ulica", "Miejscowość", "Telefon wykonawcy"]
 
 
+# Shaped like the model answer for form 8 (waste fee declaration): the applicant's identity,
+# residence and contact repeat the predefined sections; spouse, correspondence and property stay.
+FORM8_PAGE = "Okoliczności składania"
+FORM8_DROPPED = [
+    ("Dane identyfikacyjne", "nazwa_skladajacego", "Nazwisko, imię / Nazwa pełna"),
+    ("Dane identyfikacyjne", "nip_regon", "NIP/REGON"),
+    ("Dane składającego", "pesel_skladajacego", "PESEL składającego"),
+    ("Dane składającego", "dane_podmiotu_2", "Dane podmiotu (osoba fizyczna lub prawna)"),
+    ("Adres zamieszkania/siedziby", "kraj_zamieszkania", "Kraj zamieszkania"),
+    ("Adres zamieszkania/siedziby", "wojewodztwo", "Województwo"),
+    ("Adres zamieszkania/siedziby", "gmina_zamieszkania", "Gmina zamieszkania"),
+    ("Adres zamieszkania/siedziby", "numer_domu", "Numer nieruchomości/domu"),
+    ("Adres zamieszkania/siedziby", "kod", "Kod pocztowy zamieszkania"),
+    ("Okoliczności", "adres_wn", "Adres zamieszkania/siedziby"),
+    ("Dane kontaktowe", "tel_fax", "Nr tel./fax"),
+    ("Dane kontaktowe", "email", "Adres poczty elektronicznej"),
+    ("Inne", "telefon", "Telefon kontaktowy"),
+    ("Zgody", "zgoda_rodo", "Zgoda na przetwarzanie danych osobowych"),
+]
+FORM8_KEPT = [
+    ("Dane składającego", "rodzaj_posiadania", "Rodzaj posiadania nieruchomości"),
+    ("Dane współmałżonka", "imie", "Imię"),
+    ("Dane współmałżonka", "nazwisko_wspolmalzonka", "Nazwisko, imię współmałżonka"),
+    ("Dane współmałżonka", "numer_pesel", "PESEL współmałżonka"),
+    ("Współwłaściciele", "wspolwlasciciel", "Imię i nazwisko współwłaściciela"),
+    ("Adres korespondencji", "kraj_korespondencji", "Kraj"),
+    ("Adres korespondencji", "gmina_korespondencji", "Gmina"),
+    ("Adres korespondencji", "ulica_korespondencji", "Ulica"),
+    ("Dane wnioskodawcy", "adres_korespondencyjny", "Adres do korespondencji"),
+    ("Adres nieruchomości", "miejscowosc_nieruchomosci", "Miejscowość"),
+    ("Adres nieruchomości", "numer_nieruchomosci", "Numer nieruchomości/domu"),
+    ("Dane składającego", "adres_nieruchomosci", "Adres nieruchomości"),
+    ("Dane kontaktowe", "plik_upowaznienie", "Dokumenty upoważniające do złożenia deklaracji"),
+    ("Informacje o psie", "nazwisko_poprzedniego", "Nazwisko poprzedniego właściciela"),
+    ("Dane sportowca", "imie_sportowca", "Imię sportowca"),
+    ("Wykonawca", "telefon_wykonawcy", "Telefon wykonawcy"),
+    ("Droga", "nazwa_drogi", "Nazwa drogi oraz jej numer"),
+]
+
+
+@pytest.mark.parametrize(("section", "key", "label"), FORM8_DROPPED)
+def test_clean_drops_applicant_data_the_library_covers(section: str, key: str, label: str) -> None:
+    inv = InventoryIR(title="Deklaracja", fields=[field(FORM8_PAGE, section, key, label)])
+
+    assert clean_inventory(inv).fields == []
+
+
+@pytest.mark.parametrize(("section", "key", "label"), FORM8_KEPT)
+def test_clean_keeps_data_about_other_people_and_objects(
+    section: str, key: str, label: str
+) -> None:
+    inv = InventoryIR(title="Deklaracja", fields=[field(FORM8_PAGE, section, key, label)])
+
+    assert [f.label for f in clean_inventory(inv).fields] == [label]
+
+
+def test_clean_form8_answer_keeps_only_subject_sections() -> None:
+    fields = [field(FORM8_PAGE, *row) for row in FORM8_DROPPED + FORM8_KEPT]
+    inv = InventoryIR(title="Deklaracja", fields=fields)
+
+    sections = {f.section for f in clean_inventory(inv).fields}
+
+    assert not sections & {"Dane identyfikacyjne", "Adres zamieszkania/siedziby", "Zgody"}
+    assert {"Dane współmałżonka", "Adres korespondencji", "Adres nieruchomości"} <= sections
+
+
+def test_clean_drops_conditions_on_a_dropped_applicant_choice() -> None:
+    kind = field(
+        "S",
+        "Dane składającego",
+        "nip_regon",
+        "NIP/REGON",
+        type="RADIO",
+        options=["NIP", "REGON"],
+        src=["L5", "L9"],
+    )
+    on_kind = ShowIfOption(field_key="nip_regon", value="NIP")
+    inv = InventoryIR(
+        title="Deklaracja",
+        fields=[
+            kind,
+            field("S", "Okoliczności", "data", "Data zmiany", src=["L6"], show_if_option=on_kind),
+        ],
+    )
+
+    [kept] = clean_inventory(inv).fields
+
+    assert (kept.key, kept.show_if_option) == ("data", None)
+
+
 def test_clean_moves_fields_off_pages_titled_like_the_library() -> None:
     inv = InventoryIR(
         title="Wniosek",
