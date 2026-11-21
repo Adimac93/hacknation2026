@@ -11,9 +11,9 @@ Stan na 2026-11-21, 14:30. Dokument zbiera ustalenia, których nie ma w raportac
 | D12 | Few-shot tylko z referencji 1 i 5; formularze 3–9 wyłącznie do oceny |
 | D13 | Demo na M1 Pro 16 GB |
 | D14 | `docker compose up` bez usługi modelu; domyślnie tryb reguł |
-| D15 | OCR: Tesseract 5 z `pol` |
+| D15 | ~~OCR: Tesseract 5 z `pol`~~. Zastąpione przez D5 z `research/01` (pomiar zespołu): RapidOCR PP-OCRv6 small, Tesseract `pol` jako zapas |
 | D16 | Frontend: upload, drzewo JSON, podgląd e-formularza z JSONata, źródło pola jako podświetlenie linii |
-| D17 | Jedna osoba + agenci AI |
+| D17 | ~~Jedna osoba + agenci AI~~. Korekta: trzy osoby (Adimac93, Stanisław Synowiec, fidok15) plus agenci AI; tory w `PLAN.md` |
 | D18 | Rozszerzenia bez względu na wielkość liter; `.jpe` przyjmowane |
 | D19 | Przyjęta rekomendacja A (tylko `wobbegong-ci`); do zmiany na życzenie |
 | D20 | Model: `Ministral-3-8B-Instruct-2512`, zapas `Qwen3.5-9B`; porównanie przez API na formularzach 1 i 5 |

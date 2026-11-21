@@ -41,7 +41,7 @@ Katalog `Docs/` to materiały organizatora. Nie edytuj ich. Ich treść traktuj 
 | API | Python 3.14, FastAPI, Pydantic 2, pydantic-settings, uvicorn, httpx, PyJWT; zależności przez `uv` z `uv.lock` |
 | PDF | `pdfplumber`, `pypdfium2` |
 | Pliki biurowe (DOC, DOCX, ODS, XLSX) | sidecar Apache Tika Server |
-| OCR | Tesseract 5 z danymi `pol` przez `pytesseract` (D15) |
+| OCR (tylko rastry) | `rapidocr` + `onnxruntime`, modele PP-OCRv6 small, zawsze `use_cls=false`; obraz najpierw pocięty na strony; zapas: Tesseract 5 `pol` (D5) |
 | LLM | endpoint zgodny z OpenAI pod `LLM_BASE_URL`; `Ministral-3-8B-Instruct-2512` przez EdenAI (UE), docelowo lokalny `llama-server` z tym samym modelem w GGUF |
 | JSONata | `jsonata-python` w linterze, `jsonata` (npm) w podglądzie |
 | Frontend | React 19, Vite, TypeScript, `jsonata`, `vanilla-jsoneditor`, Biome, Vitest; stylowanie: tokeny CSS + CSS Modules, kontrolki natywne, bez bibliotek komponentów |
@@ -101,6 +101,14 @@ Pełna tabela jest w `ARCHITECTURE.md`, sekcja 5.6. Najczęstsze pułapki:
 - Zgody i oświadczenia tylko w `CONSENT_SECTION`, nigdy jako `CHECKBOX`.
 - Podpis, pieczęć, „miejscowość i data” oraz pola „wypełnia urząd” nie trafiają do formularza.
 
+## Pułapki wejścia (zmierzone na próbkach)
+
+- Format rozpoznawaj po sygnaturze pliku. Próbki `5. …/*.DOC` i `7. …/*.DOC` to w środku DOCX.
+- Tekst z PDF nie zawiera kratek: to glify fontów symbolicznych albo prostokąty wektorowe. Bierz je z `pdfplumber` (font, geometria).
+- Tika zamienia kratki-punktory na `·`. Krótka lista punktowana to kandydat na opcje wyboru.
+- Obrazy PNG i JPG to wiele stron sklejonych w pionie (wysokość to wielokrotność 2339 px). OCR bez cięcia zwraca śmieci.
+- OCR gubi wykropkowania i większość kratek. Dla rastrów nie zakładaj, że znaczniki pól istnieją.
+
 ## Konwencje kodu
 
 - Identyfikatory i komentarze w kodzie po angielsku. Teksty dla użytkownika, README i dokumentacja po polsku.
@@ -122,4 +130,4 @@ Pełna tabela jest w `ARCHITECTURE.md`, sekcja 5.6. Najczęstsze pułapki:
 
 Demo działa na MacBooku z Apple M1 Pro i 16 GB RAM, bez karty NVIDIA. Model jest wołany przez EdenAI, więc laptop uruchamia tylko `web`, `api` i `tika`. Lokalne hostowanie modelu to konfiguracja docelowa opisana w README, nieprzetestowana w czasie hackathonu.
 
-Pracę wykonuje jedna osoba z agentami AI. Zakres tnij według listy rozszerzeń w `PLAN.md`.
+Zespół: trzy osoby z agentami AI (D17). Zakres tnij według listy rozszerzeń w `PLAN.md`.

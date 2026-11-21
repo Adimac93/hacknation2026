@@ -45,7 +45,7 @@ Cztery tory niezależne po ustaleniu dwóch kontraktów: modelu `Document` (wyj�
 
 Przy trzech osobach tor D dzielą między siebie A (API, compose) i C (frontend po północy). Przy dwóch osobach: jedna bierze A + D, druga B + C, a pochodzenie pól i tryb wsadowy wypadają.
 
-**Decyzja D17: jedna osoba + agenci AI.** Tory to zadania dla agentów (np. workery Orca w osobnych worktree), osoba koordynuje i przegląda. Kolejność: A → B → C → D. Pochodzenie pól z ramkami na PDF i tryb wsadowy wypadają (D16).
+**Decyzja D17: trzy osoby + agenci AI** (Adimac93, Stanisław Synowiec, fidok15). Przydział torów do potwierdzenia w zespole; na razie Adimac93 prowadzi tor A (kompilator, gotowy szkielet) i C (model), a frontend (tor D) robi agent w worktree `web`. Research OCR (tor B) wykonał fidok15. Pochodzenie pól z ramkami na PDF i tryb wsadowy wypadają (D16).
 
 ## Kamienie milowe
 
