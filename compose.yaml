@@ -11,8 +11,37 @@ x-hardening: &hardening
   restart: unless-stopped
 
 services:
-  # web: added by the frontend track (nginxinc/nginx-unprivileged, alpine-slim). It will then be
-  # the only service with a published port (8080), and api drops its `ports`.
+  # The only service with a published port. Serves the SPA and proxies /api, /health, /docs and
+  # /openapi.json to api. Cloudflare Tunnel points at 127.0.0.1:8080 (D24).
+  web:
+    <<: *hardening
+    build:
+      context: ./web
+      # tsc -b also checks tests, which import the shared ../fixtures/validators.json.
+      additional_contexts:
+        fixtures: ./fixtures
+    image: biurokratka-web:dev
+    ports:
+      - "127.0.0.1:8080:8080"
+    networks:
+      - frontend
+    depends_on:
+      api:
+        condition: service_healthy
+    # pid file, nginx temp dirs and buffered upload bodies: RAM only (hard rule 3).
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+          pids: 64
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/healthz"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
 
   api:
     <<: *hardening
@@ -24,9 +53,9 @@ services:
     environment:
       # Overrides TIKA_URL from .env (localhost there, for running without containers).
       TIKA_URL: http://tika:9998
-    ports:
-      - "127.0.0.1:8000:8000"
+    # No published port: reachable only through web.
     networks:
+      - frontend
       - backend
       - egress # only for LLM_BASE_URL
     depends_on:
@@ -72,6 +101,9 @@ services:
       retries: 3
 
 networks:
+  # web <-> api. Not internal: Docker does not publish ports of a container that sits only on
+  # internal networks. nginx itself never connects out.
+  frontend: {}
   # No route out: tika has no network access.
   backend:
     internal: true
