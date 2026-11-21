@@ -60,6 +60,8 @@ export interface Consent {
 export interface ConsentSectionConfig {
   consents: Consent[];
   files?: unknown[];
+  /** Show a "select all" button under the consents. */
+  selectAllEnabled?: boolean;
 }
 
 /**

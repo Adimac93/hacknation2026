@@ -1,3 +1,4 @@
+import buttons from "../buttons.module.css";
 import { RichText } from "../RichText";
 import styles from "./Field.module.css";
 import { ChoiceFrame } from "./frame";
@@ -29,6 +30,15 @@ export function ConsentSection(props: FieldProps) {
               <RichText as="span" className={styles.consentText} html={consent.description} />
             </label>
           ))}
+          {field.consentSectionConfig?.selectAllEnabled && consents.length > 1 && !readOnly ? (
+            <button
+              type="button"
+              className={`${buttons.secondary} ${buttons.small}`}
+              onClick={() => onChange(consents.map(() => !consents.every((_, i) => flags[i])))}
+            >
+              {consents.every((_, i) => flags[i]) ? "Odznacz wszystkie" : "Zaznacz wszystkie"}
+            </button>
+          ) : null}
         </div>
       )}
     </ChoiceFrame>
