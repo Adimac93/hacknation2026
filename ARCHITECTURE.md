@@ -284,7 +284,8 @@ Format `application/problem+json`. Kody: 400 zła nazwa pliku, 401 brak lub zły
 |---|---|
 | `MAX_UPLOAD_MB` | maksymalny rozmiar pliku |
 | `MAX_PAGES` | limit stron dokumentu |
-| `AUTH_ENABLED`, `JWT_ALGORITHMS`, `JWT_SECRET` lub `JWT_SECRET_FILE`, `JWT_PUBLIC_KEY`, `JWT_JWKS_URL`, `JWT_ISSUER`, `JWT_AUDIENCE` | uwierzytelnianie JWT |
+| `AUTH_ENABLED`, `JWT_ALGORITHMS`, `JWT_SECRET` lub `JWT_SECRET_FILE`, `JWT_PUBLIC_KEY`, `JWT_ISSUER`, `JWT_AUDIENCE` | uwierzytelnianie JWT (PyJWT); `JWT_JWKS_URL` świadomie pominięte, bo wymagałoby połączenia sieciowego poza `LLM_BASE_URL` |
+| `MAX_ZIP_ENTRIES`, `MAX_UNZIPPED_MB`, `MAX_IMAGE_PIXELS` | ochrona przed bombami dekompresyjnymi; liczba pikseli czytana z nagłówka PNG/JPEG bez dekodowania |
 | `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY`, `LLM_TIMEOUT_S` | serwer modelu |
 | `LLM_ALLOW_REMOTE` | domyślnie `false`; `true` tylko w lokalnym `.env` dewelopera, pozwala wskazać EdenAI zamiast lokalnego `llama-server` |
 | `LLM_ENABLED` | `false` wymusza tryb reguł |
@@ -295,7 +296,7 @@ Format `application/problem+json`. Kody: 400 zła nazwa pliku, 401 brak lub zły
 
 Kolejność: rozmiar (nagłówek, potem licznik bajtów) → nazwa (NFC, do 250 znaków, bez `; : > < / \ | ' * % $`) → rozszerzenie z białej listy → zgodność treści z rozszerzeniem.
 
-Zgodność treści: sygnatury PDF, PNG, JPEG; kontenery ZIP rozróżniamy po zawartości (`mimetype` dla ODS, `[Content_Types].xml` dla DOCX i XLSX); OLE2 po strumieniu `WordDocument` (DOC). Odrzucamy pliki z makrami.
+Zgodność treści: sygnatury PDF, PNG, JPEG; kontenery ZIP rozróżniamy po zawartości (`mimetype` dla ODS, `[Content_Types].xml` dla DOCX i XLSX); OLE2 po strumieniu `WordDocument` (DOC). Odrzucamy pliki z makrami (`vbaProject.bin` w ZIP, strumienie VBA w OLE2; OLE2 czyta `olefile`, BSD).
 
 Rozszerzenia `.doc` i `.docx` traktujemy jako jedną rodzinę „dokument Word”, tak jak grupuje je treść zadania („DOC (.doc .docx)”). Powód: dwie próbki organizatora (`5. …/*.DOC`, `7. …/*.DOC`) mają rozszerzenie `.DOC`, a w środku OOXML. Plik `.doc` z treścią DOCX przyjmujemy, plik `.doc` z treścią arkusza albo PDF odrzucamy. Format do przetwarzania wybieramy zawsze po sygnaturze, nigdy po rozszerzeniu. Limity chronią przed bombami dekompresyjnymi (liczba wpisów ZIP, rozmiar po rozpakowaniu, liczba pikseli obrazu, liczba stron).
 
