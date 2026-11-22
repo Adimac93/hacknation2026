@@ -51,7 +51,8 @@ const SCENES = {
   hook: 165,
   formats: 210,
   pipeline: 270,
-  upload: 210,
+  drop: 300,
+  upload: 150,
   queue: 165,
   auditor: 285,
   report: 210,
@@ -511,7 +512,157 @@ const Pipeline: React.FC = () => {
   );
 };
 
-const Upload: React.FC = () => (
+/** Mouse pointer drawn as an SVG arrow. */
+const Pointer: React.FC<{ style?: React.CSSProperties }> = ({ style }) => (
+  <svg width={46} height={58} viewBox="0 0 23 29" style={style} aria-label="kursor">
+    <path d="M1 1 L1 23 L7 17.5 L11 27 L15 25.3 L11 16 L19 16 Z" fill={C.ink} stroke={C.white} strokeWidth={1.6} strokeLinejoin="round" />
+  </svg>
+);
+
+/** Browser chrome around arbitrary content (same look as Browser). */
+const Frame: React.FC<{ w: number; h: number; delay?: number; children: React.ReactNode }> = ({ w, h, delay = 0, children }) => {
+  const p = useIn(delay);
+  return (
+    <div
+      style={{
+        position: "relative",
+        width: w,
+        background: C.white,
+        border: `3px solid ${C.ink}`,
+        boxShadow: "0 30px 80px rgba(32,30,29,.25)",
+        opacity: p,
+        transform: `translateY(${(1 - p) * 80}px)`,
+      }}
+    >
+      <div style={{ height: 46, background: C.sheet, borderBottom: `3px solid ${C.ink}`, display: "flex", alignItems: "center", gap: 10, paddingLeft: 18 }}>
+        {[C.red, C.ink, C.muted].map((c) => (
+          <div key={c} style={{ width: 14, height: 14, background: c }} />
+        ))}
+        <div style={{ marginLeft: 16, height: 28, width: w * 0.5, background: C.white, border: `2px solid ${C.muted}`, color: C.muted, fontFamily: MONO, fontSize: 16, lineHeight: "24px", paddingLeft: 12 }}>
+          formularze.heckyeah.pl
+        </div>
+      </div>
+      <div style={{ position: "relative", height: h, overflow: "hidden" }}>{children}</div>
+    </div>
+  );
+};
+
+const DROP = { w: 980, h: 551 };
+// Upload zone in 01-start.png, as a share of the screenshot (measured on the capture).
+const ZONE = { left: 0.12, top: 0.32, width: 0.496, height: 0.406 };
+
+const DropDemo: React.FC = () => {
+  const f = useCurrentFrame();
+  const { w, h } = DROP;
+  const hover = interpolate(f, [82, 92, 118, 126], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const dropped = interpolate(f, [112, 126], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.in(Easing.quad) });
+  const swap = interpolate(f, [128, 146], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const zoom = interpolate(f, [146, 290], [1.35, 1.5], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const ripple = interpolate(f, [114, 140], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  return (
+    <Frame w={w} h={h} delay={5}>
+      <Img src={staticFile("zrzuty/01-start.png")} style={{ position: "absolute", width: w, opacity: 1 - swap }} />
+      <Img
+        src={staticFile("zrzuty/03-analiza.png")}
+        style={{ position: "absolute", width: w, opacity: swap, transformOrigin: "30% 100%", transform: `scale(${zoom})` }}
+      />
+      {/* Drag-over state of the zone: accent border and tint, as in web/src/workspace/Upload.module.css */}
+      <div
+        style={{
+          position: "absolute",
+          left: w * ZONE.left,
+          top: h * ZONE.top,
+          width: w * ZONE.width,
+          height: h * ZONE.height,
+          boxSizing: "border-box",
+          border: `4px dashed ${C.red}`,
+          background: "rgba(255,224,217,.7)",
+          opacity: hover * (1 - swap),
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "center",
+          paddingTop: 14,
+          fontSize: 24,
+          fontWeight: 700,
+          color: C.redText,
+        }}
+      >
+        Upuść, aby dodać do kolejki
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          left: w * (ZONE.left + ZONE.width / 2) - 60 * (1 + ripple),
+          top: h * (ZONE.top + ZONE.height / 2) - 60 * (1 + ripple),
+          width: 120 * (1 + ripple),
+          height: 120 * (1 + ripple),
+          border: `4px solid ${C.red}`,
+          opacity: f >= 114 ? (1 - ripple) * (1 - swap) : 0,
+        }}
+      />
+    </Frame>
+  );
+};
+
+/** The dragged file lives outside the window frame so it can start beside it. */
+const DraggedFile: React.FC = () => {
+  const f = useCurrentFrame();
+  const { w, h } = DROP;
+  const t = interpolate(f, [30, 100], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.inOut(Easing.cubic) });
+  const x0 = -560;
+  const y0 = h + 40;
+  const x1 = w * (ZONE.left + ZONE.width / 2) - 130;
+  const y1 = h * (ZONE.top + ZONE.height / 2) - 60;
+  const cx = x0 + (x1 - x0) * 0.35;
+  const cy = y1 - 220;
+  const bx = (1 - t) ** 2 * x0 + 2 * (1 - t) * t * cx + t ** 2 * x1;
+  const by = (1 - t) ** 2 * y0 + 2 * (1 - t) * t * cy + t ** 2 * y1;
+  const appear = useIn(8, 14);
+  const grab = interpolate(f, [18, 30], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const dropped = interpolate(f, [112, 126], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.in(Easing.quad) });
+  const pointerAway = interpolate(f, [126, 150], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // Coordinates are relative to the screenshot area (below the 46 px bar, inside the 3 px border).
+  return (
+    <div style={{ position: "absolute", left: 3, top: 3 + 46 + 3, width: w, height: h, pointerEvents: "none" }}>
+      <div
+        style={{
+          position: "absolute",
+          left: bx,
+          top: by,
+          width: 260,
+          padding: "18px 20px",
+          boxSizing: "border-box",
+          background: C.white,
+          border: `3px solid ${C.ink}`,
+          boxShadow: `0 ${10 + grab * 20}px ${30 + grab * 30}px rgba(32,30,29,${0.2 + grab * 0.15})`,
+          display: "flex",
+          gap: 16,
+          alignItems: "center",
+          opacity: Math.min(1, appear * 2) * (1 - dropped),
+          transform: `rotate(${grab * -5 * (1 - dropped)}deg) scale(${(0.9 + appear * 0.1) * (1 + grab * 0.06) * (1 - dropped * 0.6)})`,
+        }}
+      >
+        <div style={{ width: 62, height: 78, background: C.red, color: C.white, fontFamily: MONO, fontWeight: 600, fontSize: 18, display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: 8, boxSizing: "border-box", flexShrink: 0 }}>
+          PDF
+        </div>
+        <div style={{ fontSize: 19, lineHeight: 1.25, fontWeight: 600 }}>
+          Wniosek o zajęcie pasa drogowego.pdf
+          <div style={{ fontFamily: MONO, fontWeight: 400, fontSize: 16, color: C.muted, marginTop: 4 }}>190 KB</div>
+        </div>
+      </div>
+      <Pointer
+        style={{
+          position: "absolute",
+          left: bx + 228 + pointerAway * 120,
+          top: by + 92 + pointerAway * 60,
+          opacity: Math.min(1, appear * 2) * (1 - pointerAway),
+        }}
+      />
+    </div>
+  );
+};
+
+const Drop: React.FC = () => (
   <Scene>
     <Split
       left={
@@ -521,17 +672,47 @@ const Upload: React.FC = () => (
           </Rise>
           <Rise delay={8}>
             <H>
-              Plik z dysku <Em>albo przykład COI</Em>
+              Przeciągnij plik. <Em>Albo wybierz z dysku.</Em>
             </H>
           </Rise>
           <Bullet delay={35}>8 formatów, także zdjęcia i skany</Bullet>
-          <Bullet delay={55}>
-            {N.forms} formularzy z materiałów COI, {N.files} plików do kliknięcia
-          </Bullet>
-          <Bullet delay={75}>Plik tylko w pamięci, nie zapisujemy go na serwerze</Bullet>
+          <Bullet delay={130}>Analiza rusza od razu, postęp widać na żywo</Bullet>
+          <Bullet delay={160}>Plik tylko w pamięci, nie zapisujemy go na serwerze</Bullet>
         </>
       }
-      right={<Browser src="02-przyklady.png" w={980} h={551} zoom={[1, 1.3]} origin="25% 75%" delay={15} />}
+      right={
+        <div style={{ position: "relative" }}>
+          <DropDemo />
+          <DraggedFile />
+          <Tag delay={175} color={C.redText} style={{ right: -10, top: -40 }}>
+            Analizuję plik 1 z 1
+          </Tag>
+        </div>
+      }
+    />
+  </Scene>
+);
+
+const Upload: React.FC = () => (
+  <Scene>
+    <Split
+      left={
+        <>
+          <Rise>
+            <Kicker>Albo bez własnego pliku</Kicker>
+          </Rise>
+          <Rise delay={8}>
+            <H>
+              Przykłady z <Em>materiałów COI</Em>
+            </H>
+          </Rise>
+          <Bullet delay={35}>
+            {N.forms} formularzy, {N.files} plików we wszystkich formatach
+          </Bullet>
+          <Bullet delay={55}>Jeden format albo cały formularz jako wsad</Bullet>
+        </>
+      }
+      right={<Browser src="02-przyklady.png" w={980} h={551} zoom={[1.05, 1.3]} origin="25% 75%" delay={10} />}
     />
   </Scene>
 );
@@ -784,6 +965,9 @@ export const Pitch: React.FC = () => (
       </Series.Sequence>
       <Series.Sequence durationInFrames={SCENES.pipeline}>
         <Pipeline />
+      </Series.Sequence>
+      <Series.Sequence durationInFrames={SCENES.drop}>
+        <Drop />
       </Series.Sequence>
       <Series.Sequence durationInFrames={SCENES.upload}>
         <Upload />
