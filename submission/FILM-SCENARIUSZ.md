@@ -32,7 +32,7 @@ Narracja po polsku, tempo ok. 130 słów na minutę. Razem ok. 380 słów.
 | 1:55–2:15 | Przypadek negatywny: przeciągnij X1 na strefę: czerwony komunikat „Nie dodano 1 plików”. Następnie wybierz X2: wiersz kolejki ze statusem „Błąd” i komunikatem. | „A jeśli plik jest zły? Zły typ odrzuca już przeglądarka. Plik, który udaje dokument, odrzuca API: treść nie zgadza się z rozszerzeniem, odpowiedź to problem plus JSON, nigdy błąd 500.” |
 | 2:15–2:35 | Wgraj naraz pliki B, C, D, E. Kolejka: pasek „Plik n z 4”. Otwórz wynik C (skan): pokaż, że pola z OCR mają niższą pewność. Zakładka „Raport” dla B z poprzednio nagranego przebiegu z modelem: „Tryb: model językowy” (wstaw wcześniej nagrany fragment, patrz niżej). | „Tryb wsadowy przetwarza kolejkę po kolei, także skany przez OCR i pliki biurowe przez Tikę. Bez modelu działają reguły. Z modelem open-weight etykiety są lepsze: dla większego formularza to ok. jedenastu sekund i około jednej dziesiątej centa.” |
 | 2:35–2:52 | Terminal: `docker compose ps` (trzy `healthy`), `docker inspect --format '{{.Config.User}} {{.HostConfig.ReadonlyRootfs}}' <kontener api>`. Opcjonalnie: `python3 devtools/check_licenses.py` (ostatnie linie: wynik bramki). | „Całość to trzy kontenery: użytkownik bez uprawnień, system plików tylko do odczytu, jeden port na hoście. Tika nie ma dostępu do internetu. Bramka licencyjna sprawdza każdą zależność: tylko open source bez copyleftu.” |
-| 2:52–3:00 | Slajd lub ekran końcowy: logo, adres repozytorium (TODO), hasło. | „Biurokratka: jeden blankiet, formularz gotowy do importu. Dziękujemy.” |
+| 2:52–3:00 | Slajd lub ekran końcowy: logo, adres repozytorium (github.com/Adimac93/hacknation2026), hasło. | „Biurokratka: jeden blankiet, formularz gotowy do importu. Dziękujemy.” |
 
 Uwaga do liczby w narracji 2:15–2:35: „około jednej dziesiątej centa” wynika z `README.md` (ok. 0,001 USD za formularz). Jeśli wolisz nie podawać kwoty, zamień na „ułamek centa”.
 
@@ -54,5 +54,5 @@ Jeśli model jest niedostępny w dniu nagrania: pomiń fragment modelu i zostaw 
 - Wszystkie pliki wskazuj z okna wyboru pliku: nie pokazuj ścieżek spoza repozytorium.
 - Wykonaj próbę generalną na tych samych plikach; czasy w narracji (40 ms, 11 s) to wartości z `outputs/README.md` i `README.md`, zmierz je ponownie na maszynie nagrania i popraw narrację, jeśli odbiegają.
 - Dźwięk: nagraj narrację osobno i zmontuj; ekran nagraj bez dźwięku. Napisy po polsku (plik `.srt`) poprawiają dostępność.
-- Film umieść w otwartym repozytorium wideo i wstaw link do `OPIS-ZGLOSZENIA.md` oraz na slajd 10 (TODO).
+- Film umieść w otwartym repozytorium wideo i link jest już w `OPIS-ZGLOSZENIA.md` i na slajdzie 10: https://formularze.heckyeah.pl/film.mp4.
 - Jeśli któryś krok przekracza limit czasu, skróć akcję (np. wsad do trzech plików), nie narrację.

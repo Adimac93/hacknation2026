@@ -18,6 +18,7 @@ Usługa działa w trzech kontenerach (`web`, `api`, `tika`). Bez modelu pracuje 
 | [`ksiega-znaku-biurokratka.pdf`](ksiega-znaku-biurokratka.pdf) | Księga znaku Biurokratka v2, źródło prawdy wizualnej |
 | [`logo-pack/`](logo-pack/README.md) | logo w wersjach kolorystycznych (SVG, PNG, WebP) |
 | [`devtools/corpus/`](devtools/corpus/) | narzędzia do zbierania korpusu testowego (API ELI, Common Crawl); nie są częścią usługi |
+| [`submission/`](submission/) | materiały zgłoszenia: opis, prezentacja PDF, scenariusz filmu, zrzuty ekranu, raport zgodności z wymaganiami |
 | `Docs/` | materiały organizatora |
 
 ## Uruchomienie
@@ -49,6 +50,58 @@ Wynikowe JSON-y w `outputs/` generuje działająca usługa (plików nie poprawia
 ```sh
 uv run --project api python devtools/generate_outputs.py --api http://127.0.0.1:8080
 ```
+
+## Budowanie obrazów
+
+Trzy obrazy buduje jedno polecenie (wersje obrazów bazowych są przypięte w `ARG` w każdym `Dockerfile`, nigdzie nie ma tagu `latest`):
+
+```sh
+docker compose build                     # web, api, tika
+docker compose build api                 # tylko jeden obraz
+docker compose up -d --wait              # uruchomienie bez przebudowy
+```
+
+## Konfiguracja
+
+Wszystko przez zmienne środowiskowe (plik `.env` obok `compose.yaml`, wzór w `.env.example`). Sekrety trafiają do kontenera dopiero w czasie uruchomienia.
+
+| Zmienna | Domyślnie | Znaczenie |
+|---|---|---|
+| `MAX_UPLOAD_MB` | 20 | maksymalny rozmiar pliku; większy dostaje 413 |
+| `MAX_PAGES` | 30 | maksymalna liczba stron dokumentu |
+| `REQUEST_TIMEOUT_S` | 300 | limit czasu jednego żądania; po nim 504 |
+| `AUTH_ENABLED` | `false` | `true` włącza wymóg tokenu JWT (`Authorization: Bearer ...`) |
+| `JWT_ALGORITHMS` | `RS256` | dozwolone algorytmy; nie wolno mieszać HMAC (`HS*`) z kluczem publicznym |
+| `JWT_PUBLIC_KEY` | puste | klucz publiczny dla `RS*`/`ES*` |
+| `JWT_SECRET` / `JWT_SECRET_FILE` | puste | dla `HS*` dokładnie jedno z nich (np. `/run/secrets/jwt`) |
+| `JWT_ISSUER`, `JWT_AUDIENCE` | puste | opcjonalna kontrola pól `iss` i `aud` |
+| `LLM_ENABLED` | `false` | `false` = tryb reguł, bez modelu |
+| `LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY`, `LLM_ALLOW_REMOTE` | patrz niżej | endpoint zgodny z OpenAI, nazwa modelu, klucz, zgoda na zdalny host |
+| `TIKA_URL` | `http://tika:9998` | adres Apache Tika; ustawia `compose.yaml` |
+
+## REST API
+
+Przez `web` (nginx) pod `http://127.0.0.1:8080`; dokumentacja interaktywna pod `/docs`, schemat pod `/openapi.json`.
+
+| Metoda i ścieżka | Opis |
+|---|---|
+| `POST /api/v1/forms` | jeden plik blankietu jako `multipart/form-data` (pole `file`); odpowiedź to JSON formularza (`200`) |
+| `POST /api/v1/forms?details=true` | to samo w postaci `{form, report}`; raport zawiera `mode` (`llm` albo `rules`), `model`, `timings_ms`, `lint`, `fields` (skąd pochodzi pole i z jaką pewnością), tekst dokumentu z liniami i `dictionary_proposals` |
+| `GET /health` | `{"status": "ok", "llm_enabled": ...}` |
+
+Walidacja pliku: rozszerzenie z listy (`pdf`, `doc`, `docx`, `ods`, `xlsx`, `jpg`, `jpeg`, `jpe`, `png`), zgodność sygnatury pliku z rozszerzeniem, nazwa do 250 znaków bez znaków `; : > < / \ | ' * % $`, rozmiar do `MAX_UPLOAD_MB`. Plik istnieje tylko w pamięci na czas żądania.
+
+| Kod | Kiedy |
+|---|---|
+| 200 | formularz wygenerowany (także gdy model zawiódł, wtedy w trybie reguł) |
+| 400 | zła nazwa pliku albo uszkodzone żądanie |
+| 401 | brak lub zły token (tylko przy `AUTH_ENABLED=true`) |
+| 413 | plik większy niż `MAX_UPLOAD_MB` |
+| 415 | nieobsługiwany typ albo treść niezgodna z rozszerzeniem |
+| 429 | limit `web`: 10 przesłań na minutę z jednego adresu IP; nagłówek `Retry-After` |
+| 504 | przekroczony `REQUEST_TIMEOUT_S` |
+
+Błędy mają format `application/problem+json`.
 
 ## Model językowy
 
