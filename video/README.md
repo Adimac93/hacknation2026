@@ -1,6 +1,6 @@
 # Film o Biurokratce
 
-Film (ok. 100 s, 1920×1080, 30 kl./s, bez lektora) składany kodem w [Remotion](https://www.remotion.dev/), tak jak film zespołu w projekcie AED. Nie jest częścią usługi ani obrazów Docker.
+Film (93 s, 1920×1080, 30 kl./s, bez lektora) składany kodem w [Remotion](https://www.remotion.dev/), tak jak film zespołu w projekcie AED. Nie jest częścią usługi ani obrazów Docker.
 
 ## Jak powstaje
 
