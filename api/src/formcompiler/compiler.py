@@ -104,6 +104,28 @@ def _validation(f: FieldIR) -> list[str]:
     return [str(v) for v in names]
 
 
+def _options(names: list[str]) -> list[schema.Option]:
+    """One option per distinct non-blank name, each with a non-empty techName unique in the field.
+
+    The IR does not forbid repeated or blank options; the Generator needs distinct ids, and a
+    name like "-" would slugify to an empty techName.
+    """
+    options: list[schema.Option] = []
+    seen: set[str] = set()
+    techs: set[str] = set()
+    for i, name in enumerate(names, start=1):
+        if not name.strip() or name in seen:
+            continue
+        seen.add(name)
+        base = slugify(name) or f"opcja_{i}"
+        tech, n = base, 2
+        while tech in techs:
+            tech, n = f"{base}_{n}", n + 1
+        techs.add(tech)
+        options.append(schema.Option(id=name, name=name, techName=tech))
+    return options
+
+
 def _field(f: FieldIR, order: int, locate: Locate) -> schema.Field:
     field = schema.Field(
         id=stable_id("item", f.key),
@@ -111,7 +133,7 @@ def _field(f: FieldIR, order: int, locate: Locate) -> schema.Field:
         techName=f.key,
         title=f.label,
         description=description(f.description, f.description_html, empty=""),
-        options=[schema.Option(id=o, name=o, techName=slugify(o)) for o in f.options],
+        options=_options(f.options),
         validation=_validation(f),
         readOnly=f.read_only,
         repeatingSectionGrid=[],

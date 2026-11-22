@@ -5,6 +5,7 @@ form comes from the mutation.
 """
 
 import json
+import re
 from collections.abc import Callable, Iterator
 from copy import deepcopy
 from typing import Any
@@ -198,6 +199,26 @@ def _broken_chain(d: Data) -> None:
     d["flow"]["links"].pop()
 
 
+def _duplicate_option(d: Data) -> None:
+    field = _find(d, "wybierz_jako_kto_wnioskujesz")[1]
+    field["options"].append(dict(field["options"][0]))
+
+
+def _empty_section(d: Data) -> None:
+    section = deepcopy(d["tabs"][1]["questions"][0])
+    section["field"].update(
+        id="00000000-0000-5000-8000-000000000001",
+        techName="pusta_sekcja",
+        repeatingSectionGrid=[],
+        states=[],
+    )
+    d["tabs"][1]["questions"].append(section)
+
+
+def _read_only_section(d: Data) -> None:
+    _query_field(d)["states"][0]["type"] = "READ_ONLY"
+
+
 def _path(tech_name: str, suffix: str = "") -> Callable[[Data], str]:
     return lambda d: _find(d, tech_name)[0] + suffix
 
@@ -286,6 +307,18 @@ ERROR_CASES: list[tuple[str, Mutation, Callable[[Data], str]]] = [
     ),
     ("L023", _bad_link_target, _fixed("flow.links[0]")),
     ("L024", _broken_chain, _fixed("flow.links")),
+    ("L026", _set("kraj", dictionaryName="Waluty"), _path("kraj", ".field.dictionaryName")),
+    ("L027", _set("kraj", type="RADIO"), _path("kraj", ".field.dictionaryName")),
+    (
+        "L028",
+        _set(
+            "imie", defaultValue="PESEL.shoeSize", defaultValueType="EXTERNAL_SYSTEM", readOnly=True
+        ),
+        _path("imie", ".field.defaultValue"),
+    ),
+    ("L029", _duplicate_option, _path("wybierz_jako_kto_wnioskujesz", ".field.options")),
+    ("L030", _empty_section, _path("pusta_sekcja")),
+    ("L031", _read_only_section, _path("dane_innej_osoby", ".field.states[0].type")),
 ]
 
 
@@ -339,6 +372,8 @@ REPAIR_CASES: list[tuple[str, Mutation]] = [
     ("L018", _set("imie", techName="")),
     ("L023", _bad_link_target),
     ("L024", _broken_chain),
+    ("L029", _duplicate_option),
+    ("L030", _empty_section),
 ]
 
 
@@ -463,3 +498,37 @@ def test_short_plain_label_has_no_warnings(clean: Data) -> None:
     issues = lint(Form.model_validate(data))
 
     assert not [i for i in issues if i.path == path]
+
+
+def test_dictionary_list_covers_the_model_dictionaries() -> None:
+    from formcompiler.lint import DICTIONARIES
+    from formcompiler.llm import Dictionary
+
+    assert {d.value for d in Dictionary} <= DICTIONARIES
+
+
+def test_register_attributes_cover_the_predefined_sections() -> None:
+    """Every attribute the section library prefills is on the organiser's list."""
+    from importlib.resources import files
+
+    from formcompiler.lint import REGISTER_ATTRIBUTES, REGISTER_VALUE
+
+    text = files("formcompiler").joinpath("data/sections.json").read_text(encoding="utf-8")
+    values = {m.group(0) for m in re.finditer(r"(PESEL_ADDRESS|PESEL|MLPZ)\.[A-Za-z]+", text)}
+
+    assert values
+    for value in values:
+        assert REGISTER_VALUE.match(value)
+        source, attribute = value.split(".", 1)
+        assert attribute in REGISTER_ATTRIBUTES[source], value
+
+
+def test_duplicate_options_keep_the_first(clean: Data) -> None:
+    data = deepcopy(clean)
+    _duplicate_option(data)
+
+    fixed, _ = fix(Form.model_validate(data))
+
+    field = _find(fixed.dump(), "wybierz_jako_kto_wnioskujesz")[1]
+    original = _find(clean, "wybierz_jako_kto_wnioskujesz")[1]
+    assert field["options"] == original["options"]
