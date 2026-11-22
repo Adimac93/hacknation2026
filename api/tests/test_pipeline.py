@@ -128,3 +128,15 @@ def test_report_proposes_dictionaries_and_form_keeps_inline_options() -> None:
     ]
     field = next(i.field for i in _items(form) if i.field.techName == "rodzaj_robot")
     assert (field.dictionaryName, [o.name for o in field.options]) == (None, works)
+
+
+def test_overlong_title_is_cut_instead_of_failing() -> None:
+    # Garbled OCR can glue a whole page into the title; FormIR allows at most 255 characters.
+    def glued(settings: Settings, text: str, analysis: Analysis) -> Analysis:
+        return analysis.model_copy(update={"title": "Wniosek " + "bardzo długi tytuł " * 30})
+
+    form, _ = pipeline.process(b"%PDF-", FileKind.PDF, LLM_SETTINGS, read=read_form_3, refine=glued)
+
+    assert form.title.startswith("Wniosek bardzo długi tytuł")
+    assert len(form.title) <= 255
+    assert [i for i in lint(form) if i.severity == "error"] == []
