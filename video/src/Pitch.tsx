@@ -4,6 +4,7 @@ import type React from "react";
 import { createContext, useContext } from "react";
 import {
   AbsoluteFill,
+  Audio,
   Easing,
   Img,
   interpolate,
@@ -141,7 +142,7 @@ const Kicker: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         color: dark ? "#ff8a73" : C.redText,
       }}
     >
-      <div style={{ width: 24, height: 28, border: `4px solid ${C.red}`, background: dark ? "transparent" : C.white }} />
+      <div style={{ width: 24, height: 28, border: `4px solid ${C.red}`, background: C.red }} />
       {children}
     </div>
   );
@@ -166,7 +167,7 @@ const Bullet: React.FC<{ delay: number; children: React.ReactNode }> = ({ delay,
   const dark = useContext(Dark);
   return (
     <Rise delay={delay} y={0} x={-40} style={{ display: "flex", gap: 22, alignItems: "flex-start" }}>
-      <div style={{ marginTop: 12, width: 20, height: 24, border: `4px solid ${C.red}`, flexShrink: 0 }} />
+      <div style={{ marginTop: 12, width: 20, height: 24, border: `4px solid ${C.red}`, background: C.red, flexShrink: 0 }} />
       <div style={{ fontSize: 36, lineHeight: 1.3, color: dark ? "#d8d4d4" : C.muted }}>{children}</div>
     </Rise>
   );
@@ -865,12 +866,24 @@ const Cta: React.FC = () => (
       <Rise delay={105} style={{ marginTop: 40, fontSize: 28, color: "#a8a3a3", letterSpacing: 2 }}>
         HACKNATION 2026 · ZADANIE COI „CYFRYZACJA FORMULARZY”
       </Rise>
+      <Rise delay={120} style={{ marginTop: 18, fontSize: 22, color: "#8f8a8a" }}>
+        Muzyka: „Inspired”, Kevin MacLeod (incompetech.com), licencja CC BY 4.0
+      </Rise>
     </AbsoluteFill>
   </Scene>
 );
 
+// "Inspired" by Kevin MacLeod (incompetech.com), CC BY 4.0, https://creativecommons.org/licenses/by/4.0/
+const MUSIC_VOLUME = 0.55;
+const musicVolume = (f: number) =>
+  interpolate(f, [0, 30, TOTAL - 75, TOTAL - 5], [0, MUSIC_VOLUME, MUSIC_VOLUME, 0], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+
 export const Pitch: React.FC = () => (
   <AbsoluteFill style={{ fontFamily: BODY, color: C.ink, background: C.paper }}>
+    <Audio src={staticFile("muzyka/inspired.mp3")} volume={musicVolume} />
     <Series>
       <Series.Sequence durationInFrames={SCENES.hook}>
         <Hook />

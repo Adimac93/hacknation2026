@@ -34,4 +34,4 @@ Usługa REST, która z blankietu urzędowego w jednym z 8 formatów (PDF, DOC, D
 
 **Koszt i wdrożenie.** Ok. 0,001 USD za formularz przez EdenAI, zero w trybie reguł i przy modelu lokalnym. Całość uruchamia `docker compose up -d --build --wait` (trzy kontenery), sprawdzone na czystym Debianie 13 amd64.
 
-**Linki.** Demo: https://formularze.heckyeah.pl (model Qwen3.5-9B przez EdenAI, zapas: tryb reguł). Film (87 s): https://formularze.heckyeah.pl/film.mp4, w repozytorium `web/public/film.mp4`, źródło w `video/`. Repozytorium: https://github.com/Adimac93/hacknation2026.
+**Linki.** Demo: https://formularze.heckyeah.pl (model Qwen3.5-9B przez EdenAI, zapas: tryb reguł). Film (87 s): https://formularze.heckyeah.pl/film.mp4, w repozytorium `web/public/film.mp4`, źródło w `video/`. Muzyka: „Inspired”, Kevin MacLeod (incompetech.com), CC BY 4.0. Repozytorium: https://github.com/Adimac93/hacknation2026.

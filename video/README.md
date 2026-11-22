@@ -1,6 +1,6 @@
 # Film o Biurokratce
 
-Film (87 s, 1920×1080, 30 kl./s, bez lektora) składany kodem w [Remotion](https://www.remotion.dev/), tak jak film zespołu w projekcie AED. Nie jest częścią usługi ani obrazów Docker.
+Film (87 s, 1920×1080, 30 kl./s, bez lektora, z muzyką) składany kodem w [Remotion](https://www.remotion.dev/), tak jak film zespołu w projekcie AED. Nie jest częścią usługi ani obrazów Docker.
 
 ## Jak powstaje
 
@@ -18,3 +18,7 @@ npm run render     # out/biurokratka-pitch.mp4
 ## Licencja Remotion
 
 Remotion nie jest open source w rozumieniu `CLAUDE.md` (zasada 1): ma własną licencję, darmową dla osób prywatnych i firm do 3 osób. Dlatego żyje w osobnym katalogu `video/`, poza `api/` i `web/`, nie trafia do obrazów Docker i nie jest objęty bramką licencji (`devtools/check_licenses.py`). To narzędzie do zrobienia materiału na obronę, nie zależność rozwiązania.
+
+## Muzyka
+
+„Inspired”, Kevin MacLeod ([incompetech.com](https://incompetech.com/)), licencja [Creative Commons Uznanie autorstwa 4.0](https://creativecommons.org/licenses/by/4.0/). Licencja wymaga podpisu autora: jest w ostatniej scenie filmu i tutaj. Plik: `public/muzyka/inspired.mp3`, pobrany z incompetech.com 22.11.2026. CC BY 4.0 nie jest copyleftem.
