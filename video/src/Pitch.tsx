@@ -37,28 +37,25 @@ const C = {
 // Numbers on screen come from files in the repository; the source is next to each one.
 const N = {
   forms: samples.forms.length, // web/public/samples/index.json
-  files: samples.forms.reduce((s, f) => s + f.files.length, 0), // same file
-  matrixOk: 53, // research/08-macierz-formatow.md: 53 of 53 blanks, HTTP 200, 0 lint errors
-  outputs: 6, // outputs/README.md: forms 3, 4, 6-9 in model mode, 0 lint errors
+  matrixOk: 53, // research/08-macierz-formatow.md: 53 of 53 blanks processed, 0 rule errors
+  outputs: 6, // outputs/README.md: forms 3, 4, 6-9 in model mode, 0 rule errors
   coverageLow: 64, // research/10-pokrycie-referencji.md: model, strict label match
   coverageHigh: 82,
-  apiTests: 588, // uv run pytest in api/, 22.11 08:40
-  webTests: 209, // npm test in web/, 22.11 09:25
-  lintRules: 31, // ARCHITECTURE.md 5.7: blocking rules L001-L031
+  // README.md "Koszt i czas": about 0.001 USD per form on EdenAI, i.e. well under one grosz.
 };
 
 const SCENES = {
   hook: 165,
   formats: 210,
-  pipeline: 270,
-  upload: 210,
-  queue: 165,
+  solution: 240,
+  drop: 300,
+  upload: 150,
+  queue: 150,
   auditor: 285,
-  report: 210,
-  error: 165,
+  report: 195,
   numbers: 240,
-  model: 225,
-  security: 195,
+  benefits: 255,
+  trust: 210,
   cta: 210,
 };
 export const TOTAL = Object.values(SCENES).reduce((a, b) => a + b, 0);
@@ -327,46 +324,35 @@ const Count: React.FC<{ to: number; delay: number; suffix?: string }> = ({ to, d
 
 // ---------- scenes ----------
 
-const Hook: React.FC = () => {
+/** Official logo (logo-pack/ciemny) revealed box by box: row BIURO + empty box, then row KRATKA. */
+const HookLogo: React.FC<{ w: number }> = ({ w }) => {
   const f = useCurrentFrame();
-  const letters = "BIUROKRATKA".split("");
+  const cells = (start: number) => Math.min(6, Math.max(0, Math.floor((f - start) / 4) + 1));
+  const top = cells(6);
+  const bottom = cells(32);
+  const h = (w * 235) / 575; // logo-pack SVG viewBox 575 x 235, two rows of six boxes
+  const layer = (clip: string) => (
+    <Img src={staticFile("logo/ciemny.png")} style={{ position: "absolute", inset: 0, width: w, clipPath: clip }} />
+  );
+  return (
+    <div style={{ position: "relative", width: w, height: h }}>
+      {layer(`inset(0 ${100 - (top / 6) * 100}% 50% 0)`)}
+      {layer(`inset(50% ${100 - (bottom / 6) * 100}% 0 0)`)}
+    </div>
+  );
+};
+
+const Hook: React.FC = () => {
   return (
     <Scene bg="ink">
       <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", textAlign: "center", gap: 60 }}>
-        <div style={{ display: "flex", gap: 0 }}>
-          {letters.map((l, i) => {
-            const p = spring({ frame: f - 5 - i * 4, fps: 30, config: { damping: 12 } });
-            const red = i >= 5;
-            return (
-              <div
-                key={`${l}${i}`}
-                style={{
-                  width: 104,
-                  height: 126,
-                  border: `5px solid ${red ? C.red : C.paper}`,
-                  marginLeft: i ? -5 : 0,
-                  background: red ? C.red : "transparent",
-                  color: C.paper,
-                  fontSize: 80,
-                  fontWeight: 600,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transform: `scale(${p})`,
-                  opacity: Math.min(1, p * 2),
-                }}
-              >
-                {l}
-              </div>
-            );
-          })}
-        </div>
-        <Rise delay={60}>
+        <HookLogo w={620} />
+        <Rise delay={62}>
           <H size={84}>
             Blankiet urzędowy <Em>→</Em> e-formularz
           </H>
         </Rise>
-        <Rise delay={95} style={{ fontSize: 40, color: "#d8d4d4", maxWidth: 1400 }}>
+        <Rise delay={92} style={{ fontSize: 40, color: "#d8d4d4", maxWidth: 1400 }}>
           Plik gotowy do importu w Generatorze Formularzy COI. Bez ręcznego przepisywania.
         </Rise>
       </AbsoluteFill>
@@ -376,7 +362,7 @@ const Hook: React.FC = () => {
 
 const Formats: React.FC = () => {
   const f = useCurrentFrame();
-  const formats = ["PDF", "DOC", "DOCX", "ODS", "XLSX", "JPG", "JPEG", "PNG"];
+  const formats = ["PDF", "Word", "Excel", "Calc", "Skan", "Zdjęcie", "JPG", "PNG"];
   const merge = interpolate(f, [120, 165], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
@@ -390,7 +376,7 @@ const Formats: React.FC = () => {
         </Rise>
         <Rise delay={8} style={{ marginTop: 16 }}>
           <H size={76}>
-            Urzędy publikują wnioski w ośmiu formatach. <Em>Każdy trzeba przeprojektować ręcznie.</Em>
+            Wnioski to PDF-y, Word, Excel i skany. <Em>Każdy trzeba ręcznie przerobić.</Em>
           </H>
         </Rise>
       </AbsoluteFill>
@@ -444,19 +430,17 @@ const Formats: React.FC = () => {
           fontWeight: 600,
         }}
       >
-        JSON dla Generatora
+        e-formularz COI
       </Pop>
     </Scene>
   );
 };
 
-const Pipeline: React.FC = () => {
+const Solution: React.FC = () => {
   const steps = [
-    { t: "Plik", s: "pdfplumber · Apache Tika · RapidOCR", kind: "plain" },
-    { t: "Dokument", s: "tekst z układem i numerami linii", kind: "plain" },
-    { t: "IR", s: "krótka lista pól: model albo reguły", kind: "model" },
-    { t: "Kompilator", s: "sekcje predefiniowane COI", kind: "code" },
-    { t: "Linter", s: `${N.lintRules} reguł z auto-naprawą`, kind: "code" },
+    { n: "1", t: "Wgraj blankiet", s: "PDF, Word, Excel, skan albo zdjęcie" },
+    { n: "2", t: "Sprawdź", s: "Blankiet obok gotowego formularza, pole po polu" },
+    { n: "3", t: "Pobierz", s: "Plik gotowy do importu w Generatorze Formularzy COI" },
   ];
   return (
     <Scene>
@@ -466,52 +450,181 @@ const Pipeline: React.FC = () => {
         </Rise>
         <Rise delay={8} style={{ marginTop: 16 }}>
           <H size={80}>
-            Kompilator formularzy, <Em>nie OCR</Em>
+            Biurokratka przygotowuje formularz. <Em>Urzędnik go zatwierdza.</Em>
           </H>
         </Rise>
-        <div style={{ display: "flex", alignItems: "stretch", gap: 14, marginTop: 110 }}>
-          {steps.map((s, i) => (
-            <div key={s.t} style={{ display: "flex", alignItems: "center", gap: 14, flex: 1 }}>
-              <Pop
-                delay={30 + i * 18}
-                style={{
-                  flex: 1,
-                  height: 250,
-                  padding: 28,
-                  boxSizing: "border-box",
-                  background: s.kind === "code" ? C.ink : s.kind === "model" ? C.tint : C.white,
-                  color: s.kind === "code" ? C.paper : C.ink,
-                  border: s.kind === "model" ? `4px dashed ${C.redText}` : `4px solid ${C.ink}`,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 12,
-                }}
-              >
-                <div style={{ fontSize: 44, fontWeight: 800 }}>{s.t}</div>
-                <div style={{ fontSize: 26, lineHeight: 1.3, color: s.kind === "code" ? "#d8d4d4" : C.muted }}>{s.s}</div>
-              </Pop>
-              {i < steps.length - 1 && (
-                <Rise delay={40 + i * 18} y={0} x={-20} style={{ fontSize: 48, fontWeight: 800, color: C.red }}>
-                  →
-                </Rise>
-              )}
-            </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 36, marginTop: 90 }}>
+          {steps.map((st, i) => (
+            <Pop
+              key={st.t}
+              delay={40 + i * 22}
+              style={{ background: i === 1 ? C.tint : C.white, border: `4px solid ${C.ink}`, padding: 44 }}
+            >
+              <div style={{ fontFamily: MONO, fontSize: 40, fontWeight: 600, color: C.redText }}>{st.n}</div>
+              <div style={{ fontSize: 56, fontWeight: 800, marginTop: 8 }}>{st.t}</div>
+              <div style={{ fontSize: 32, lineHeight: 1.35, color: C.muted, marginTop: 14 }}>{st.s}</div>
+            </Pop>
           ))}
         </div>
-        <Rise delay={140} style={{ marginTop: 70 }}>
-          <H size={52}>
-            Model pisze tylko IR. <Em>Końcowy JSON składa i sprawdza kod.</Em>
-          </H>
-        </Rise>
-        <Rise delay={175} style={{ marginTop: 18, fontSize: 34, color: C.muted }}>
-          Awaria modelu nie psuje wyniku: usługa przechodzi na reguły, bez błędu 500.
+        <Rise delay={140} style={{ marginTop: 60, fontSize: 36, color: C.muted }}>
+          Formularz jest przeprojektowany według standardów COI, a nie przepisany jeden do jednego.
         </Rise>
       </AbsoluteFill>
     </Scene>
   );
 };
 
-const Upload: React.FC = () => (
+/** Mouse pointer drawn as an SVG arrow. */
+const Pointer: React.FC<{ style?: React.CSSProperties }> = ({ style }) => (
+  <svg width={46} height={58} viewBox="0 0 23 29" style={style} aria-label="kursor">
+    <path d="M1 1 L1 23 L7 17.5 L11 27 L15 25.3 L11 16 L19 16 Z" fill={C.ink} stroke={C.white} strokeWidth={1.6} strokeLinejoin="round" />
+  </svg>
+);
+
+/** Browser chrome around arbitrary content (same look as Browser). */
+const Frame: React.FC<{ w: number; h: number; delay?: number; children: React.ReactNode }> = ({ w, h, delay = 0, children }) => {
+  const p = useIn(delay);
+  return (
+    <div
+      style={{
+        position: "relative",
+        width: w,
+        background: C.white,
+        border: `3px solid ${C.ink}`,
+        boxShadow: "0 30px 80px rgba(32,30,29,.25)",
+        opacity: p,
+        transform: `translateY(${(1 - p) * 80}px)`,
+      }}
+    >
+      <div style={{ height: 46, background: C.sheet, borderBottom: `3px solid ${C.ink}`, display: "flex", alignItems: "center", gap: 10, paddingLeft: 18 }}>
+        {[C.red, C.ink, C.muted].map((c) => (
+          <div key={c} style={{ width: 14, height: 14, background: c }} />
+        ))}
+        <div style={{ marginLeft: 16, height: 28, width: w * 0.5, background: C.white, border: `2px solid ${C.muted}`, color: C.muted, fontFamily: MONO, fontSize: 16, lineHeight: "24px", paddingLeft: 12 }}>
+          formularze.heckyeah.pl
+        </div>
+      </div>
+      <div style={{ position: "relative", height: h, overflow: "hidden" }}>{children}</div>
+    </div>
+  );
+};
+
+const DROP = { w: 980, h: 551 };
+// Upload zone in 01-start.png, as a share of the screenshot (measured on the capture).
+const ZONE = { left: 0.12, top: 0.32, width: 0.496, height: 0.406 };
+
+const DropDemo: React.FC = () => {
+  const f = useCurrentFrame();
+  const { w, h } = DROP;
+  const hover = interpolate(f, [82, 92, 118, 126], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const dropped = interpolate(f, [112, 126], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.in(Easing.quad) });
+  const swap = interpolate(f, [128, 146], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const zoom = interpolate(f, [146, 290], [1.35, 1.5], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const ripple = interpolate(f, [114, 140], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  return (
+    <Frame w={w} h={h} delay={5}>
+      <Img src={staticFile("zrzuty/01-start.png")} style={{ position: "absolute", width: w, opacity: 1 - swap }} />
+      <Img
+        src={staticFile("zrzuty/03-analiza.png")}
+        style={{ position: "absolute", width: w, opacity: swap, transformOrigin: "30% 100%", transform: `scale(${zoom})` }}
+      />
+      {/* Drag-over state of the zone: accent border and tint, as in web/src/workspace/Upload.module.css */}
+      <div
+        style={{
+          position: "absolute",
+          left: w * ZONE.left,
+          top: h * ZONE.top,
+          width: w * ZONE.width,
+          height: h * ZONE.height,
+          boxSizing: "border-box",
+          border: `4px dashed ${C.red}`,
+          background: "rgba(255,224,217,.7)",
+          opacity: hover * (1 - swap),
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "center",
+          paddingTop: 14,
+          fontSize: 24,
+          fontWeight: 700,
+          color: C.redText,
+        }}
+      >
+        Upuść, aby dodać do kolejki
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          left: w * (ZONE.left + ZONE.width / 2) - 60 * (1 + ripple),
+          top: h * (ZONE.top + ZONE.height / 2) - 60 * (1 + ripple),
+          width: 120 * (1 + ripple),
+          height: 120 * (1 + ripple),
+          border: `4px solid ${C.red}`,
+          opacity: f >= 114 ? (1 - ripple) * (1 - swap) : 0,
+        }}
+      />
+    </Frame>
+  );
+};
+
+/** The dragged file lives outside the window frame so it can start beside it. */
+const DraggedFile: React.FC = () => {
+  const f = useCurrentFrame();
+  const { w, h } = DROP;
+  const t = interpolate(f, [30, 100], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.inOut(Easing.cubic) });
+  const x0 = -560;
+  const y0 = h + 40;
+  const x1 = w * (ZONE.left + ZONE.width / 2) - 130;
+  const y1 = h * (ZONE.top + ZONE.height / 2) - 60;
+  const cx = x0 + (x1 - x0) * 0.35;
+  const cy = y1 - 220;
+  const bx = (1 - t) ** 2 * x0 + 2 * (1 - t) * t * cx + t ** 2 * x1;
+  const by = (1 - t) ** 2 * y0 + 2 * (1 - t) * t * cy + t ** 2 * y1;
+  const appear = useIn(8, 14);
+  const grab = interpolate(f, [18, 30], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const dropped = interpolate(f, [112, 126], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.in(Easing.quad) });
+  const pointerAway = interpolate(f, [126, 150], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  // Coordinates are relative to the screenshot area (below the 46 px bar, inside the 3 px border).
+  return (
+    <div style={{ position: "absolute", left: 3, top: 3 + 46 + 3, width: w, height: h, pointerEvents: "none" }}>
+      <div
+        style={{
+          position: "absolute",
+          left: bx,
+          top: by,
+          width: 260,
+          padding: "18px 20px",
+          boxSizing: "border-box",
+          background: C.white,
+          border: `3px solid ${C.ink}`,
+          boxShadow: `0 ${10 + grab * 20}px ${30 + grab * 30}px rgba(32,30,29,${0.2 + grab * 0.15})`,
+          display: "flex",
+          gap: 16,
+          alignItems: "center",
+          opacity: Math.min(1, appear * 2) * (1 - dropped),
+          transform: `rotate(${grab * -5 * (1 - dropped)}deg) scale(${(0.9 + appear * 0.1) * (1 + grab * 0.06) * (1 - dropped * 0.6)})`,
+        }}
+      >
+        <div style={{ width: 62, height: 78, background: C.red, color: C.white, fontFamily: MONO, fontWeight: 600, fontSize: 18, display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: 8, boxSizing: "border-box", flexShrink: 0 }}>
+          PDF
+        </div>
+        <div style={{ fontSize: 19, lineHeight: 1.25, fontWeight: 600 }}>
+          Wniosek o zajęcie pasa drogowego.pdf
+          <div style={{ fontFamily: MONO, fontWeight: 400, fontSize: 16, color: C.muted, marginTop: 4 }}>190 KB</div>
+        </div>
+      </div>
+      <Pointer
+        style={{
+          position: "absolute",
+          left: bx + 228 + pointerAway * 120,
+          top: by + 92 + pointerAway * 60,
+          opacity: Math.min(1, appear * 2) * (1 - pointerAway),
+        }}
+      />
+    </div>
+  );
+};
+
+const Drop: React.FC = () => (
   <Scene>
     <Split
       left={
@@ -521,17 +634,45 @@ const Upload: React.FC = () => (
           </Rise>
           <Rise delay={8}>
             <H>
-              Plik z dysku <Em>albo przykład COI</Em>
+              Przeciągnij plik. <Em>Albo wybierz z dysku.</Em>
             </H>
           </Rise>
-          <Bullet delay={35}>8 formatów, także zdjęcia i skany</Bullet>
-          <Bullet delay={55}>
-            {N.forms} formularzy z materiałów COI, {N.files} plików do kliknięcia
-          </Bullet>
-          <Bullet delay={75}>Plik tylko w pamięci, nie zapisujemy go na serwerze</Bullet>
+          <Bullet delay={35}>PDF, Word, Excel, skan albo zdjęcie telefonem</Bullet>
+          <Bullet delay={130}>Analiza rusza od razu, postęp widać na żywo</Bullet>
+          <Bullet delay={160}>Przesłany plik nie jest nigdzie zapisywany</Bullet>
         </>
       }
-      right={<Browser src="02-przyklady.png" w={980} h={551} zoom={[1, 1.3]} origin="25% 75%" delay={15} />}
+      right={
+        <div style={{ position: "relative" }}>
+          <DropDemo />
+          <DraggedFile />
+          <Tag delay={175} color={C.redText} style={{ right: -10, top: -40 }}>
+            Analizuję plik 1 z 1
+          </Tag>
+        </div>
+      }
+    />
+  </Scene>
+);
+
+const Upload: React.FC = () => (
+  <Scene>
+    <Split
+      left={
+        <>
+          <Rise>
+            <Kicker>Albo bez własnego pliku</Kicker>
+          </Rise>
+          <Rise delay={8}>
+            <H>
+              Przykłady z <Em>materiałów COI</Em>
+            </H>
+          </Rise>
+          <Bullet delay={35}>{N.forms} prawdziwych wniosków z materiałów konkursu</Bullet>
+          <Bullet delay={55}>Jedno kliknięcie, by zobaczyć wynik</Bullet>
+        </>
+      }
+      right={<Browser src="02-przyklady.png" w={980} h={551} zoom={[1.05, 1.3]} origin="25% 75%" delay={10} />}
     />
   </Scene>
 );
@@ -549,15 +690,15 @@ const Queue: React.FC = () => (
               Kilka plików naraz. <Em>Postęp na żywo.</Em>
             </H>
           </Rise>
-          <Bullet delay={40}>Tryb wsadowy po stronie przeglądarki</Bullet>
-          <Bullet delay={60}>Limit zapytań? Kolejka czeka i ponawia</Bullet>
+          <Bullet delay={40}>Wiele wniosków za jednym razem</Bullet>
+          <Bullet delay={60}>Wynik w kilkanaście sekund</Bullet>
         </>
       }
       right={
         <>
           <Browser src="04-gotowe.png" w={980} h={551} zoom={[1.5, 1.6]} origin="35% 95%" delay={15} />
           <Tag delay={80} color={C.redText} style={{ right: 10, top: 230 }}>
-            Gotowe: model językowy, 69 pól
+            Gotowe: 69 pól
           </Tag>
         </>
       }
@@ -579,19 +720,19 @@ const Auditor: React.FC = () => (
               Urzędnik jako <Em>audytor</Em>, nie przepisywacz
             </H>
           </Rise>
-          <Bullet delay={45}>Tekst blankietu obok podglądu e-formularza</Bullet>
-          <Bullet delay={70}>Wybór pola podświetla linie, z których powstało</Bullet>
-          <Bullet delay={95}>Pewność rozpoznania; poniżej 70% prośba o sprawdzenie</Bullet>
+          <Bullet delay={45}>Blankiet obok gotowego formularza</Bullet>
+          <Bullet delay={70}>Każde pole wskazuje miejsce w blankiecie, z którego powstało</Bullet>
+          <Bullet delay={95}>Niepewne pola są oznaczone do sprawdzenia</Bullet>
         </>
       }
       right={
         <>
           <Browser src="06-podglad.png" w={1060} h={596} zoom={[1, 1.2]} origin="0% 35%" delay={15} />
           <Tag delay={120} color={C.red} style={{ left: 150, top: 600 }}>
-            Źródło pola: linia L15
+            Skąd wzięło się to pole
           </Tag>
           <Tag delay={150} style={{ right: 20, top: 820 }}>
-            Podgląd z warunkami na żywo
+            Tak zobaczy go obywatel
           </Tag>
         </>
       }
@@ -605,111 +746,70 @@ const Report: React.FC = () => (
       left={
         <>
           <Rise>
-            <Kicker>Krok 4 · Raport i JSON</Kicker>
+            <Kicker>Krok 4 · Gotowe do importu</Kicker>
           </Rise>
           <Rise delay={8}>
             <H>
-              0 błędów lintera. <Em>JSON jednym kliknięciem.</Em>
+              Zgodne z regułami COI. <Em>Pobierasz jednym kliknięciem.</Em>
             </H>
           </Rise>
-          <Bullet delay={40}>Tryb, model, uwagi jakościowe, czasy etapów</Bullet>
+          <Bullet delay={40}>Automatyczna kontrola reguł technicznych COI</Bullet>
           <Bullet delay={60}>Propozycje nowych słowników</Bullet>
-          <Bullet delay={80}>Pobranie pliku gotowego do importu</Bullet>
+          <Bullet delay={80}>Plik do zaimportowania w Generatorze Formularzy</Bullet>
         </>
       }
-      right={
-        <>
-          <Browser src="08-raport.png" w={980} h={551} zoom={[1, 1.2]} origin="0% 0%" delay={15} />
-          <Browser
-            src="07-json.png"
-            w={560}
-            h={315}
-            delay={95}
-            zoom={[1.3, 1.3]}
-            origin="0% 20%"
-            style={{ position: "absolute", right: -20, bottom: 70 }}
-          />
-        </>
-      }
-    />
-  </Scene>
-);
-
-const ErrorCase: React.FC = () => (
-  <Scene>
-    <Split
-      left={
-        <>
-          <Rise>
-            <Kicker>Zły plik?</Kicker>
-          </Rise>
-          <Rise delay={8}>
-            <H>
-              Jasny komunikat. <Em>Nigdy błąd 500.</Em>
-            </H>
-          </Rise>
-          <Bullet delay={40}>Przeglądarka odrzuca zły typ od razu</Bullet>
-          <Bullet delay={60}>API sprawdza sygnaturę treści: 415 jako problem+json</Bullet>
-        </>
-      }
-      right={<Browser src="09-blad.png" w={980} h={551} zoom={[1, 1.35]} origin="50% 85%" delay={15} />}
+      right={<Browser src="08-raport.png" w={980} h={551} zoom={[1, 1.2]} origin="0% 0%" delay={15} />}
     />
   </Scene>
 );
 
 const Numbers: React.FC = () => {
   const items = [
-    { n: N.matrixOk, sfx: ` / ${N.matrixOk}`, l: "blankietów we wszystkich formatach: HTTP 200, 0 błędów lintera" },
-    { n: N.outputs, sfx: ` / ${N.outputs}`, l: "wynikowych JSON-ów w trybie modelu, 0 błędów" },
-    { n: N.coverageHigh, sfx: "%", pre: `${N.coverageLow}–`, l: "pól z referencji COI odtworzonych przez model" },
-    { n: N.apiTests + N.webTests, sfx: "", l: `testów: ${N.apiTests} API i ${N.webTests} frontendu` },
+    { big: `${N.matrixOk} / ${N.matrixOk}`, l: "wniosków konkursowych w każdym formacie przetworzonych bez błędu" },
+    { big: `${N.outputs} / ${N.outputs}`, l: "gotowych e-formularzy dla zadań konkursu" },
+    { big: `${N.coverageLow}–${N.coverageHigh}%`, l: "pól zgodnych z formularzami wzorcowymi COI" },
+    { big: "< 1 gr", l: "koszt sztucznej inteligencji na jeden formularz" },
   ];
   return (
     <Scene bg="ink">
       <AbsoluteFill style={{ padding: "90px 110px" }}>
         <Rise>
-          <Kicker>Działa na materiałach COI</Kicker>
+          <Kicker>Sprawdzone na materiałach konkursu</Kicker>
         </Rise>
         <Rise delay={8} style={{ marginTop: 16 }}>
           <H size={76}>Liczby zamiast deklaracji</H>
         </Rise>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 36, marginTop: 130 }}>
-          {items.map((it, i) => {
-            const d = 25 + i * 18;
-            return (
-              <Rise key={it.l} delay={d} style={{ borderTop: `8px solid ${i === 0 ? C.red : C.paper}`, paddingTop: 26 }}>
-                <div style={{ fontSize: 104, fontWeight: 800, color: i === 0 ? "#ff8a73" : C.paper, letterSpacing: -3, lineHeight: 1.05, fontVariantNumeric: "tabular-nums" }}>
-                  {it.pre ?? ""}
-                  <Count to={it.n} delay={d} suffix={it.sfx} />
-                </div>
-                <div style={{ fontSize: 30, lineHeight: 1.3, color: "#d8d4d4", marginTop: 12 }}>{it.l}</div>
-              </Rise>
-            );
-          })}
+          {items.map((it, i) => (
+            <Rise key={it.l} delay={25 + i * 18} style={{ borderTop: `8px solid ${i === 0 ? C.red : C.paper}`, paddingTop: 26 }}>
+              <div style={{ fontSize: 100, fontWeight: 800, color: i === 0 ? "#ff8a73" : C.paper, letterSpacing: -3, lineHeight: 1.05 }}>{it.big}</div>
+              <div style={{ fontSize: 30, lineHeight: 1.3, color: "#d8d4d4", marginTop: 12 }}>{it.l}</div>
+            </Rise>
+          ))}
         </div>
         <div style={{ position: "absolute", left: 110, bottom: 50, fontFamily: MONO, fontSize: 22, color: "#a8a3a3" }}>
-          Źródła: research/08, outputs/README.md, research/10, pytest i Vitest · stan 22.11.2026
+          Pomiary zespołu na materiałach COI, 22.11.2026
         </div>
       </AbsoluteFill>
     </Scene>
   );
 };
 
-const Model: React.FC = () => {
+const Benefits: React.FC = () => {
   const cards = [
-    { t: "Tryb reguł", c: "LLM_ENABLED=false", s: "Bez sieci. Zapas, gdy model nie odpowiada." },
-    { t: "EdenAI, endpoint UE", c: "Qwen3.5-9B", s: "Open-weight, Apache-2.0. Ok. 0,001 USD za formularz." },
-    { t: "Lokalny llama-server", c: "LLM_BASE_URL=…/v1", s: "Ten sam model na infrastrukturze COI." },
+    { t: "Urzędnik", s: "Dostaje gotowy projekt formularza. Sprawdza go, zamiast przepisywać blankiet od zera." },
+    { t: "COI", s: "Szybsza cyfryzacja tysięcy wzorów. Wynik trafia prosto do Generatora Formularzy." },
+    { t: "Obywatel", s: "Wniosek online zamiast drukowania, wypełniania długopisem i skanowania." },
   ];
   return (
     <Scene>
       <AbsoluteFill style={{ padding: "90px 110px" }}>
         <Rise>
-          <Kicker>Model wymienny</Kicker>
+          <Kicker>Korzyści</Kicker>
         </Rise>
         <Rise delay={8} style={{ marginTop: 16 }}>
-          <H size={76}>
-            Jedna zmienna zmienia model. <Em>Kod zostaje ten sam.</Em>
+          <H size={80}>
+            Kto na tym <Em>zyskuje</Em>
           </H>
         </Rise>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 36, marginTop: 100 }}>
@@ -719,36 +819,32 @@ const Model: React.FC = () => {
               delay={40 + i * 22}
               style={{ background: C.white, border: `4px solid ${C.ink}`, borderTop: `14px solid ${i === 1 ? C.red : C.ink}`, padding: 44 }}
             >
-              <div style={{ fontSize: 44, fontWeight: 800 }}>{c.t}</div>
-              <div style={{ fontFamily: MONO, fontSize: 28, color: C.redText, marginTop: 14 }}>{c.c}</div>
-              <div style={{ fontSize: 32, lineHeight: 1.35, color: C.muted, marginTop: 18 }}>{c.s}</div>
+              <div style={{ fontSize: 52, fontWeight: 800 }}>{c.t}</div>
+              <div style={{ fontSize: 34, lineHeight: 1.35, color: C.muted, marginTop: 18 }}>{c.s}</div>
             </Pop>
           ))}
         </div>
-        <Rise delay={140} style={{ marginTop: 60, fontSize: 34, color: C.muted }}>
-          Klient zna tylko wspólną część API zgodnego z OpenAI: nic specyficznego dla dostawcy.
-        </Rise>
       </AbsoluteFill>
     </Scene>
   );
 };
 
-const Security: React.FC = () => (
+const Trust: React.FC = () => (
   <Scene bg="white">
     <AbsoluteFill style={{ padding: "90px 110px" }}>
       <Rise>
-        <Kicker>Bezpieczeństwo i licencje</Kicker>
+        <Kicker>Zaufanie</Kicker>
       </Rise>
       <Rise delay={8} style={{ marginTop: 16 }}>
         <H size={76}>
-          Gotowe do wdrożenia <Em>w administracji</Em>
+          Bezpieczne i gotowe <Em>dla administracji</Em>
         </H>
       </Rise>
       <div style={{ display: "flex", flexDirection: "column", gap: 26, marginTop: 70, maxWidth: 1500 }}>
-        <Bullet delay={35}>Plik tylko w pamięci; w logach wyłącznie skrót SHA-256 i rozmiar</Bullet>
-        <Bullet delay={55}>Trzy kontenery bez uprawnień, system plików tylko do odczytu, Tika bez internetu</Bullet>
-        <Bullet delay={75}>Automatyczna bramka licencji: tylko open source bez copyleftu</Bullet>
-        <Bullet delay={95}>Uruchomienie jednym poleceniem: docker compose up</Bullet>
+        <Bullet delay={35}>Przesłany wniosek nie jest nigdzie zapisywany</Bullet>
+        <Bullet delay={55}>Otwarty model sztucznej inteligencji, który można uruchomić na serwerach państwa</Bullet>
+        <Bullet delay={75}>Bez dostępu do sieci też działa, w uproszczonym trybie</Bullet>
+        <Bullet delay={95}>Otwarte oprogramowanie, bez opłat licencyjnych</Bullet>
       </div>
     </AbsoluteFill>
   </Scene>
@@ -782,8 +878,11 @@ export const Pitch: React.FC = () => (
       <Series.Sequence durationInFrames={SCENES.formats}>
         <Formats />
       </Series.Sequence>
-      <Series.Sequence durationInFrames={SCENES.pipeline}>
-        <Pipeline />
+      <Series.Sequence durationInFrames={SCENES.solution}>
+        <Solution />
+      </Series.Sequence>
+      <Series.Sequence durationInFrames={SCENES.drop}>
+        <Drop />
       </Series.Sequence>
       <Series.Sequence durationInFrames={SCENES.upload}>
         <Upload />
@@ -797,17 +896,14 @@ export const Pitch: React.FC = () => (
       <Series.Sequence durationInFrames={SCENES.report}>
         <Report />
       </Series.Sequence>
-      <Series.Sequence durationInFrames={SCENES.error}>
-        <ErrorCase />
-      </Series.Sequence>
       <Series.Sequence durationInFrames={SCENES.numbers}>
         <Numbers />
       </Series.Sequence>
-      <Series.Sequence durationInFrames={SCENES.model}>
-        <Model />
+      <Series.Sequence durationInFrames={SCENES.benefits}>
+        <Benefits />
       </Series.Sequence>
-      <Series.Sequence durationInFrames={SCENES.security}>
-        <Security />
+      <Series.Sequence durationInFrames={SCENES.trust}>
+        <Trust />
       </Series.Sequence>
       <Series.Sequence durationInFrames={SCENES.cta}>
         <Cta />
