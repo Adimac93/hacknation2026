@@ -118,7 +118,17 @@ Pobrane pliki typów z zadania: 2476 (PDF 2304, ODT 81, DOCX 65, DOC/XLS 24, RTF
 
 228 skanów bez warstwy tekstowej to materiał do testów OCR na prawdziwych skanach zamiast próbek pogorszonych syntetycznie.
 
-Pozostałe dokumenty urzędowe bez przypisanego typu (około 24,6 tys.) pobierają się w kontenerze. Pierwsze 5,5 tys. pobrań: 98% zapisanych, 1,7% obciętych przez crawler, 0 błędów i 0 blokad. Korpus zostaje na PVE: testy wsadowe uruchamiamy tam, bo łącze jest stabilniejsze niż na laptopie.
+Pełne pobieranie (27 096 dokumentów, około 3 godzin na LXC przy 2 wątkach):
+
+| Miara | Wartość |
+|---|---|
+| Zapisane pliki | **26 730** (98,6%) z 3 350 hostów, 12,8 GB |
+| PDF / DOCX / DOC lub XLS (OLE) / ODT / XLSX / RTF / ODS | 23 573 / 1 489 / 912 / 623 / 97 / 26 / 10 |
+| Obcięte przez crawler (`WARC-Truncated`, niezapisane) | 356 (1,3%) |
+| Format nierozpoznany po sygnaturze | 12 |
+| Błędy i blokady | 0 |
+
+Korpus zostaje na PVE (`/opt/guppy/corpus`): testy wsadowe uruchamiamy tam, bo łącze jest stabilniejsze niż na laptopie.
 
 ### Pułapki
 
