@@ -328,46 +328,35 @@ const Count: React.FC<{ to: number; delay: number; suffix?: string }> = ({ to, d
 
 // ---------- scenes ----------
 
-const Hook: React.FC = () => {
+/** Official logo (logo-pack/ciemny) revealed box by box: row BIURO + empty box, then row KRATKA. */
+const HookLogo: React.FC<{ w: number }> = ({ w }) => {
   const f = useCurrentFrame();
-  const letters = "BIUROKRATKA".split("");
+  const cells = (start: number) => Math.min(6, Math.max(0, Math.floor((f - start) / 4) + 1));
+  const top = cells(6);
+  const bottom = cells(32);
+  const h = (w * 235) / 575; // logo-pack SVG viewBox 575 x 235, two rows of six boxes
+  const layer = (clip: string) => (
+    <Img src={staticFile("logo/ciemny.png")} style={{ position: "absolute", inset: 0, width: w, clipPath: clip }} />
+  );
+  return (
+    <div style={{ position: "relative", width: w, height: h }}>
+      {layer(`inset(0 ${100 - (top / 6) * 100}% 50% 0)`)}
+      {layer(`inset(50% ${100 - (bottom / 6) * 100}% 0 0)`)}
+    </div>
+  );
+};
+
+const Hook: React.FC = () => {
   return (
     <Scene bg="ink">
       <AbsoluteFill style={{ justifyContent: "center", alignItems: "center", textAlign: "center", gap: 60 }}>
-        <div style={{ display: "flex", gap: 0 }}>
-          {letters.map((l, i) => {
-            const p = spring({ frame: f - 5 - i * 4, fps: 30, config: { damping: 12 } });
-            const red = i >= 5;
-            return (
-              <div
-                key={`${l}${i}`}
-                style={{
-                  width: 104,
-                  height: 126,
-                  border: `5px solid ${red ? C.red : C.paper}`,
-                  marginLeft: i ? -5 : 0,
-                  background: red ? C.red : "transparent",
-                  color: C.paper,
-                  fontSize: 80,
-                  fontWeight: 600,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  transform: `scale(${p})`,
-                  opacity: Math.min(1, p * 2),
-                }}
-              >
-                {l}
-              </div>
-            );
-          })}
-        </div>
-        <Rise delay={60}>
+        <HookLogo w={620} />
+        <Rise delay={62}>
           <H size={84}>
             Blankiet urzędowy <Em>→</Em> e-formularz
           </H>
         </Rise>
-        <Rise delay={95} style={{ fontSize: 40, color: "#d8d4d4", maxWidth: 1400 }}>
+        <Rise delay={92} style={{ fontSize: 40, color: "#d8d4d4", maxWidth: 1400 }}>
           Plik gotowy do importu w Generatorze Formularzy COI. Bez ręcznego przepisywania.
         </Rise>
       </AbsoluteFill>
