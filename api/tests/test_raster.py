@@ -319,6 +319,154 @@ def test_scanned_pdf_page_limit() -> None:
     assert err.value.status == 413
 
 
+# --- page geometry of scans and photos -----------------------------------------------------------
+
+WORDS = ["Wniosek", "Imie", "nazwisko", "adres", "Lublin", "gminy", "pozwolenie", "data", "kopia"]
+
+
+def text_page(width: int = 1000, lines: int = 26) -> Gray:
+    """A portrait page of prose-like lines, so letter shapes and line gaps look like a form."""
+    page = white(round(width * 2**0.5), width)
+    for n in range(lines):
+        words = " ".join(WORDS[(n + k) % len(WORDS)] for k in range(5))
+        cv2.putText(page, f"{n:02d} {words}", (50, 70 + 50 * n), 0, 0.9, 0, 2)
+    return page
+
+
+def skew_of(pixels: Gray) -> float:
+    small, _ = raster._work_copy(pixels)
+    ink = raster._glyphs(small)
+    coarse, _ = raster._sharpest(ink, axis=1, step=1.0)
+    return raster._sharpest(ink, axis=1, step=0.1, around=coarse, radius=1.0)[0]
+
+
+def is_upright(pixels: Gray) -> bool:
+    small, _ = raster._work_copy(pixels)
+    ink = raster._glyphs(small)
+    rows = raster._sharpest(ink, axis=1, step=1.0)[1]
+    columns = raster._sharpest(ink, axis=0, step=1.0)[1]
+    return rows > columns and not raster._upside_down(ink)
+
+
+@pytest.mark.parametrize("angle", [-7.0, -3.0, -1.0, 1.0, 3.0, 7.0])
+def test_skewed_page_is_levelled(angle: float) -> None:
+    page = raster.rotate(text_page(), angle)
+
+    assert abs(skew_of(page) + angle) < 0.3
+    assert abs(skew_of(raster.upright(page))) < 0.3
+
+
+@pytest.mark.parametrize("turn", [1, 2, 3])
+def test_turned_page_is_put_upright(turn: int) -> None:
+    page = text_page()
+
+    out = raster.upright(np.ascontiguousarray(np.rot90(page, turn)))
+
+    assert out.shape == page.shape
+    assert is_upright(out)
+
+
+def test_clean_page_is_left_alone() -> None:
+    page = text_page()
+    assert raster.upright(page) is page
+
+
+def test_blank_and_tiny_images_pass_through() -> None:
+    for image in (white(50, 300), np.zeros((40, 40), np.uint8)):
+        assert raster.upright(image) is image
+
+
+def photographed(page: Gray, desk: int = 60) -> Gray:
+    """The page shot at an angle, lying on a darker desk with a margin around it."""
+    height, width = page.shape
+    pad = width // 10
+    corners = np.float32([[0, 0], [width, 0], [width, height], [0, height]])
+    shot = np.float32(
+        [
+            [pad + 0.06 * width, pad + 0.03 * height],
+            [pad + 0.98 * width, pad],
+            [pad + width, pad + 0.99 * height],
+            [pad, pad + 0.96 * height],
+        ]
+    )
+    matrix = cv2.getPerspectiveTransform(corners, shot)
+    size = (width + 2 * pad, height + 2 * pad)
+    return np.asarray(cv2.warpPerspective(page, matrix, size, borderValue=desk), np.uint8)
+
+
+def test_page_is_cut_out_of_a_photo_and_flattened() -> None:
+    page = text_page()
+
+    out = raster.upright(photographed(page))
+
+    height, width = out.shape
+    assert abs(width - page.shape[1]) < 0.05 * page.shape[1]
+    assert abs(height - page.shape[0]) < 0.05 * page.shape[0]
+    assert out[:5].mean() > 200 and out[:, -5:].mean() > 200  # no desk left at the edges
+    assert abs(skew_of(out)) < 0.3
+
+
+def test_scan_and_unevenly_lit_page_are_not_cut() -> None:
+    page = text_page()
+    gain = np.linspace(1.0, 0.45, page.shape[1], dtype=np.float32)[None, :]
+    dim = np.asarray(page * gain, np.uint8)
+
+    for image in (page, dim):
+        small, _ = raster._work_copy(image)
+        assert raster._page_quad(small) is None
+
+
+def test_wide_photo_is_scaled_to_a4_width() -> None:
+    assert raster.limit_width(white(4400, 3300)).shape == (2205, 1654)
+    narrow = white(1400, 1000)
+    assert raster.limit_width(narrow) is narrow
+
+
+def test_pages_cut_from_a_stack_keep_their_geometry(monkeypatch: pytest.MonkeyPatch) -> None:
+    def fail(_: Gray) -> Gray:
+        raise AssertionError("a page cut from a stack must not be turned")
+
+    monkeypatch.setattr(raster, "upright", fail)
+    monkeypatch.setattr(raster, "_read_page", lambda *_, **__: [])
+    _, png = cv2.imencode(".png", text_strip(60, rule=True))
+
+    assert len(raster.read(png.tobytes(), FileKind.PNG, make()).pages) == 2
+
+
+def test_low_confidence_page_is_read_again_upside_down(monkeypatch: pytest.MonkeyPatch) -> None:
+    def boxes(_: object, pixels: Gray) -> list[_Box]:
+        upright = pixels[0, 0] == 255  # the marker corner is black at the bottom right
+        return [box(0, 0, 10, 10, "Wniosek", 0.98 if upright else 0.6)]
+
+    tesseract: list[Gray] = []
+    monkeypatch.setattr(raster, "_rapidocr", lambda _: object())
+    monkeypatch.setattr(raster, "_rapidocr_boxes", boxes)
+    monkeypatch.setattr(raster, "_tesseract_boxes", lambda p, _: tesseract.append(p))
+    page = white(100, 100)
+    page[:10, :10] = 0  # inverted: the black corner is at the top left
+
+    assert raster._read_page(page, make(), may_be_upside_down=True)[0].score == 0.98
+    assert tesseract == []
+    assert raster._read_page(page, make())[0].score == 0.6  # a page from a stack is not turned
+
+
+@needs_weights
+@pytest.mark.parametrize("turn", ["skew", "upside-down", "photo"])
+def test_degraded_page_reads_like_a_clean_one(turn: str) -> None:
+    page = text_page()
+    degraded = {
+        "skew": lambda: raster.rotate(page, 4.0),
+        "upside-down": lambda: np.ascontiguousarray(page[::-1, ::-1]),
+        "photo": lambda: photographed(page),
+    }[turn]()
+    _, png = cv2.imencode(".png", degraded)
+
+    doc = raster.read(png.tobytes(), FileKind.PNG, make())
+
+    numbers = {m.group(1) for line in doc.pages[0].lines if (m := re.match(r"(\d\d) ", line.text))}
+    assert len(numbers) >= 24  # of 26 numbered lines
+
+
 # --- fallback ------------------------------------------------------------------------------------
 
 
@@ -358,7 +506,7 @@ def test_no_engine_at_all_is_a_service_error(
 def test_pages_read_in_parallel_keep_their_order(monkeypatch: pytest.MonkeyPatch) -> None:
     import time
 
-    def read_page(pixels: Gray, settings: Settings) -> list[_Box]:
+    def read_page(pixels: Gray, settings: Settings, **_: object) -> list[_Box]:
         number = int(pixels[0, 0])
         time.sleep(0.02 * (6 - number))  # later pages finish first
         return [box(10, 10, 200, 30, f"Strona {number}")]

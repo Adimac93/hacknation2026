@@ -15,6 +15,8 @@ from formcompiler.upload import FileKind, UploadError
 
 logger = logging.getLogger(__name__)
 
+MAX_TITLE = 255
+
 # Model refinement of the rules-mode analysis: (settings, document text, analysis) -> analysis.
 type Refine = Callable[[Settings, str, heuristics.Analysis], heuristics.Analysis]
 
@@ -51,7 +53,9 @@ def process(
                 mode = "llm"
             except Exception as exc:  # any model failure keeps the rules-mode result
                 logger.warning("model step failed, using rules: %s", type(exc).__name__)
-    ir = sections.assemble(analysis.title, analysis.addressee, analysis.applicant, analysis.pages)
+    ir = sections.assemble(
+        _title(analysis.title), analysis.addressee, analysis.applicant, analysis.pages
+    )
 
     with _timed(timings, "compile"):
         form = compiler.build(ir)
@@ -68,6 +72,13 @@ def process(
         dictionary_proposals=dictionaries.propose(form),
     )
     return form, report
+
+
+def _title(title: str) -> str:
+    """FormIR allows 255 characters; garbled OCR can glue a whole page into the title."""
+    if len(title) <= MAX_TITLE:
+        return title
+    return title[: MAX_TITLE + 1].rsplit(" ", 1)[0].rstrip(" ,.;:-")
 
 
 def _field_reports(ir: FormIR) -> list[FieldReport]:
