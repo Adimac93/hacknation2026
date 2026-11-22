@@ -9,6 +9,12 @@ paths are always explicit, so RapidOCR never downloads anything.
 Tall images are several A4 pages stacked vertically; they are cut into pages first, because OCR of
 the whole strip returns noise. OCR loses dot leaders and most checkboxes, so a line is CHECKBOX only
 when the engine returned a box glyph.
+
+A page that is a whole image (a scan or a phone photo, not a page cut from a stack) is first put
+upright (research/11): a page photographed on a darker desk is cut out and its perspective undone,
+a page turned by 90 degrees is turned back, and skew up to 15 degrees is removed. All three come
+from a cheap projection profile of the text on a ~1000 px copy. A page upside down is caught after
+OCR by its low confidence and read again turned by 180 degrees, so upright pages pay nothing for it.
 """
 
 import difflib
@@ -63,6 +69,21 @@ BOX_GLYPHS = frozenset("□■☐☑☒❏❐❑❒▢◻◼")
 SAME_LINE = 0.85  # text similarity above which two lines in an overlap are the same line
 TESSERACT_TIMEOUT_S = 60
 
+# Page geometry of a whole-image page, research/11.
+MAX_WIDTH = 2000  # wider images (phone photos) are scaled down to NOMINAL_WIDTH first
+NOMINAL_WIDTH = 1654  # A4 at 200 DPI, the width of the organiser's rasters
+WORK = 1000  # longer side of the copy that page geometry is measured on
+GLYPH_MAX = 0.04  # ink blobs larger than this share of WORK are rules or edges, not letters
+MAX_SKEW = 15  # degrees of skew searched for
+COARSE = 0.5  # degrees between skew candidates before refining by 0.1; a peak is ~0.8 degrees wide
+MIN_SKEW = 0.5  # smaller skew is left alone: OCR reads it fine, interpolation costs detail
+TURNED = 2.0  # column profile this many times sharper than the row profile = text runs vertically
+UPSIDE_DOWN = 0.6  # ink above the x-height band over ink below it; below this the text is inverted
+PAGE_AREA = (0.3, 0.97)  # share of the photo a page cut out of a desk must cover
+DESK_CONTRAST = 40  # grey levels by which the desk just outside the sheet's edge is darker
+EDGE_BAND = 5  # px of the work copy on each side of the sheet's edge compared for that contrast
+DESK_INK = 0.3  # the desk may hold at most this share of the paper's ink density
+
 
 @dataclass(frozen=True)
 class Slice:
@@ -99,9 +120,11 @@ class _Box:
 
 
 def read(data: bytes, kind: FileKind, settings: Settings) -> Document:
-    image = decode(data)
+    image = limit_width(decode(data))
     slices = split_pages(image)
     check_pages(len(slices), settings)
+    if len(slices) == 1:  # a single page: a scan or a photo whose geometry is unknown
+        return ocr_pages([PageImage(image)], settings)
     return ocr_pages(
         (
             PageImage(image[s.top : s.bottom], (s.keep_top - s.top, s.keep_bottom - s.top))
@@ -109,6 +132,15 @@ def read(data: bytes, kind: FileKind, settings: Settings) -> Document:
         ),
         settings,
     )
+
+
+def limit_width(image: Gray) -> Gray:
+    """Scale a wide image (a phone photo) down to A4 at 200 DPI; OCR gains nothing above that."""
+    height, width = image.shape
+    if width <= MAX_WIDTH:
+        return image
+    size = (NOMINAL_WIDTH, round(height * NOMINAL_WIDTH / width))
+    return np.asarray(cv2.resize(image, size, interpolation=cv2.INTER_AREA), dtype=np.uint8)
 
 
 def ocr_pdf(data: bytes, settings: Settings) -> Document:
@@ -197,19 +229,183 @@ def _blank_band(blank: NDArray[np.bool_], nominal: int, radius: int) -> int | No
     return best_row
 
 
+def upright(pixels: Gray) -> Gray:
+    """Cut the page out of a photo, turn vertical text by 90° and remove skew (research/11)."""
+    small, scale = _work_copy(pixels)
+    quad = _page_quad(small)
+    if quad is not None:
+        pixels = _unwarp(pixels, quad / scale)
+        small, scale = _work_copy(pixels)
+    ink = _glyphs(small)
+    if not ink.any():
+        return pixels
+    rows = _sharpest(ink, axis=1, step=COARSE)
+    columns = _sharpest(ink, axis=0, step=1.0)
+    if columns[1] > TURNED * rows[1]:  # text runs vertically: turn clockwise, then check below
+        pixels = np.ascontiguousarray(np.rot90(pixels, -1))
+        ink = np.ascontiguousarray(np.rot90(ink, -1))
+        rows = _sharpest(ink, axis=1, step=COARSE)
+    angle, _ = _sharpest(ink, axis=1, step=0.1, around=rows[0], radius=COARSE)
+    if abs(angle) >= MIN_SKEW:
+        pixels = rotate(pixels, angle)
+        ink = _glyphs(_work_copy(pixels)[0])
+    if _upside_down(ink):  # a guess; a wrong one is undone by OCR confidence in _read_page
+        pixels = np.ascontiguousarray(pixels[::-1, ::-1])
+    return pixels
+
+
+def _upside_down(ink: Gray) -> bool:
+    """Latin and Polish text has more ink above the x-height band (ascenders, capitals, accents)
+    than below it (descenders, ogoneks); level text where it is the other way round is inverted."""
+    profile = ink.sum(axis=1, dtype=np.float64)
+    rows = np.flatnonzero(profile)
+    above = below = 0.0
+    for line in np.split(rows, np.flatnonzero(np.diff(rows) > 1) + 1):
+        if len(line) < 4:
+            continue
+        span = profile[line[0] : line[-1] + 1]
+        core = np.flatnonzero(span >= span.max() / 2)
+        above += float(span[: core[0]].sum())
+        below += float(span[core[-1] + 1 :].sum())
+    return above < UPSIDE_DOWN * below
+
+
+def _work_copy(pixels: Gray) -> tuple[Gray, float]:
+    height, width = pixels.shape
+    scale = WORK / max(height, width)
+    size = (max(1, round(width * scale)), max(1, round(height * scale)))
+    method = cv2.INTER_AREA if scale < 1 else cv2.INTER_LINEAR
+    return np.asarray(cv2.resize(pixels, size, interpolation=method), dtype=np.uint8), scale
+
+
+def _ink(small: Gray) -> Gray:
+    """Dark-on-light strokes; a local threshold copes with uneven light."""
+    return np.asarray(
+        cv2.adaptiveThreshold(small, 1, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 25, 15),
+        dtype=np.uint8,
+    )
+
+
+def _glyphs(small: Gray) -> Gray:
+    """Ink of letter-sized blobs only: table rules and page edges would mislead the profiles."""
+    ink = _ink(small)
+    count, labels, stats, _ = cv2.connectedComponentsWithStats(ink, connectivity=8)
+    limit = GLYPH_MAX * WORK
+    width, height = stats[:, cv2.CC_STAT_WIDTH], stats[:, cv2.CC_STAT_HEIGHT]
+    keep = (width <= limit) & (height <= limit) & (stats[:, cv2.CC_STAT_AREA] >= 3)
+    keep[0] = False  # background
+    return np.asarray(keep[labels], dtype=np.uint8) if count > 1 else np.zeros_like(ink)
+
+
+def _sharpest(
+    ink: Gray, axis: int, step: float, around: float = 0.0, radius: float = MAX_SKEW
+) -> tuple[float, float]:
+    """Angle (degrees, counter-clockwise) whose rotation makes the ink profile sharpest.
+
+    Text lines turned level make the row profile jump between full rows and empty gaps, so the
+    energy of its steps peaks (Postl's method); `axis=0` measures the column profile, which peaks
+    for vertical text. Steps, unlike plain variance, ignore where the text block sits on the page.
+    """
+    height, width = ink.shape
+    best = (around, -1.0)
+    for angle in np.arange(around - radius, around + radius + step / 2, step):
+        matrix = cv2.getRotationMatrix2D((width / 2, height / 2), float(angle), 1.0)
+        turned = cv2.warpAffine(ink, matrix, (width, height), flags=cv2.INTER_NEAREST)
+        sharpness = float(np.square(np.diff(turned.sum(axis=axis, dtype=np.float64))).sum())
+        if sharpness > best[1]:
+            best = (round(float(angle), 2), sharpness)
+    return best
+
+
+def rotate(pixels: Gray, angle: float) -> Gray:
+    """Rotate counter-clockwise by `angle` degrees on a canvas grown to keep the corners."""
+    height, width = pixels.shape
+    matrix = cv2.getRotationMatrix2D((width / 2, height / 2), angle, 1.0)
+    cos, sin = abs(matrix[0, 0]), abs(matrix[0, 1])
+    size = (round(height * sin + width * cos), round(height * cos + width * sin))
+    matrix[0, 2] += size[0] / 2 - width / 2
+    matrix[1, 2] += size[1] / 2 - height / 2
+    turned = cv2.warpAffine(pixels, matrix, size, flags=cv2.INTER_LINEAR, borderValue=255)
+    return np.asarray(turned, dtype=np.uint8)
+
+
+def _page_quad(small: Gray) -> NDArray[np.float32] | None:
+    """Corners (tl, tr, br, bl) of a sheet photographed on a darker desk, or None for a scan."""
+    _, paper = cv2.threshold(
+        cv2.GaussianBlur(small, (5, 5), 0), 0, 1, cv2.THRESH_BINARY + cv2.THRESH_OTSU
+    )
+    paper = cv2.morphologyEx(paper, cv2.MORPH_CLOSE, np.ones((15, 15), np.uint8))
+    contours, _ = cv2.findContours(paper, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    if not contours:
+        return None
+    hull = cv2.convexHull(max(contours, key=cv2.contourArea))
+    share = cv2.contourArea(hull) / small.size
+    if not PAGE_AREA[0] <= share <= PAGE_AREA[1]:
+        return None
+    quad = cv2.approxPolyDP(hull, 0.02 * cv2.arcLength(hull, True), True)
+    if len(quad) != 4:
+        return None
+    inside = np.zeros_like(small)
+    cv2.fillConvexPoly(inside, quad, 1)
+    sheet, desk = inside.astype(bool), ~inside.astype(bool)
+    # A sheet's edge is a sharp step down to the desk; uneven light only fades slowly.
+    band = np.ones((2 * EDGE_BAND + 1, 2 * EDGE_BAND + 1), np.uint8)
+    edge_in = sheet & ~cv2.erode(inside, band, borderValue=1).astype(bool)
+    edge_out = desk & cv2.dilate(inside, band).astype(bool)
+    if not edge_out.any() or not edge_in.any():
+        return None
+    if float(np.median(small[edge_out])) > float(np.median(small[edge_in])) - DESK_CONTRAST:
+        return None
+    # Text on the "desk" means an unevenly lit page, not a sheet lying on a desk. The step at the
+    # sheet's edge itself thresholds as ink, so a margin along the edge is left out of both sides.
+    ink = _ink(small).astype(bool)
+    margin = cv2.dilate(edge_in | edge_out, band, iterations=2).astype(bool)
+    far_desk, core = desk & ~margin, sheet & ~margin
+    if not core.any():
+        return None
+    if far_desk.any() and ink[far_desk].mean() > DESK_INK * max(float(ink[core].mean()), 1e-6):
+        return None
+    return _order(quad.reshape(4, 2).astype(np.float32))
+
+
+def _order(points: NDArray[np.float32]) -> NDArray[np.float32]:
+    total, diff = points.sum(axis=1), np.diff(points, axis=1).ravel()
+    return np.array(
+        [
+            points[np.argmin(total)],
+            points[np.argmin(diff)],
+            points[np.argmax(total)],
+            points[np.argmax(diff)],
+        ],
+        dtype=np.float32,
+    )
+
+
+def _unwarp(pixels: Gray, quad: NDArray[np.float32]) -> Gray:
+    """Map the sheet's corners onto an upright rectangle of the same size."""
+    tl, tr, br, bl = quad
+    width = round(max(np.linalg.norm(tr - tl), np.linalg.norm(br - bl)))
+    height = round(max(np.linalg.norm(bl - tl), np.linalg.norm(br - tr)))
+    target = np.array([[0, 0], [width, 0], [width, height], [0, height]], dtype=np.float32)
+    matrix = cv2.getPerspectiveTransform(quad.astype(np.float32), target)
+    flat = cv2.warpPerspective(
+        pixels, matrix, (width, height), flags=cv2.INTER_LINEAR, borderValue=255
+    )
+    return np.asarray(flat, dtype=np.uint8)
+
+
 def ocr_pages(pages: Iterable[PageImage], settings: Settings, scale: float = 1.0) -> Document:
     """OCR page images into a Document; `scale` converts pixels into the Document's units."""
     ids = itertools.count(1)
     out: list[Page] = []
     tail: list[str] = []  # lines the previous page kept next to its bottom cut
-    images = list(pages)
     # Pages are independent until _own, so they are read in parallel; map keeps their order.
     with ThreadPoolExecutor(max_workers=_ocr_workers()) as pool:
-        read = list(pool.map(lambda image: _read_page(image.pixels, settings), images))
-    for number, (page, boxes) in enumerate(zip(images, read, strict=True), 1):
+        read = list(pool.map(lambda image: _read_image(image, settings), pages))
+    for number, (page, pixels, boxes) in enumerate(read, 1):
         if page.keep is not None:
             boxes, tail = _own(boxes, page.keep, tail)
-        height, width = page.pixels.shape
+        height, width = pixels.shape
         out.append(
             Page(
                 number=number,
@@ -233,14 +429,30 @@ def _seen(text: str, previous: list[str]) -> bool:
     return any(difflib.SequenceMatcher(None, text, p).ratio() >= SAME_LINE for p in previous)
 
 
-def _read_page(pixels: Gray, settings: Settings) -> list[_Box]:
+def _read_image(image: PageImage, settings: Settings) -> tuple[PageImage, Gray, list[_Box]]:
+    """OCR one page; a whole-image page is put upright first. Returns the pixels that were read."""
+    if image.keep is not None:  # cut from a stack of clean rasters, read as it is
+        return image, image.pixels, _read_page(image.pixels, settings)
+    pixels = upright(image.pixels)
+    return image, pixels, _read_page(pixels, settings, may_be_upside_down=True)
+
+
+def _read_page(pixels: Gray, settings: Settings, may_be_upside_down: bool = False) -> list[_Box]:
+    """OCR a page; boxes fit `pixels`, turned by 180° when that reads better."""
     boxes: list[_Box] | None = None
     engine = _rapidocr(settings.ocr_model_dir)
     if engine is not None:
-        try:
-            boxes = _rapidocr_boxes(engine, pixels)
-        except Exception as exc:  # any engine failure falls back to Tesseract
-            log.warning("RapidOCR failed on a page: %s", type(exc).__name__)
+        boxes = _try_rapidocr(engine, pixels)
+        if (
+            may_be_upside_down
+            and boxes
+            and confidence(boxes) < settings.ocr_min_confidence
+            and (turned := _try_rapidocr(engine, pixels[::-1, ::-1])) is not None
+            and confidence(turned) > confidence(boxes)
+        ):
+            # Upside-down text reads at ~0.65 against ~0.98 upright. Boxes of the turned page
+            # still fit the page's size, and the turned pixels are what Tesseract gets below.
+            boxes, pixels = turned, np.ascontiguousarray(pixels[::-1, ::-1])
     if boxes is not None and (not boxes or confidence(boxes) >= settings.ocr_min_confidence):
         return boxes
     fallback = _tesseract_boxes(pixels, settings.tessdata_dir)
@@ -251,6 +463,14 @@ def _read_page(pixels: Gray, settings: Settings) -> list[_Box]:
     raise UploadError(
         503, "OCR niedostępny", "Nie udało się odczytać tekstu z obrazu. Spróbuj ponownie później."
     )
+
+
+def _try_rapidocr(engine: RapidOCR, pixels: Gray) -> list[_Box] | None:
+    try:
+        return _rapidocr_boxes(engine, np.ascontiguousarray(pixels))
+    except Exception as exc:  # any engine failure falls back to Tesseract
+        log.warning("RapidOCR failed on a page: %s", type(exc).__name__)
+        return None
 
 
 def confidence(boxes: list[_Box]) -> float:
