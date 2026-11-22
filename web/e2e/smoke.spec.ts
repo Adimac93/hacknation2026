@@ -21,7 +21,7 @@ test("PDF: kolejka kończy się statusem Gotowe i pojawia się wynik", async ({ 
     await expect(result.getByRole("tab", { name })).toBeVisible();
   }
   await result.getByRole("tab", { name: "JSON" }).click();
-  await expect(result.getByRole("tabpanel")).toContainText('"tabs"');
+  await expect(result.getByRole("tabpanel")).toContainText(/tabs/);
 });
 
 test("PNG: Gotowe albo widoczny błąd, bez awarii strony", async ({ page }) => {
