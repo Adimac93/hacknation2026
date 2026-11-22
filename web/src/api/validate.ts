@@ -1,6 +1,16 @@
 // Client-side mirror of the upload rules (ARCHITECTURE.md, 9). The API stays authoritative.
 
-export const ACCEPTED_EXTENSIONS = ["pdf", "doc", "docx", "ods", "xlsx", "jpg", "jpeg", "png"];
+export const ACCEPTED_EXTENSIONS = [
+  "pdf",
+  "doc",
+  "docx",
+  "ods",
+  "xlsx",
+  "jpg",
+  "jpeg",
+  "jpe",
+  "png",
+];
 export const FORMAT_LABELS = ACCEPTED_EXTENSIONS.map((e) => e.toUpperCase()).join(", ");
 export const MAX_UPLOAD_MB = 20;
 const FORBIDDEN_NAME_CHARS = /[;:></\\|'*%$]/;

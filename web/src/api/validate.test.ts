@@ -7,6 +7,7 @@ describe("validateUpload", () => {
   it.each([
     ["accepts a plain pdf", ok, false],
     ["accepts uppercase extension", { ...ok, name: "WNIOSEK.DOC" }, false],
+    ["accepts the organiser's .JPE sample", { ...ok, name: "wniosek.JPE" }, false],
     ["rejects unsupported extension", { ...ok, name: "a.exe" }, true],
     ["rejects missing extension", { ...ok, name: "wniosek" }, true],
     ["rejects forbidden character", { ...ok, name: "a;b.pdf" }, true],

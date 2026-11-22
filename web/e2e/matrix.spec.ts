@@ -12,7 +12,17 @@ import { pace, walkForm, watchErrors } from "./helpers";
 
 // Run with `npm run e2e:matrix` (needs the stack on :8080; a full run takes tens of minutes).
 const REPO_DOCS = "../Docs";
-const ACCEPTED = new Set([".pdf", ".doc", ".docx", ".ods", ".xlsx", ".jpg", ".jpeg", ".png"]);
+const ACCEPTED = new Set([
+  ".pdf",
+  ".doc",
+  ".docx",
+  ".ods",
+  ".xlsx",
+  ".jpg",
+  ".jpeg",
+  ".jpe",
+  ".png",
+]);
 // Generous: the model may need ~60 s, a 429 adds a 60 s wait, big rasters add OCR time.
 const ANALYSIS_TIMEOUT = 420_000;
 

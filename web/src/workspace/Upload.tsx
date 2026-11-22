@@ -48,7 +48,7 @@ export function Upload({ onFiles, onDemo, busy }: Props) {
         type="file"
         multiple
         className="visually-hidden"
-        accept=".pdf,.doc,.docx,.ods,.xlsx,.jpg,.jpeg,.png"
+        accept=".pdf,.doc,.docx,.ods,.xlsx,.jpg,.jpeg,.jpe,.png"
         onChange={(e) => {
           if (e.target.files) onFiles([...e.target.files]);
           e.target.value = "";
