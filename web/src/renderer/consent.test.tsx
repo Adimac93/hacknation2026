@@ -55,15 +55,12 @@ const consent = (required: boolean, selectAllEnabled = false): FormConfig => ({
 });
 
 describe("consents", () => {
-  it("a required consent blocks Dalej until it is ticked", async () => {
+  it("a required consent does not block Dalej in the preview", async () => {
     const user = userEvent.setup();
     render(<FormRenderer config={consent(true)} />);
     await user.click(screen.getByRole("button", { name: "Dalej" }));
-    expect(await screen.findByRole("alert")).toBeTruthy();
-    expect(screen.queryByRole("heading", { level: 1, name: "Koniec" })).toBeNull();
-    for (const box of screen.getAllByRole("checkbox").slice(1)) await user.click(box);
-    await user.click(screen.getByRole("button", { name: "Dalej" }));
     expect(await screen.findByRole("heading", { level: 1, name: "Koniec" })).toBeTruthy();
+    expect(screen.queryByRole("alert")).toBeNull();
   });
 
   it("selectAllEnabled adds a button that ticks every consent", async () => {

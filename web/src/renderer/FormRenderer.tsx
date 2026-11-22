@@ -10,6 +10,7 @@ import {
   byPosition,
   fieldInstances,
   initialValue,
+  isEmptyAnswer,
   isExternal,
   isFinish,
   labelOf,
@@ -74,15 +75,15 @@ export function FormRenderer({ config, focusField, headingOffset = 0 }: Props) {
     });
   }, [config, compiled, state.answers, state.repeats, registers]);
 
-  // Move focus to the new page title on every step change, but not on first render.
+  // Move focus to the new page title on every step change, but not on first render. The page
+  // does not jump to the top: the reviewer keeps their place in the workstation.
   // biome-ignore lint/correctness/useExhaustiveDependencies: runs on step change only.
   useEffect(() => {
     if (firstRender.current) {
       firstRender.current = false;
       return;
     }
-    pageTitle.current?.focus();
-    window.scrollTo?.({ top: 0 });
+    pageTitle.current?.focus({ preventScroll: true });
   }, [state.step]);
 
   // Review request: switch to the field's step first, focus it once it is rendered.
@@ -144,14 +145,15 @@ export function FormRenderer({ config, focusField, headingOffset = 0 }: Props) {
       (inst) => !isHidden(inst.sectionKey, inst.sectionKey) && !isHidden(inst.key, inst.template),
     );
 
+  // This is a preview of a generated configuration: required fields and consents do not block
+  // "Dalej", so the whole form can be browsed. A value that is filled in and wrong (e.g. a bad
+  // PESEL) still stops the step, which shows the validators at work.
   const next = () => {
     const errors: Record<string, string> = {};
     for (const inst of visibleInstances(t)) {
-      const message = validateField(
-        inst.field,
-        answerOf(inst.field, inst.key),
-        isReadOnly(inst.field, inst.key),
-      );
+      const answer = answerOf(inst.field, inst.key);
+      if (inst.field.type === "CONSENT_SECTION" || isEmptyAnswer(answer)) continue;
+      const message = validateField(inst.field, answer, isReadOnly(inst.field, inst.key));
       if (message) errors[inst.key] = message;
     }
     if (Object.keys(errors).length > 0) dispatch({ type: "fail", errors });

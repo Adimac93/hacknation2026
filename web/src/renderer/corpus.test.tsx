@@ -288,7 +288,8 @@ describe.each(CASES)("corpus $name", ({ path, required }) => {
           ).not.toBeNull();
         }
         expect(screen.getByText(`Krok ${step + 1} z ${stepCount}`)).toBeTruthy();
-        if (required) expect(alert, "REQUIRED nie zablokowało Dalej").not.toBeNull();
+        // Preview: an untouched page never blocks Dalej, even with required fields (FormRenderer.next).
+        expect(alert, "pusta strona zablokowała Dalej").toBeNull();
         // 2. Fill until no new (conditional) controls show up, then go on.
         for (let pass = 0; pass < 6 && (await fillPass(t)); pass++) {
           await inspect(); // waits until the renderer has caught up with the answers

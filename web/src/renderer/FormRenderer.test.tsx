@@ -1,6 +1,6 @@
 import { cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { FormConfig, FormField } from "../form/types";
 import { loadExample } from "../test/examples";
 import { FormRenderer } from "./FormRenderer";
@@ -128,29 +128,44 @@ describe("validation on Dalej", () => {
     validation: ["REQUIRED", "PESEL"],
   };
 
-  it("blocks the step, marks the field and focuses the summary", async () => {
+  it("lets an empty required field through, so the whole form can be browsed", async () => {
     const user = userEvent.setup();
     render(<FormRenderer config={formWith([pesel])} />);
     await user.click(screen.getByRole("button", { name: "Dalej" }));
 
-    const summary = await screen.findByRole("alert");
-    expect(within(summary).getByText(/To pole jest wymagane/)).toBeTruthy();
-    expect(document.activeElement).toBe(summary);
-    const input = screen.getByLabelText("PESEL");
-    expect(input.getAttribute("aria-invalid")).toBe("true");
-    const describedBy = input.getAttribute("aria-describedby") ?? "";
-    const error = document.getElementById(describedBy.split(" ").at(-1) ?? "");
-    expect(error?.textContent).toMatch(/To pole jest wymagane/);
+    await screen.findByRole("heading", { level: 1, name: "Strona końcowa" });
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
 
+  it("blocks a wrong value, marks the field and focuses the summary", async () => {
+    const user = userEvent.setup();
+    render(<FormRenderer config={formWith([pesel])} />);
+    const input = screen.getByLabelText("PESEL");
     await user.type(input, "12345678901");
     await user.click(screen.getByRole("button", { name: "Dalej" }));
-    expect((await screen.findByRole("alert")).textContent).toMatch(/PESEL/);
+
+    const summary = await screen.findByRole("alert");
+    expect(summary.textContent).toMatch(/PESEL/);
+    expect(document.activeElement).toBe(summary);
+    expect(input.getAttribute("aria-invalid")).toBe("true");
 
     await user.clear(input);
     await user.type(input, "44051401359");
     await user.click(screen.getByRole("button", { name: "Dalej" }));
     await screen.findByRole("heading", { level: 1, name: "Strona końcowa" });
     expect(screen.getByText("44051401359")).toBeTruthy();
+  });
+
+  it("does not scroll the page to the top on the next step", async () => {
+    const scrollTo = vi.fn();
+    vi.stubGlobal("scrollTo", scrollTo);
+    const user = userEvent.setup();
+    render(<FormRenderer config={formWith([pesel])} />);
+    await user.click(screen.getByRole("button", { name: "Dalej" }));
+    await screen.findByRole("heading", { level: 1, name: "Strona końcowa" });
+
+    expect(scrollTo).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
   });
 
   it("'Wstecz' returns to the previous page with answers kept", async () => {
