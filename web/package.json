@@ -11,6 +11,7 @@
     "test": "vitest run",
     "lint": "biome check .",
     "format": "biome format --write .",
+    "audit": "node e2e/audit.mjs",
     "e2e": "playwright test --grep-invert @matrix",
     "e2e:matrix": "rm -f test-results/matrix-rows.jsonl && playwright test matrix.spec.ts --grep @matrix"
   },

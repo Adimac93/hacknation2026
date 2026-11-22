@@ -15,6 +15,11 @@
   list-style: none;
 }
 
+.review li {
+  max-width: 100%;
+  min-width: 0;
+}
+
 .review button {
   display: flex;
   gap: var(--space-3);
@@ -27,6 +32,9 @@
   font-size: 0.875rem;
   color: inherit;
   cursor: pointer;
+  max-width: 100%;
+  text-align: left;
+  overflow-wrap: anywhere;
 }
 
 .review button:focus-visible {
