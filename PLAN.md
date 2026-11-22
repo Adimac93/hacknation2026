@@ -25,7 +25,7 @@ Zostało niecałe 11 godzin. Zamrożenie funkcji o 07:00 bez zmian, oddanie o 9:
 
 ### Stan o 08:45 (przed oddaniem)
 
-Na `main`: wszystko z fal 1–2, W7 (bez duplikatów sekcji), W9 (`research/12`), ostateczne `outputs/` w trybie modelu, opis zgłoszenia (`research/14-opis-zgloszenia.md`). Prezentacja: artefakt Slides (10 slajdów, eksport do PDF). W nocy agenci W6, W8, W10, W11 trafili na limit użycia; ich niedokończone zmiany zostają w worktree i nie wchodzą po zamrożeniu. Obrazy amd64: `/root/images/biurokratka-amd64.tar.gz` na LXC 104.
+Na `main`: wszystko z fal 1–2, W7 (bez duplikatów sekcji), W9 (`research/12`), ostateczne `outputs/` w trybie modelu, opis zgłoszenia (`research/14-opis-zgloszenia.md`). Prezentacja: artefakt Slides (10 slajdów, eksport do PDF). Rano dokończone i zmergowane jako poprawki: W6 (etykiety w trybie reguł), W8 (prostowanie skanów i zdjęć, usunięty HTTP 500), W10 (test oficjalnego schematu, L026–L031) i ochrona tytułu przed 255+ znakami. W11 pominięty: Stanisław zrobił obsługę 429/504 sam (`web/src/api/retry.ts`). Obrazy amd64: `/root/images/biurokratka-amd64.tar.gz` na LXC 104.
 
 Do oddania o 9:30: PDF prezentacji, film (nagranie: ludzie), formularz zgłoszenia z tekstem z `research/14`.
 

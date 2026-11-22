@@ -24,7 +24,9 @@ Usługa REST, która z blankietu urzędowego w jednym z 8 formatów (PDF, DOC, D
 - 53 z 53 blankietów z materiałów (formularze 3–9 we wszystkich formatach): HTTP 200 i 0 błędów lintera (`research/08-macierz-formatow.md`).
 - 6 wynikowych JSON-ów w `outputs/` w trybie modelu, 0 błędów lintera (`outputs/README.md`).
 - Model odtwarza 64–82% pól referencji organizatora (ok. 90% po ocenie znaczeniowej) (`research/10-pokrycie-referencji.md`).
-- 501 testów backendu i 106 frontendu.
+- Tryb reguł bez modelu: 100% pól referencji 1 i 57% referencji 5 (`research/10`, pomiar W6); zdjęcia krzywe, obrócone i z perspektywą prostowane przed OCR (`research/11-odpornosc-ocr.md`).
+- Zgodność z oficjalnym schematem JSON sprawdzana testem dla wszystkich wyników i referencji (`research/13-zgodnosc-z-regulami.md`).
+- 588 testów backendu i 204 frontendu.
 
 **Rozszerzenia.** I: słowniki i 54 pola z rejestrów; II: propozycje nowych słowników w raporcie; III: 117 warunków SHOW; IV: upload i podgląd JSON-a; V: podgląd e-formularza z JSONata na żywo; VI: walidacje (PESEL, NIP, REGON, kod pocztowy).
 
