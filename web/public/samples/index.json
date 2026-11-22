@@ -1,0 +1,426 @@
+{
+ "forms": [
+  {
+   "form": "1",
+   "title": "Wniosek o ustalenie numeru porządkowego nieruchomości",
+   "reference": true,
+   "files": [
+    {
+     "format": "DOC",
+     "path": "samples/1/wniosek-o-ustalenie-numeru-porzadkowego-nieruchomosci.doc",
+     "name": "Wniosek o ustalenie numeru porządkowego nieruchomości.doc",
+     "bytes": 44032
+    },
+    {
+     "format": "DOCX",
+     "path": "samples/1/wniosek-o-ustalenie-numeru-porzadkowego-nieruchomosci.docx",
+     "name": "Wniosek o ustalenie numeru porządkowego nieruchomości.docx",
+     "bytes": 21883
+    },
+    {
+     "format": "JPEG",
+     "path": "samples/1/wniosek-o-ustalenie-numeru-porzadkowego-nieruchomosci.jpeg",
+     "name": "Wniosek o ustalenie numeru porządkowego nieruchomości.jpeg",
+     "bytes": 777577
+    },
+    {
+     "format": "JPG",
+     "path": "samples/1/wniosek-o-ustalenie-numeru-porzadkowego-nieruchomosci.jpg",
+     "name": "Wniosek o ustalenie numeru porządkowego nieruchomości.jpg",
+     "bytes": 550028
+    },
+    {
+     "format": "ODS",
+     "path": "samples/1/wniosek-o-ustalenie-numeru-porzadkowego-nieruchomosci.ods",
+     "name": "Wniosek o ustalenie numeru porządkowego nieruchomości.ods",
+     "bytes": 24611
+    },
+    {
+     "format": "PDF",
+     "path": "samples/1/wniosek-o-ustalenie-numeru-porzadkowego-nieruchomosci.pdf",
+     "name": "Wniosek o ustalenie numeru porządkowego nieruchomości.pdf",
+     "bytes": 87588
+    },
+    {
+     "format": "PNG",
+     "path": "samples/1/wniosek-o-ustalenie-numeru-porzadkowego-nieruchomosci-1.png",
+     "name": "Wniosek o ustalenie numeru porządkowego nieruchomości (1).png",
+     "bytes": 505304
+    },
+    {
+     "format": "XLSX",
+     "path": "samples/1/wniosek-o-ustalenie-numeru-porzadkowego-nieruchomosci.xlsx",
+     "name": "Wniosek o ustalenie numeru porządkowego nieruchomości.xlsx",
+     "bytes": 12570
+    }
+   ]
+  },
+  {
+   "form": "3",
+   "title": "Wniosek o wydanie zaświadczenia",
+   "reference": false,
+   "files": [
+    {
+     "format": "DOC",
+     "path": "samples/3/wniosek-o-wydanie-zaswiadczenia.doc",
+     "name": "Wniosek o wydanie zaświadczenia.doc",
+     "bytes": 35328
+    },
+    {
+     "format": "DOCX",
+     "path": "samples/3/wniosek-o-wydanie-zaswiadczenia.docx",
+     "name": "Wniosek o wydanie zaświadczenia.docx",
+     "bytes": 20564
+    },
+    {
+     "format": "JPEG",
+     "path": "samples/3/wniosek-o-wydanie-zaswiadczenia.jpeg",
+     "name": "Wniosek o wydanie zaświadczenia.jpeg",
+     "bytes": 380809
+    },
+    {
+     "format": "JPG",
+     "path": "samples/3/wniosek-o-wydanie-zaswiadczenia.jpg",
+     "name": "Wniosek o wydanie zaświadczenia.jpg",
+     "bytes": 267868
+    },
+    {
+     "format": "ODS",
+     "path": "samples/3/wniosek-o-wydanie-zaswiadczenia.ods",
+     "name": "Wniosek o wydanie zaświadczenia.ods",
+     "bytes": 4914
+    },
+    {
+     "format": "PDF",
+     "path": "samples/3/wniosek-o-wydanie-zaswiadczenia.pdf",
+     "name": "Wniosek o wydanie zaświadczenia.pdf",
+     "bytes": 71891
+    },
+    {
+     "format": "PNG",
+     "path": "samples/3/wniosek-o-wydanie-zaswiadczenia.png",
+     "name": "Wniosek o wydanie zaświadczenia.png",
+     "bytes": 222470
+    },
+    {
+     "format": "XLSX",
+     "path": "samples/3/wniosek-o-wydanie-zaswiadczenia.xlsx",
+     "name": "Wniosek o wydanie zaświadczenia.xlsx",
+     "bytes": 13344
+    }
+   ]
+  },
+  {
+   "form": "4",
+   "title": "Wniosek o wynajęcie lub użyczenie świetlicy wiejskiej",
+   "reference": false,
+   "files": [
+    {
+     "format": "DOC",
+     "path": "samples/4/wniosek-o-wynajecie-swietlicy.doc",
+     "name": "Wniosek o wynajęcie świetlicy.doc",
+     "bytes": 30720
+    },
+    {
+     "format": "DOCX",
+     "path": "samples/4/wniosek-o-wynajecie-swietlicy.docx",
+     "name": "Wniosek o wynajęcie świetlicy.docx",
+     "bytes": 19310
+    },
+    {
+     "format": "JPEG",
+     "path": "samples/4/wniosek-o-wynajecie-swietlicy.jpeg",
+     "name": "Wniosek o wynajęcie świetlicy.jpeg",
+     "bytes": 447406
+    },
+    {
+     "format": "JPG",
+     "path": "samples/4/wniosek-o-wynajecie-swietlicy.jpg",
+     "name": "Wniosek o wynajęcie świetlicy.jpg",
+     "bytes": 312570
+    },
+    {
+     "format": "ODS",
+     "path": "samples/4/wniosek-o-wynajecie-swietlicy.ods",
+     "name": "Wniosek o wynajęcie świetlicy.ods",
+     "bytes": 23629
+    },
+    {
+     "format": "PDF",
+     "path": "samples/4/wniosek-o-wynajecie-swietlicy.pdf",
+     "name": "Wniosek o wynajęcie świetlicy.pdf",
+     "bytes": 65231
+    },
+    {
+     "format": "PNG",
+     "path": "samples/4/wniosek-o-wynajecie-swietlicy.png",
+     "name": "Wniosek o wynajęcie świetlicy.png",
+     "bytes": 261609
+    },
+    {
+     "format": "XLSX",
+     "path": "samples/4/wniosek-o-wynajecie-swietlicy.xlsx",
+     "name": "Wniosek o wynajęcie świetlicy.xlsx",
+     "bytes": 13006
+    }
+   ]
+  },
+  {
+   "form": "5",
+   "title": "Wniosek o stwierdzenie nadpłaty podatku",
+   "reference": true,
+   "files": [
+    {
+     "format": "DOC",
+     "path": "samples/5/wniosek-o-stwierdzenie-nadplaty-podatku.doc",
+     "name": "Wniosek o stwierdzenie nadpłaty podatku.DOC",
+     "bytes": 21826
+    },
+    {
+     "format": "DOCX",
+     "path": "samples/5/wniosek-o-stwierdzenie-nadplaty-podatku.docx",
+     "name": "Wniosek o stwierdzenie nadpłaty podatku.docx",
+     "bytes": 21929
+    },
+    {
+     "format": "JPEG",
+     "path": "samples/5/wniosek-o-stwierdzenie-nadplaty-podatku.jpeg",
+     "name": "Wniosek o stwierdzenie nadpłaty podatku.jpeg",
+     "bytes": 245575
+    },
+    {
+     "format": "JPG",
+     "path": "samples/5/wniosek-o-stwierdzenie-nadplaty-podatku.jpg",
+     "name": "Wniosek o stwierdzenie nadpłaty podatku.JPG",
+     "bytes": 188528
+    },
+    {
+     "format": "ODS",
+     "path": "samples/5/wniosek-o-stwierdzenie-nadplaty-podatku.ods",
+     "name": "Wniosek o stwierdzenie nadpłaty podatku.ODS",
+     "bytes": 18545
+    },
+    {
+     "format": "PDF",
+     "path": "samples/5/wniosek-o-stwierdzenie-nadplaty-podatku.pdf",
+     "name": "Wniosek o stwierdzenie nadpłaty podatku.PDF",
+     "bytes": 133029
+    },
+    {
+     "format": "PNG",
+     "path": "samples/5/wniosek-o-stwierdzenie-nadplaty-podatku.png",
+     "name": "Wniosek o stwierdzenie nadpłaty podatku.PNG",
+     "bytes": 886324
+    }
+   ]
+  },
+  {
+   "form": "6",
+   "title": "Wniosek o wydanie zezwolenia na zajęcie pasa drogowego w celu prowadzenia robót",
+   "reference": false,
+   "files": [
+    {
+     "format": "DOC",
+     "path": "samples/6/wniosek-o-wydanie-zezwolenia-na-zajecie-pasa-drogowego.doc",
+     "name": "Wniosek o wydanie zezwolenia na zajęcie pasa drogowego.doc",
+     "bytes": 45056
+    },
+    {
+     "format": "DOCX",
+     "path": "samples/6/wniosek-o-wydanie-zezwolenia-na-zajecie-pasa-drogowego.docx",
+     "name": "Wniosek o wydanie zezwolenia na zajęcie pasa drogowego.docx",
+     "bytes": 9105
+    },
+    {
+     "format": "JPEG",
+     "path": "samples/6/wniosek-o-wydanie-zezwolenia-na-zajecie-pasa-drogowego.jpeg",
+     "name": "Wniosek o wydanie zezwolenia na zajęcie pasa drogowego.jpeg",
+     "bytes": 1112264
+    },
+    {
+     "format": "JPG",
+     "path": "samples/6/wniosek-o-wydanie-zezwolenia-na-zajecie-pasa-drogowego.jpg",
+     "name": "Wniosek o wydanie zezwolenia na zajęcie pasa drogowego.jpg",
+     "bytes": 766089
+    },
+    {
+     "format": "ODS",
+     "path": "samples/6/wniosek-o-wydanie-zezwolenia-na-zajecie-pasa-drogowego.ods",
+     "name": "Wniosek o wydanie zezwolenia na zajęcie pasa drogowego.ods",
+     "bytes": 26941
+    },
+    {
+     "format": "PDF",
+     "path": "samples/6/wniosek-o-wydanie-zezwolenia-na-zajecie-pasa-drogowego.pdf",
+     "name": "Wniosek o wydanie zezwolenia na zajęcie pasa drogowego.pdf",
+     "bytes": 194867
+    },
+    {
+     "format": "PNG",
+     "path": "samples/6/wniosek-o-wydanie-zezwolenia-na-zajecie-pasa-drogowego.png",
+     "name": "Wniosek o wydanie zezwolenia na zajęcie pasa drogowego.png",
+     "bytes": 666381
+    },
+    {
+     "format": "XLSX",
+     "path": "samples/6/wniosek-o-wydanie-zezwolenia-na-zajecie-pasa-drogowego.xlsx",
+     "name": "Wniosek o wydanie zezwolenia na zajęcie pasa drogowego.xlsx",
+     "bytes": 12162
+    }
+   ]
+  },
+  {
+   "form": "7",
+   "title": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanych za agresywne",
+   "reference": false,
+   "files": [
+    {
+     "format": "DOC",
+     "path": "samples/7/wniosek-o-wydanie-zezwolenia-na-hodowanie-lub-utrzymywanie-psow-ras-uznawanychza-agresywne.doc",
+     "name": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanychza agresywne.DOC",
+     "bytes": 13522
+    },
+    {
+     "format": "JPE",
+     "path": "samples/7/wniosek-o-wydanie-zezwolenia-na-hodowanie-lub-utrzymywanie-psow-ras-uznawanychza-agresywne.jpe",
+     "name": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanychza agresywne.JPE",
+     "bytes": 1471512
+    },
+    {
+     "format": "JPG",
+     "path": "samples/7/wniosek-o-wydanie-zezwolenia-na-hodowanie-lub-utrzymywanie-psow-ras-uznawanychza-agresywne.jpg",
+     "name": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanychza agresywne.JPG",
+     "bytes": 1009090
+    },
+    {
+     "format": "ODS",
+     "path": "samples/7/wniosek-o-wydanie-zezwolenia-na-hodowanie-lub-utrzymywanie-psow-ras-uznawanychza-agresywne.ods",
+     "name": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanychza agresywne.ODS",
+     "bytes": 40556
+    },
+    {
+     "format": "PDF",
+     "path": "samples/7/wniosek-o-wydanie-zezwolenia-na-hodowanie-lub-utrzymywanie-psow-ras-uznawanychza-agresywne.pdf",
+     "name": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanychza agresywne.PDF",
+     "bytes": 127981
+    },
+    {
+     "format": "PNG",
+     "path": "samples/7/wniosek-o-wydanie-zezwolenia-na-hodowanie-lub-utrzymywanie-psow-ras-uznawanychza-agresywne.png",
+     "name": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanychza agresywne.PNG",
+     "bytes": 819995
+    }
+   ]
+  },
+  {
+   "form": "8",
+   "title": "Deklaracja o wysokości miesięcznej opłaty za gospodarowanie odpadami komunalnymi",
+   "reference": false,
+   "files": [
+    {
+     "format": "DOC",
+     "path": "samples/8/deklaracja-o-wysokosci-oplaty.doc",
+     "name": "Deklaracja o wysokości opłaty.doc",
+     "bytes": 791552
+    },
+    {
+     "format": "DOCX",
+     "path": "samples/8/deklaracja-o-wysokosci-oplaty.docx",
+     "name": "Deklaracja o wysokości opłaty.docx",
+     "bytes": 194571
+    },
+    {
+     "format": "JPEG",
+     "path": "samples/8/deklaracja-o-wysokosci-oplaty.jpeg",
+     "name": "Deklaracja o wysokości opłaty.jpeg",
+     "bytes": 4814119
+    },
+    {
+     "format": "JPG",
+     "path": "samples/8/deklaracja-o-wysokosci-oplaty.jpg",
+     "name": "Deklaracja o wysokości opłaty.jpg",
+     "bytes": 3327126
+    },
+    {
+     "format": "ODS",
+     "path": "samples/8/deklaracja-o-wysokosci-oplaty.ods",
+     "name": "Deklaracja o wysokości opłaty.ods",
+     "bytes": 70083
+    },
+    {
+     "format": "PDF",
+     "path": "samples/8/deklaracja-o-wysokosci-oplaty.pdf",
+     "name": "Deklaracja o wysokości opłaty.pdf",
+     "bytes": 687466
+    },
+    {
+     "format": "PNG",
+     "path": "samples/8/deklaracja-o-wysokosci-oplaty.png",
+     "name": "Deklaracja o wysokości opłaty.png",
+     "bytes": 2815351
+    },
+    {
+     "format": "XLSX",
+     "path": "samples/8/deklaracja-o-wysokosci-oplaty.xlsx",
+     "name": "Deklaracja o wysokości opłaty.xlsx",
+     "bytes": 77046
+    }
+   ]
+  },
+  {
+   "form": "9",
+   "title": "Wniosek o przyznanie stypendium, nagrody lub wyróżnienia sportowego Rady Miasta (Połączenie 3 wniosków w 1)",
+   "reference": false,
+   "files": [
+    {
+     "format": "DOC",
+     "path": "samples/9/wniosek-o-przyznanie-stypendium.doc",
+     "name": "Wniosek o przyznanie stypendium.doc",
+     "bytes": 82432
+    },
+    {
+     "format": "DOCX",
+     "path": "samples/9/wniosek-o-przyznanie-stypendium.docx",
+     "name": "Wniosek o przyznanie stypendium.docx",
+     "bytes": 39702
+    },
+    {
+     "format": "JPEG",
+     "path": "samples/9/wniosek-o-przyznanie-stypendium.jpeg",
+     "name": "Wniosek o przyznanie stypendium.jpeg",
+     "bytes": 6681824
+    },
+    {
+     "format": "JPG",
+     "path": "samples/9/wniosek-o-przyznanie-stypendium.jpg",
+     "name": "Wniosek o przyznanie stypendium.jpg",
+     "bytes": 4661696
+    },
+    {
+     "format": "ODS",
+     "path": "samples/9/wniosek-o-przyznanie-stypendium.ods",
+     "name": "Wniosek o przyznanie stypendium.ods",
+     "bytes": 26347
+    },
+    {
+     "format": "PDF",
+     "path": "samples/9/wniosek-o-przyznanie-stypendium.pdf",
+     "name": "Wniosek o przyznanie stypendium.pdf",
+     "bytes": 419346
+    },
+    {
+     "format": "PNG",
+     "path": "samples/9/wniosek-o-przyznanie-stypendium.png",
+     "name": "Wniosek o przyznanie stypendium.png",
+     "bytes": 3127987
+    },
+    {
+     "format": "XLSX",
+     "path": "samples/9/wniosek-o-przyznanie-stypendium.xlsx",
+     "name": "Wniosek o przyznanie stypendium.xlsx",
+     "bytes": 34628
+    }
+   ]
+  }
+ ]
+}

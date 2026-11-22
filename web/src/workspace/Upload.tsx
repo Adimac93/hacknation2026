@@ -1,6 +1,7 @@
 import { type DragEvent, useId, useState } from "react";
 import { FORMAT_LABELS, MAX_UPLOAD_MB } from "../api/validate";
 import buttons from "../renderer/buttons.module.css";
+import { SamplePicker } from "./SamplePicker";
 import styles from "./Upload.module.css";
 
 interface Props {
@@ -67,6 +68,7 @@ export function Upload({ onFiles, onDemo, busy }: Props) {
         </button>
       </div>
       <p className={styles.privacy}>Plik nie jest zapisywany na serwerze.</p>
+      <SamplePicker onFiles={onFiles} />
     </section>
   );
 }

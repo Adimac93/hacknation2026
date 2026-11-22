@@ -135,7 +135,7 @@ describe("Workspace errors", () => {
     fetchMock.mockResolvedValueOnce(fail(401, "Brak tokenu."));
     await upload(pdf());
     expect(queue().getByRole("alert").textContent).toMatch(/Uwierzytelnianie/);
-    const details = document.querySelector("details") as HTMLDetailsElement;
+    const details = screen.getByLabelText("Token JWT").closest("details") as HTMLDetailsElement;
     expect(details.open).toBe(true);
 
     fireEvent.change(screen.getByLabelText("Token JWT"), { target: { value: "tok" } });
