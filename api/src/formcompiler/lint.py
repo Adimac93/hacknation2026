@@ -51,6 +51,82 @@ IMPERSONAL = frozenset({"należy", "trzeba"})
 MAX_SYLLABLES = 4
 CONSENT_PREFIXES = ("oświadczam", "wyrażam zgodę")
 
+# Predefined COI dictionaries ("Hacknation - Słowniki") plus the TERYT trees of both references.
+DICTIONARIES = frozenset(
+    {
+        "Kraje",
+        "Województwo",
+        "Powiat",
+        "Gmina",
+        "Miejscowość",
+        "Numery kierunkowe",
+        "TERYT_DOWODOWY",
+        "TERYT_4G_DOWODOWY",
+    }
+)
+# The dictionaries document allows these only in a drop-down list; the references use the TERYT
+# trees only in SELECT too.
+SELECT_ONLY_DICTIONARIES = DICTIONARIES - {"Numery kierunkowe"}
+
+# Initial data attributes per source ("Dane inicjalne - materiały dodatkowe").
+_ADDRESS = (
+    "Voivodeship",
+    "District",
+    "Community",
+    "Place",
+    "StreetType",
+    "Street",
+    "HouseNumber",
+    "ApartmentNumber",
+    "PostalCode",
+)
+REGISTER_ATTRIBUTES: dict[str, frozenset[str]] = {
+    "PESEL": frozenset(
+        {
+            "pesel",
+            "name",
+            "surname",
+            "birthDate",
+            "citizenship",
+            "motherName",
+            "birthPlace",
+            "motherSurname",
+            "sex",
+            "fatherName",
+            "secondName",
+            "birthCountry",
+            "foreignBirthUSC",
+            "familyName",
+            "fatherSurname",
+            "maritalStatus",
+        }
+    ),
+    "PESEL_ADDRESS": frozenset(
+        f"{kind}Address{part}" for kind in ("temporary", "permanent") for part in _ADDRESS
+    ),
+    "MLPZ": frozenset(
+        {
+            "name",
+            "secondName",
+            "surname",
+            "pesel",
+            "phoneNumber",
+            "email",
+            "country",
+            "voivodeship",
+            "district",
+            "community",
+            "place",
+            "postCode",
+            "street",
+            "building",
+            "apartment",
+        }
+    ),
+}
+# Dynamic states the technical rules allow: sections only SHOW; presentation components only SHOW.
+SHOW_ONLY_TYPES = SECTION_TYPES | FINISH_TYPES | {"CONSENT_SECTION"}
+
 
 class Issue(BaseModel):
     """One finding, in the shape of `report.lint` in the API contract."""
@@ -258,6 +334,33 @@ def check_choice_options(form: schema.Form) -> list[Issue]:
     ]
 
 
+def check_known_dictionary(form: schema.Form) -> list[Issue]:
+    issues = []
+    for it in _items(form):
+        name = it.field.dictionaryName
+        if name is None:
+            continue
+        path = f"{it.path}.field.dictionaryName"
+        if name not in DICTIONARIES:
+            issues.append(
+                _error(
+                    "L026",
+                    path,
+                    f"Słownik „{name}” nie należy do słowników COI "
+                    f"({', '.join(sorted(DICTIONARIES))})",
+                )
+            )
+        elif name in SELECT_ONLY_DICTIONARIES and it.field.type in CHOICE - {"SELECT"}:
+            issues.append(
+                _error(
+                    "L027",
+                    path,
+                    f"Słownik „{name}” można przypisać tylko do listy rozwijanej (SELECT)",
+                )
+            )
+    return issues
+
+
 def check_external_values(form: schema.Form) -> list[Issue]:
     issues = []
     for it in _items(form):
@@ -274,6 +377,69 @@ def check_external_values(form: schema.Form) -> list[Issue]:
                 )
             )
     return issues
+
+
+def check_register_attributes(form: schema.Form) -> list[Issue]:
+    issues = []
+    for it in _items(form):
+        value = it.field.defaultValue
+        if not (
+            it.field.defaultValueType == "EXTERNAL_SYSTEM"
+            and isinstance(value, str)
+            and REGISTER_VALUE.match(value)
+        ):
+            continue
+        source, attribute = value.split(".", 1)
+        if attribute not in REGISTER_ATTRIBUTES[source]:
+            issues.append(
+                _error(
+                    "L028",
+                    f"{it.path}.field.defaultValue",
+                    f"Źródło {source} nie udostępnia atrybutu {attribute}",
+                )
+            )
+    return issues
+
+
+def _duplicate_options(field: schema.Field) -> bool:
+    ids = [o.id for o in field.options]
+    names = [o.name for o in field.options]
+    tech = [o.techName for o in field.options if o.techName is not None]
+    return any(len(set(values)) != len(values) for values in (ids, names, tech))
+
+
+def check_unique_options(form: schema.Form) -> list[Issue]:
+    return [
+        _error(
+            "L029",
+            f"{it.path}.field.options",
+            "Opcje pola się powtarzają (id, nazwa albo nazwa techniczna)",
+        )
+        for it in _items(form)
+        if _duplicate_options(it.field)
+    ]
+
+
+def check_empty_sections(form: schema.Form) -> list[Issue]:
+    return [
+        _error("L030", it.path, f"Sekcja {it.field.techName} nie zawiera żadnego pola")
+        for it in _items(form)
+        if it.field.type in SECTION_TYPES and not it.field.repeatingSectionGrid
+    ]
+
+
+def check_state_types(form: schema.Form) -> list[Issue]:
+    return [
+        _error(
+            "L031",
+            f"{it.path}.field.states[{s}].type",
+            f"Komponent {it.field.type} może mieć tylko stan SHOW, a ma {state.type}",
+        )
+        for it in _items(form)
+        if it.field.type in SHOW_ONLY_TYPES
+        for s, state in enumerate(it.field.states)
+        if state.type != "SHOW"
+    ]
 
 
 def _from_pesel(field: schema.Field) -> bool:
@@ -505,8 +671,13 @@ RULES: list[Rule] = [
     check_validators,
     check_dictionary,
     check_choice_options,
+    check_known_dictionary,
     check_external_values,
+    check_register_attributes,
     check_pesel_read_only,
+    check_unique_options,
+    check_empty_sections,
+    check_state_types,
     check_unique_ids,
     check_technames,
     check_page_titles,
@@ -621,6 +792,43 @@ def _fix_flow(form: schema.Form) -> None:
     ]
 
 
+def _fix_options(form: schema.Form) -> None:
+    """Keep the first option of each name; repeated names mean the same answer."""
+    for it in _items(form):
+        if not _duplicate_options(it.field):
+            continue
+        kept: list[schema.Option] = []
+        ids: set[str] = set()
+        names: set[str] = set()
+        techs: set[str] = set()
+        for option in it.field.options:
+            if option.id in ids or option.name in names:
+                continue
+            if option.techName is not None:
+                option.techName = _unique(option.techName, techs)
+            ids.add(option.id)
+            names.add(option.name)
+            kept.append(option)
+        it.field.options = kept
+
+
+def _fix_empty_sections(form: schema.Form) -> None:
+    """An empty section has no fields, so no query can point into it; dropping it is safe."""
+    for tab in form.tabs:
+        kept = [
+            q
+            for q in tab.questions
+            if q.field.type not in SECTION_TYPES or q.field.repeatingSectionGrid
+        ]
+        if len(kept) == len(tab.questions):
+            continue
+        y = 0
+        for q in kept:
+            q.y = q.field.questionOrder = y
+            y += q.rows
+        tab.questions = kept
+
+
 type Repair = Callable[[schema.Form], None]
 
 REPAIRS: list[tuple[Repair, frozenset[str]]] = [
@@ -629,6 +837,8 @@ REPAIRS: list[tuple[Repair, frozenset[str]]] = [
     (_fix_finish, frozenset({"L002", "L003", "L004"})),
     (_fix_ids, frozenset({"L017"})),
     (_fix_fields, frozenset({"L016", "L111"})),
+    (_fix_options, frozenset({"L029"})),
+    (_fix_empty_sections, frozenset({"L030"})),
     (_fix_flow, frozenset({"L023", "L024"})),
 ]
 
