@@ -18,13 +18,13 @@ Wdrożenie: trzy kontenery Docker (web, api, tika) na oficjalnych obrazach z prz
 
 Ograniczenia: skany dają mniej pewne pola, lokalny serwer modelu nie był testowany w czasie hackathonu, import do prawdziwego Generatora wymaga potwierdzenia z COI.
 
-## Pola do uzupełnienia przed wysłaniem
+## Linki i zespół
 
-- Link do repozytorium kodu: TODO
-- Link do filmu: TODO
-- Link do demonstracji: TODO (jeśli publiczne demo działa, patrz `ARCHITECTURE.md`, D24)
-- Zespół (imiona i role): TODO
-- Macierz formatów 9 × 8 (zgodność wyników między formatami): TODO, po przygotowaniu `research/08-macierz-formatow.md`
+- Repozytorium kodu: https://github.com/Adimac93/hacknation2026
+- Film (do 3 minut): https://formularze.heckyeah.pl/film.mp4
+- Demonstracja online: https://formularze.heckyeah.pl (lokalnie: `docker compose up -d --build --wait`, instrukcja w `README.md`)
+- Zespół: Adimac93 (Adam): backend, potok przetwarzania, model, linter; Stanisław Synowiec: frontend (stanowisko urzędnika, renderer e-formularza, dostępność); fidok15: research OCR
+- Macierz formatów 9 × 8: 53 pliki z `Docs/` w 8 formatach, wszystkie zakończone HTTP 200 i bez błędów lintera w trybie reguł, najwolniejszy plik 20,9 s (zdjęcie JPG formularza 9); szczegóły w `research/08-macierz-formatow.md`
 
 ## Źródła liczb
 
